@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient as createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 
 export const dynamic = "force-dynamic";
 
