@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import RegistryClient from "./RegistryClient";
+import RegistryClient from "./PublicRegistry";
 
 interface Props {
   params: Promise<{ slug: string }>;
