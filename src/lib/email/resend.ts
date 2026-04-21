@@ -17,7 +17,7 @@ export async function sendContributionNotification({
 }) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
-    from: "Yes <notifications@yes-mariage.fr>",
+    from: "Yes <onboarding@resend.dev>",
     to: coupleEmail,
     subject: `${contributorName} a participé à votre liste 🎁`,
     html: `
@@ -70,7 +70,7 @@ export async function sendContributorConfirmation({
 }) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
-    from: "Yes <notifications@yes-mariage.fr>",
+    from: "Yes <onboarding@resend.dev>",
     to: contributorEmail,
     subject: `Votre participation a bien été reçue ✓`,
     html: `
