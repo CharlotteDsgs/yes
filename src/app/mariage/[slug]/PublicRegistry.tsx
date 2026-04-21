@@ -67,6 +67,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const names = profile?.partner1_name && profile?.partner2_name
     ? `${profile.partner1_name} & ${profile.partner2_name}`
@@ -89,26 +90,32 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
   async function handleSubmitContribution(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setCheckoutError(null);
 
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        giftId: selectedGift.id,
-        giftTitle: selectedGift.title,
-        amount: parseFloat(contributionForm.amount),
-        registrySlug: registry.slug,
-        contributorName: contributionForm.name,
-        contributorEmail: contributionForm.email,
-        message: contributionForm.message,
-      }),
-    });
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          giftId: selectedGift.id,
+          giftTitle: selectedGift.title,
+          amount: parseFloat(contributionForm.amount),
+          registrySlug: registry.slug,
+          contributorName: contributionForm.name,
+          contributorEmail: contributionForm.email,
+          message: contributionForm.message,
+        }),
+      });
 
-    const { url, error } = await res.json();
-    if (url) {
-      window.location.href = url;
-    } else {
-      console.error(error);
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setCheckoutError(data.error || "Une erreur est survenue. Réessayez.");
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setCheckoutError("Erreur de connexion. Réessayez.");
       setLoading(false);
     }
   }
@@ -376,6 +383,12 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                     />
                   </div>
                 ))}
+
+                {checkoutError && (
+                  <p className="text-sm px-4 py-3" style={{ backgroundColor: theme.accentLight, color: theme.accentDark }}>
+                    {checkoutError}
+                  </p>
+                )}
 
                 <button
                   type="submit"
