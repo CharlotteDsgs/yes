@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createServerClient } from "@supabase/ssr";
 
 export const dynamic = "force-dynamic";
+
+function createAdminClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } }
+  );
+}
 
 export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature")!;
 
   let event: Stripe.Event;
-
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
   try {
@@ -27,9 +34,8 @@ export async function POST(request: Request) {
     const { giftId, registrySlug, contributorName, contributorEmail, message, amount } =
       session.metadata!;
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
-    // Get registry
     const { data: registry } = await supabase
       .from("registries")
       .select("id")
@@ -40,7 +46,6 @@ export async function POST(request: Request) {
 
     const paidAmount = parseFloat(amount);
 
-    // Save contribution
     await supabase.from("contributions").insert({
       gift_id: giftId,
       registry_id: registry.id,
@@ -52,7 +57,6 @@ export async function POST(request: Request) {
       status: "succeeded",
     });
 
-    // Update gift amount collected
     const { data: gift } = await supabase
       .from("gifts")
       .select("amount_collected, price")
