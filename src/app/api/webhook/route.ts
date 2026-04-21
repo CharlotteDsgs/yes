@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createServerClient } from "@supabase/ssr";
+import { sendContributionNotification, sendContributorConfirmation } from "@/lib/email/resend";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
 
     const { data: registry } = await supabase
       .from("registries")
-      .select("id")
+      .select("id, title, user_id")
       .eq("slug", registrySlug)
       .single();
 
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
 
     const { data: gift } = await supabase
       .from("gifts")
-      .select("amount_collected, price")
+      .select("amount_collected, price, title")
       .eq("id", giftId)
       .single();
 
@@ -73,6 +74,38 @@ export async function POST(request: Request) {
         })
         .eq("id", giftId);
     }
+
+    // Get couple email
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("email, partner1_name, partner2_name")
+      .eq("id", registry.user_id)
+      .single();
+
+    const coupleName = profile?.partner1_name && profile?.partner2_name
+      ? `${profile.partner1_name} & ${profile.partner2_name}`
+      : "les mariés";
+
+    // Send emails (fire and forget)
+    if (profile?.email) {
+      sendContributionNotification({
+        coupleEmail: profile.email,
+        contributorName,
+        giftTitle: gift?.title ?? "cadeau",
+        amount: paidAmount,
+        message: message || undefined,
+        coupleName,
+      }).catch(() => {});
+    }
+
+    sendContributorConfirmation({
+      contributorEmail,
+      contributorName,
+      giftTitle: gift?.title ?? "cadeau",
+      amount: paidAmount,
+      coupleName,
+      registrySlug,
+    }).catch(() => {});
   }
 
   return NextResponse.json({ received: true });
