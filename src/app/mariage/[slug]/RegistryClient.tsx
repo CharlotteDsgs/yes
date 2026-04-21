@@ -66,6 +66,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const names = profile?.partner1_name && profile?.partner2_name
     ? `${profile.partner1_name} & ${profile.partner2_name}`
@@ -87,8 +88,29 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
 
   async function handleSubmitContribution(e: React.FormEvent) {
     e.preventDefault();
-    // Stripe integration will go here
-    setSubmitted(true);
+    setLoading(true);
+
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        giftId: selectedGift.id,
+        giftTitle: selectedGift.title,
+        amount: parseFloat(contributionForm.amount),
+        registrySlug: registry.slug,
+        contributorName: contributionForm.name,
+        contributorEmail: contributionForm.email,
+        message: contributionForm.message,
+      }),
+    });
+
+    const { url, error } = await res.json();
+    if (url) {
+      window.location.href = url;
+    } else {
+      console.error(error);
+      setLoading(false);
+    }
   }
 
   return (
@@ -357,10 +379,11 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
 
                 <button
                   type="submit"
-                  className="mt-2 py-4 text-xs tracking-widest uppercase transition-colors"
+                  disabled={loading}
+                  className="mt-2 py-4 text-xs tracking-widest uppercase transition-colors disabled:opacity-50"
                   style={{ backgroundColor: theme.text, color: theme.bg }}
                 >
-                  Confirmer ma participation →
+                  {loading ? "Redirection..." : "Payer par carte →"}
                 </button>
               </form>
             )}
