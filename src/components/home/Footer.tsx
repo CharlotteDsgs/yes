@@ -1,27 +1,29 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#2c2c2c] text-white">
+    <footer className="bg-[#0A0A0A] text-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-20">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
           {/* Brand */}
           <div className="md:col-span-2">
-            <span
-              className="text-2xl tracking-wide italic text-white block mb-4"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              Yes
-            </span>
-            <p className="text-sm text-[#7a7370] font-light leading-relaxed max-w-xs">
-              La plateforme de liste de mariage qui allie élégance, simplicité et
-              technologie. Pour les couples qui ont du goût.
+            <Image
+              src="/logo-yes.png"
+              alt="Yes!"
+              width={80}
+              height={40}
+              className="object-contain mb-6"
+            />
+            <p className="text-sm text-white/40 font-light leading-relaxed max-w-xs">
+              La plateforme de liste de mariage qui allie élégance, simplicité et technologie. Pour les couples qui ont du goût.
             </p>
           </div>
 
-          {/* Liens */}
+          {/* Links */}
           <div>
-            <p className="text-xs tracking-[0.3em] uppercase text-[#c9a89a] mb-6">
+            <p className="text-xs font-bold tracking-[0.3em] uppercase text-[#FF4D7D] mb-6"
+              style={{ fontFamily: "var(--font-display)" }}>
               Plateforme
             </p>
             <ul className="flex flex-col gap-3">
@@ -32,10 +34,7 @@ export default function Footer() {
                 { label: "Tarifs", href: "#tarifs" },
               ].map((item) => (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-[#7a7370] hover:text-white transition-colors font-light"
-                  >
+                  <Link href={item.href} className="text-sm text-white/40 hover:text-white transition-colors font-light">
                     {item.label}
                   </Link>
                 </li>
@@ -44,21 +43,19 @@ export default function Footer() {
           </div>
 
           <div>
-            <p className="text-xs tracking-[0.3em] uppercase text-[#c9a89a] mb-6">
+            <p className="text-xs font-bold tracking-[0.3em] uppercase text-[#FF4D7D] mb-6"
+              style={{ fontFamily: "var(--font-display)" }}>
               Légal
             </p>
             <ul className="flex flex-col gap-3">
               {[
                 { label: "Mentions légales", href: "/mentions-legales" },
                 { label: "CGU", href: "/cgu" },
-                { label: "Politique de confidentialité", href: "/confidentialite" },
+                { label: "Confidentialité", href: "/confidentialite" },
                 { label: "Contact", href: "/contact" },
               ].map((item) => (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-[#7a7370] hover:text-white transition-colors font-light"
-                  >
+                  <Link href={item.href} className="text-sm text-white/40 hover:text-white transition-colors font-light">
                     {item.label}
                   </Link>
                 </li>
@@ -68,13 +65,13 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-[#3c3c3c] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#7a7370] font-light">
+        <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-white/30 font-light">
             © 2024 Yes. Fait avec soin en France.
           </p>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#8a9e8c]" />
-            <p className="text-xs text-[#7a7370] font-light">
+            <div className="w-2 h-2 rounded-full bg-[#FF4D7D]" />
+            <p className="text-xs text-white/30 font-light">
               Tous les systèmes opérationnels
             </p>
           </div>

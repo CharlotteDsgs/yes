@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Cormorant_Garamond, Jost, Syne } from "next/font/google";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -17,6 +17,13 @@ const jost = Jost({
   display: "swap",
 });
 
+const syne = Syne({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400", "700", "800"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Yes — La liste de mariage qui vous ressemble",
   description:
@@ -30,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${cormorant.variable} ${jost.variable}`}>
+    <html lang="fr" className={`${cormorant.variable} ${jost.variable} ${syne.variable}`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

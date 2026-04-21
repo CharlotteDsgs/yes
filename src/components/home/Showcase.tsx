@@ -23,31 +23,27 @@ const themes = [
 
 export default function Showcase() {
   return (
-    <section className="py-32 bg-[#2c2c2c] text-white overflow-hidden">
+    <section className="py-32 bg-[#0A0A0A] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
           <div>
-            <p className="text-xs tracking-[0.35em] uppercase text-[#c9a89a] mb-4">
+            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#FF4D7D] mb-4"
+              style={{ fontFamily: "var(--font-display)" }}>
               Votre identité visuelle
             </p>
             <h2
-              className="text-5xl md:text-6xl leading-tight"
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontWeight: 300,
-                color: "white",
-              }}
+              className="text-5xl md:text-6xl font-extrabold text-white leading-[0.92]"
+              style={{ fontFamily: "var(--font-display)" }}
             >
               Des thèmes
               <br />
-              <span style={{ fontStyle: "italic", color: "#c9a89a" }}>
-                soigneusement designés
-              </span>
+              <span className="text-[#FF4D7D]">soigneusement</span>
+              <br />
+              designés.
             </h2>
           </div>
-          <p className="text-sm text-[#7a7370] font-light max-w-xs leading-relaxed">
-            Chaque thème est une invitation visuelle. Modifiez-le à votre guise
-            ou laissez-vous porter.
+          <p className="text-sm text-white/40 font-light max-w-xs leading-relaxed">
+            Chaque thème est une invitation visuelle. Modifiez-le à votre guise ou laissez-vous porter.
           </p>
         </div>
 
@@ -55,29 +51,26 @@ export default function Showcase() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {themes.map((theme) => (
             <div key={theme.name} className="group cursor-pointer">
-              {/* Color palette preview */}
               <div className="h-48 flex mb-4 overflow-hidden">
                 {theme.palette.map((color, i) => (
                   <div
                     key={i}
-                    className="flex-1 transition-all duration-500 group-hover:flex-[1.4] first:group-hover:flex-[0.8]"
+                    className="flex-1 transition-all duration-500 group-hover:flex-[1.5] first:group-hover:flex-[0.7]"
                     style={{ backgroundColor: color }}
                   />
                 ))}
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <p
-                    className="text-sm text-white"
-                    style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
-                  >
+                  <p className="text-sm font-bold text-white"
+                    style={{ fontFamily: "var(--font-display)" }}>
                     {theme.name}
                   </p>
-                  <p className="text-xs tracking-widest uppercase text-[#7a7370] mt-1">
+                  <p className="text-xs tracking-widest uppercase text-white/40 mt-1">
                     {theme.tag}
                   </p>
                 </div>
-                <span className="text-[#c9a89a] group-hover:translate-x-1 transition-transform duration-300">
+                <span className="text-[#FF4D7D] group-hover:translate-x-1 transition-transform duration-300 text-lg font-bold">
                   →
                 </span>
               </div>
@@ -85,7 +78,8 @@ export default function Showcase() {
           ))}
         </div>
 
-        <p className="mt-10 text-center text-xs tracking-[0.3em] uppercase text-[#7a7370]">
+        <p className="mt-12 text-center text-xs font-bold tracking-[0.3em] uppercase text-white/30"
+          style={{ fontFamily: "var(--font-display)" }}>
           + Créez votre propre palette de couleurs
         </p>
       </div>

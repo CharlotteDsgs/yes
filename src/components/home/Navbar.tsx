@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
@@ -16,21 +17,21 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "bg-[#fffef9]/95 backdrop-blur-md shadow-sm"
-          : "bg-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-transparent"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between h-20">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <span
-            className="text-2xl tracking-wide text-[#2c2c2c]"
-            style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
-          >
-            Yes
-          </span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo-yes.png"
+            alt="Yes!"
+            width={72}
+            height={36}
+            className="object-contain"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}
@@ -39,12 +40,12 @@ export default function Navbar() {
             { label: "Comment ça marche", href: "#comment-ca-marche" },
             { label: "Fonctionnalités", href: "#fonctionnalites" },
             { label: "Tarifs", href: "#tarifs" },
-            { label: "Trouver une liste", href: "/trouver" },
           ].map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-light tracking-widest uppercase text-[#7a7370] hover:text-[#2c2c2c] transition-colors"
+              className="text-sm font-medium tracking-wide text-[#0A0A0A] hover:text-[#E8001A] transition-colors"
+              style={{ fontFamily: "var(--font-sans)" }}
             >
               {item.label}
             </Link>
@@ -55,13 +56,14 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <Link
             href="/connexion"
-            className="text-sm tracking-widest uppercase text-[#7a7370] hover:text-[#2c2c2c] transition-colors"
+            className="text-sm font-medium text-[#0A0A0A] hover:text-[#E8001A] transition-colors"
           >
             Connexion
           </Link>
           <Link
             href="/creer"
-            className="px-6 py-3 bg-[#2c2c2c] text-white text-xs tracking-widest uppercase hover:bg-[#9e6b5c] transition-colors duration-300"
+            className="px-6 py-3 bg-[#E8001A] text-white text-sm font-bold tracking-wide uppercase hover:bg-[#B8001A] transition-colors duration-200"
+            style={{ fontFamily: "var(--font-display)" }}
           >
             Créer ma liste
           </Link>
@@ -69,27 +71,26 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden text-[#2c2c2c]"
+          className="md:hidden text-[#0A0A0A]"
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-[#fffef9] border-t border-[#f0e6e2] px-6 py-8 flex flex-col gap-6">
+        <div className="md:hidden bg-white border-t border-[#F2F2F2] px-6 py-8 flex flex-col gap-6">
           {[
             { label: "Comment ça marche", href: "#comment-ca-marche" },
             { label: "Fonctionnalités", href: "#fonctionnalites" },
             { label: "Tarifs", href: "#tarifs" },
-            { label: "Trouver une liste", href: "/trouver" },
           ].map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setMenuOpen(false)}
-              className="text-sm tracking-widest uppercase text-[#7a7370]"
+              className="text-sm font-medium text-[#0A0A0A]"
             >
               {item.label}
             </Link>
@@ -97,7 +98,8 @@ export default function Navbar() {
           <Link
             href="/creer"
             onClick={() => setMenuOpen(false)}
-            className="mt-2 px-6 py-3 bg-[#2c2c2c] text-white text-xs tracking-widest uppercase text-center"
+            className="mt-2 px-6 py-4 bg-[#E8001A] text-white text-sm font-bold tracking-wide uppercase text-center"
+            style={{ fontFamily: "var(--font-display)" }}
           >
             Créer ma liste
           </Link>

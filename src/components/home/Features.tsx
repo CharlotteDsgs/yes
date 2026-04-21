@@ -14,7 +14,7 @@ const features = [
     icon: Palette,
     title: "Thèmes personnalisables",
     description:
-      "Choisissez parmi nos thèmes soigneusement designés. Modifiez couleurs, typographies et photos pour une page qui vous ressemble.",
+      "Choisissez parmi nos thèmes soigneusement designés. Modifiez couleurs et typographies pour une page qui vous ressemble.",
   },
   {
     icon: Gift,
@@ -32,19 +32,19 @@ const features = [
     icon: Bell,
     title: "Notifications en temps réel",
     description:
-      "Recevez un email à chaque don, avec le message de votre invité. Remerciez-les directement depuis l'app.",
+      "Recevez un email à chaque don, avec le message de votre invité. Remerciez-les directement.",
   },
   {
     icon: Users,
     title: "Gestion des invités",
     description:
-      "Gérez votre liste de convives, envoyez des invitations et suivez les confirmations de présence.",
+      "Gérez votre liste de convives, envoyez des invitations et suivez les confirmations.",
   },
   {
     icon: BarChart3,
     title: "Tableau de bord complet",
     description:
-      "Visualisez en un coup d'œil vos cadeaux financés, les montants collectés et les virements disponibles.",
+      "Visualisez vos cadeaux financés, les montants collectés et les virements disponibles.",
   },
   {
     icon: Share2,
@@ -56,54 +56,54 @@ const features = [
     icon: Heart,
     title: "Page de mariage incluse",
     description:
-      "Au-delà de la liste : partagez votre histoire, les détails de la cérémonie et des photos de votre couple.",
+      "Partagez votre histoire, les détails de la cérémonie et des photos de votre couple.",
   },
 ];
 
 export default function Features() {
   return (
-    <section id="fonctionnalites" className="py-32 bg-[#faf8f5]">
+    <section id="fonctionnalites" className="py-32 bg-[#FFF5F8]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
           <div>
-            <p className="text-xs tracking-[0.35em] uppercase text-[#c9a89a] mb-4">
+            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#E8001A] mb-4"
+              style={{ fontFamily: "var(--font-display)" }}>
               Tout ce dont vous avez besoin
             </p>
             <h2
-              className="text-5xl md:text-6xl text-[#2c2c2c] leading-tight"
-              style={{ fontFamily: "var(--font-serif)", fontWeight: 300 }}
+              className="text-5xl md:text-6xl font-extrabold text-[#0A0A0A] leading-[0.92]"
+              style={{ fontFamily: "var(--font-display)" }}
             >
               Des fonctionnalités
               <br />
-              <span style={{ fontStyle: "italic" }}>pensées pour vous</span>
+              <span className="text-[#FF4D7D]">pensées pour vous.</span>
             </h2>
           </div>
-          <p className="text-sm text-[#7a7370] font-light max-w-xs leading-relaxed">
-            Tout ce que vous attendez d'une liste de mariage moderne, sans
-            compromis sur le design.
+          <p className="text-sm text-[#888] font-light max-w-xs leading-relaxed">
+            Tout ce que vous attendez d'une liste de mariage moderne, sans compromis sur le design.
           </p>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#e8ede9]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#FFB3C8]/30">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <div
                 key={feature.title}
-                className="bg-[#faf8f5] p-8 flex flex-col gap-5 group hover:bg-[#fffef9] transition-colors duration-300"
+                className="bg-[#FFF5F8] p-8 flex flex-col gap-5 group hover:bg-white transition-colors duration-300"
               >
-                <div className="w-10 h-10 flex items-center justify-center border border-[#c9a89a]/40 group-hover:border-[#c9a89a] transition-colors duration-300">
-                  <Icon size={18} className="text-[#c9a89a]" strokeWidth={1.5} />
+                <div className="w-10 h-10 flex items-center justify-center bg-[#E8001A]">
+                  <Icon size={18} className="text-white" strokeWidth={2} />
                 </div>
                 <h3
-                  className="text-lg text-[#2c2c2c]"
-                  style={{ fontFamily: "var(--font-serif)", fontWeight: 500 }}
+                  className="text-base font-bold text-[#0A0A0A]"
+                  style={{ fontFamily: "var(--font-display)" }}
                 >
                   {feature.title}
                 </h3>
-                <p className="text-sm text-[#7a7370] font-light leading-relaxed">
+                <p className="text-sm text-[#888] font-light leading-relaxed">
                   {feature.description}
                 </p>
               </div>

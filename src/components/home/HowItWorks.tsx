@@ -21,52 +21,56 @@ const steps = [
     number: "04",
     title: "Recevez les fonds",
     description:
-      "Les contributions sont versées sur votre compte bancaire, sans frais supplémentaires. À tout moment.",
+      "Les contributions sont versées sur votre compte bancaire. À tout moment, sans frais supplémentaires.",
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section id="comment-ca-marche" className="py-32 bg-[#fffef9]">
+    <section id="comment-ca-marche" className="py-32 bg-[#E8001A]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
-        <div className="text-center mb-24">
-          <p className="text-xs tracking-[0.35em] uppercase text-[#c9a89a] mb-4">
-            Simple &amp; élégant
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
+          <div>
+            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#FF4D7D] mb-4"
+              style={{ fontFamily: "var(--font-display)" }}>
+              Simple &amp; rapide
+            </p>
+            <h2
+              className="text-5xl md:text-7xl font-extrabold text-white leading-[0.92]"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Quatre étapes,
+              <br />
+              une liste parfaite.
+            </h2>
+          </div>
+          <p className="text-base text-white/60 font-light max-w-xs leading-relaxed">
+            Pas de complexité, pas de mauvaise surprise. Juste ce qu'il faut pour une liste qui vous ressemble.
           </p>
-          <h2
-            className="text-5xl md:text-6xl text-[#2c2c2c] leading-tight"
-            style={{ fontFamily: "var(--font-serif)", fontWeight: 300 }}
-          >
-            Quatre étapes,
-            <br />
-            <span style={{ fontStyle: "italic" }}>une liste parfaite</span>
-          </h2>
         </div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-[#f0e6e2]">
-          {steps.map((step, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-white/10">
+          {steps.map((step) => (
             <div
               key={step.number}
-              className="bg-[#fffef9] p-10 flex flex-col gap-6 group hover:bg-[#faf8f5] transition-colors duration-300"
+              className="bg-[#E8001A] p-10 flex flex-col gap-6 group hover:bg-[#B8001A] transition-colors duration-300"
             >
               <span
-                className="text-6xl text-[#f0e6e2] leading-none"
-                style={{ fontFamily: "var(--font-serif)", fontWeight: 300 }}
+                className="text-7xl font-extrabold text-white/15 leading-none"
+                style={{ fontFamily: "var(--font-display)" }}
               >
                 {step.number}
               </span>
-              <div
-                className="w-8 h-px bg-[#c9a89a] group-hover:w-16 transition-all duration-500"
-              />
+              <div className="w-8 h-0.5 bg-[#FF4D7D] group-hover:w-16 transition-all duration-500" />
               <h3
-                className="text-xl text-[#2c2c2c]"
-                style={{ fontFamily: "var(--font-serif)", fontWeight: 500 }}
+                className="text-xl font-bold text-white"
+                style={{ fontFamily: "var(--font-display)" }}
               >
                 {step.title}
               </h3>
-              <p className="text-sm text-[#7a7370] font-light leading-relaxed">
+              <p className="text-sm text-white/65 font-light leading-relaxed">
                 {step.description}
               </p>
             </div>

@@ -24,61 +24,56 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-32 bg-[#fffef9]">
+    <section className="py-32 bg-[#FFE8EE]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-20">
-          <p className="text-xs tracking-[0.35em] uppercase text-[#c9a89a] mb-4">
+          <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#E8001A] mb-4"
+            style={{ fontFamily: "var(--font-display)" }}>
             Ils nous font confiance
           </p>
           <h2
-            className="text-5xl md:text-6xl text-[#2c2c2c] leading-tight"
-            style={{ fontFamily: "var(--font-serif)", fontWeight: 300 }}
+            className="text-5xl md:text-6xl font-extrabold text-[#0A0A0A] leading-[0.92]"
+            style={{ fontFamily: "var(--font-display)" }}
           >
             Des couples
-            <span style={{ fontStyle: "italic" }}> comblés</span>
+            <br />
+            <span className="text-[#E8001A]">comblés.</span>
           </h2>
         </div>
 
         {/* Testimonials */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#f0e6e2]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#FFB3C8]/40">
           {testimonials.map((t) => (
             <div
               key={t.names}
-              className="bg-[#fffef9] p-10 flex flex-col justify-between gap-8 hover:bg-[#faf8f5] transition-colors"
+              className="bg-[#FFE8EE] p-10 flex flex-col justify-between gap-8 hover:bg-white transition-colors duration-300"
             >
-              {/* Quote */}
               <div>
                 <span
-                  className="text-6xl text-[#f0e6e2] leading-none block mb-4"
-                  style={{ fontFamily: "var(--font-serif)" }}
+                  className="text-7xl font-extrabold text-[#FF4D7D] leading-none block mb-4"
+                  style={{ fontFamily: "var(--font-display)" }}
                 >
                   "
                 </span>
                 <p
-                  className="text-xl text-[#2c2c2c] leading-relaxed"
-                  style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300 }}
+                  className="text-lg text-[#0A0A0A] leading-relaxed font-light"
                 >
                   {t.quote}
                 </p>
               </div>
 
-              {/* Author */}
               <div className="flex items-center gap-4">
-                <div
-                  className="w-10 h-10 rounded-full bg-[#f0e6e2] flex items-center justify-center text-sm text-[#9e6b5c]"
-                  style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}
-                >
+                <div className="w-10 h-10 bg-[#E8001A] flex items-center justify-center text-white text-sm font-bold"
+                  style={{ fontFamily: "var(--font-display)" }}>
                   {t.names.charAt(0)}
                 </div>
                 <div>
-                  <p
-                    className="text-sm text-[#2c2c2c]"
-                    style={{ fontFamily: "var(--font-serif)", fontWeight: 500 }}
-                  >
+                  <p className="text-sm font-bold text-[#0A0A0A]"
+                    style={{ fontFamily: "var(--font-display)" }}>
                     {t.names}
                   </p>
-                  <p className="text-xs text-[#c9a89a] tracking-wide">
+                  <p className="text-xs text-[#888] tracking-wide mt-0.5">
                     {t.date} · {t.location}
                   </p>
                 </div>
