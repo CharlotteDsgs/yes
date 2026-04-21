@@ -20,6 +20,8 @@ export default async function DashboardPage() {
     .eq("user_id", user.id)
     .single();
 
+  if (!registry) redirect("/creer");
+
   const { data: gifts } = registry
     ? await supabase
         .from("gifts")
