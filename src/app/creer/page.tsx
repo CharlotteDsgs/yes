@@ -42,13 +42,21 @@ export default function CreerPage() {
       return;
     }
 
-    // Update profile
-    await supabase.from("profiles").update({
+    // Upsert profile (crée ou met à jour)
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      id: user.id,
+      email: user.email!,
       partner1_name: form.partner1_name,
       partner2_name: form.partner2_name,
       wedding_date: form.wedding_date || null,
       updated_at: new Date().toISOString(),
-    }).eq("id", user.id);
+    }, { onConflict: "id" });
+
+    if (profileError) {
+      setError("Erreur lors de la création du profil. Réessayez.");
+      setLoading(false);
+      return;
+    }
 
     // Create slug
     const slug = `${form.partner1_name}-et-${form.partner2_name}`
@@ -58,6 +66,18 @@ export default function CreerPage() {
       .replace(/[^a-z0-9-]/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
+
+    // Check if registry already exists
+    const { data: existing } = await supabase
+      .from("registries")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (existing) {
+      router.push("/dashboard");
+      return;
+    }
 
     // Create registry
     const { error: registryError } = await supabase.from("registries").insert({
@@ -70,7 +90,7 @@ export default function CreerPage() {
     });
 
     if (registryError) {
-      setError("Ce nom de liste existe déjà. Essayez avec des prénoms différents.");
+      setError(`Erreur : ${registryError.message}`);
       setLoading(false);
       return;
     }
