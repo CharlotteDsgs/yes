@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendContributionNotification({
   coupleEmail,
   contributorName,
@@ -17,6 +15,7 @@ export async function sendContributionNotification({
   message?: string;
   coupleName: string;
 }) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
     from: "Yes <notifications@yes-mariage.fr>",
     to: coupleEmail,
@@ -26,12 +25,10 @@ export async function sendContributionNotification({
         <p style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #c9a89a; margin-bottom: 32px;">
           Yes — Liste de mariage
         </p>
-
         <h1 style="font-size: 36px; font-weight: 300; line-height: 1.2; margin-bottom: 24px;">
           Une nouvelle participation<br/>
           <em style="color: #9e6b5c;">pour ${coupleName}</em>
         </h1>
-
         <div style="border-left: 2px solid #f0e6e2; padding-left: 20px; margin: 32px 0;">
           <p style="font-size: 14px; color: #7a7370; margin: 0 0 8px;">Cadeau</p>
           <p style="font-size: 18px; font-weight: 500; margin: 0 0 16px;">${giftTitle}</p>
@@ -44,12 +41,10 @@ export async function sendContributionNotification({
           <p style="font-size: 16px; font-style: italic; color: #2c2c2c; margin: 0;">"${message}"</p>
           ` : ""}
         </div>
-
         <a href="https://yes-omega-drab.vercel.app/dashboard"
           style="display: inline-block; padding: 14px 32px; background: #2c2c2c; color: white; text-decoration: none; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 16px;">
           Voir mon dashboard →
         </a>
-
         <p style="font-size: 11px; color: #c9a89a; margin-top: 48px; letter-spacing: 0.2em; text-transform: uppercase;">
           Yes · La liste de mariage qui vous ressemble
         </p>
@@ -73,6 +68,7 @@ export async function sendContributorConfirmation({
   coupleName: string;
   registrySlug: string;
 }) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
     from: "Yes <notifications@yes-mariage.fr>",
     to: contributorEmail,
@@ -82,12 +78,10 @@ export async function sendContributorConfirmation({
         <p style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #c9a89a; margin-bottom: 32px;">
           Yes — Liste de mariage
         </p>
-
         <h1 style="font-size: 36px; font-weight: 300; line-height: 1.2; margin-bottom: 24px;">
           Merci ${contributorName},<br/>
           <em style="color: #9e6b5c;">votre participation est confirmée</em>
         </h1>
-
         <div style="border-left: 2px solid #f0e6e2; padding-left: 20px; margin: 32px 0;">
           <p style="font-size: 14px; color: #7a7370; margin: 0 0 8px;">Vous avez participé à</p>
           <p style="font-size: 18px; font-weight: 500; margin: 0 0 16px;">${giftTitle}</p>
@@ -96,12 +90,10 @@ export async function sendContributorConfirmation({
           <p style="font-size: 14px; color: #7a7370; margin: 0 0 8px;">Montant</p>
           <p style="font-size: 24px; font-weight: 300; margin: 0;">${amount}€</p>
         </div>
-
         <a href="https://yes-omega-drab.vercel.app/mariage/${registrySlug}"
           style="display: inline-block; padding: 14px 32px; background: #2c2c2c; color: white; text-decoration: none; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 16px;">
           Voir la liste →
         </a>
-
         <p style="font-size: 11px; color: #c9a89a; margin-top: 48px; letter-spacing: 0.2em; text-transform: uppercase;">
           Yes · La liste de mariage qui vous ressemble
         </p>
