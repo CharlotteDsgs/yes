@@ -2,13 +2,15 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature")!;
 
   let event: Stripe.Event;
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
   try {
     event = stripe.webhooks.constructEvent(
