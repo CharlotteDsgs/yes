@@ -569,14 +569,14 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                 <div key={gift.id} className="flex flex-col overflow-hidden transition-all duration-300"
                   style={{ borderRadius: "20px", backgroundColor: cardBg, boxShadow: `0 4px 20px 0 ${theme.text}38`, opacity: isFunded ? 0.7 : 1 }}>
                   {gift.image_url ? (
-                    <img src={gift.image_url} alt={gift.title} className="w-full h-44 object-cover" />
+                    <img src={gift.image_url} alt={gift.title} className="w-full h-28 sm:h-44 object-cover" />
                   ) : (
-                    <div className="w-full h-36 flex items-center justify-center" style={{ backgroundColor: "#E8E8E8" }}>
+                    <div className="w-full h-24 sm:h-36 flex items-center justify-center" style={{ backgroundColor: "#E8E8E8" }}>
                       <Heart size={28} strokeWidth={1} style={{ color: theme.text }} />
                     </div>
                   )}
-                  <div className="flex flex-col flex-1 p-5 gap-2">
-                    <h3 className="font-bold text-base leading-tight" style={{ fontFamily: "var(--font-display)", color: theme.text }}>
+                  <div className="flex flex-col flex-1 p-3 sm:p-5 gap-1 sm:gap-2">
+                    <h3 className="font-bold text-sm sm:text-base leading-tight" style={{ fontFamily: "var(--font-display)", color: theme.text }}>
                       {gift.title}
                     </h3>
                     {gift.description && (
@@ -584,12 +584,12 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                         {gift.description}
                       </p>
                     )}
-                    <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-                      <span className="font-bold text-base" style={{ color: theme.text, fontFamily: "var(--font-display)" }}>
+                    <div className="mt-auto pt-2 sm:pt-3 flex items-center justify-between gap-2">
+                      <span className="font-bold text-sm sm:text-base" style={{ color: theme.text, fontFamily: "var(--font-display)" }}>
                         {Number(gift.price).toFixed(0)} €
                       </span>
                       {isFunded && (
-                        <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ backgroundColor: "#dcfce7", color: "#15803d" }}>
+                        <span className="text-xs font-semibold px-2 sm:px-3 py-1 rounded-full" style={{ backgroundColor: "#dcfce7", color: "#15803d" }}>
                           ✓ Financé
                         </span>
                       )}
@@ -599,9 +599,9 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                     </div>
                     {!isFunded && (
                       <button onClick={() => handleContribute(gift)}
-                        className="mt-2 py-3 rounded-full text-sm font-bold transition-all duration-200"
+                        className="mt-1 sm:mt-2 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold transition-all duration-200"
                         style={{ backgroundColor: theme.text, color: theme.bg, fontFamily: "var(--font-display)" }}>
-                        Participer · {remaining.toFixed(0)}€ restants
+                        Participer · {remaining.toFixed(0)}€
                       </button>
                     )}
                   </div>
@@ -616,29 +616,30 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
               const cardBg = giftStyle === "none" ? "transparent" : (isFunded ? "#F5F0EA" : "#FFFFFF");
               const cardPadding = giftStyle === "none" ? "0" : "24px";
               return (
-              <div key={gift.id} className="flex flex-col transition-all duration-300"
-                style={{ border: cardBorder, borderRadius: cardRadius, backgroundColor: cardBg, padding: cardPadding, opacity: isFunded ? 0.75 : 1 }}>
+              <div key={gift.id} className={`flex flex-col transition-all duration-300 ${giftStyle !== "none" ? "p-3 sm:p-6" : ""}`}
+                style={{ border: cardBorder, borderRadius: cardRadius, backgroundColor: cardBg, opacity: isFunded ? 0.75 : 1 }}>
                 {gift.image_url ? (
-                  <img src={gift.image_url} alt={gift.title} className="w-full h-40 object-cover mb-4"
+                  <img src={gift.image_url} alt={gift.title} className="w-full h-28 sm:h-40 object-cover mb-2 sm:mb-4"
                     style={{ borderRadius: giftStyle === "arrondi" ? "20px 20px 0 0" : "0" }} />
                 ) : (
-                  <div className="w-full h-32 flex items-center justify-center mb-4" style={{ backgroundColor: "#F5F0EA", borderRadius: giftStyle === "arrondi" ? "20px 20px 0 0" : "0" }}>
-                    <Heart size={24} strokeWidth={1} style={{ color: theme.accent }} />
+                  <div className="w-full h-20 sm:h-32 flex items-center justify-center mb-2 sm:mb-4" style={{ backgroundColor: "#F5F0EA", borderRadius: giftStyle === "arrondi" ? "20px 20px 0 0" : "0" }}>
+                    <Heart size={20} strokeWidth={1} style={{ color: theme.accent }} />
                   </div>
                 )}
                 <div className="flex-1">
-                  <h3 className="text-lg mb-1" style={{ fontFamily: "var(--font-serif)", fontWeight: 500, color: giftTextColor }}>
+                  <h3 className="text-sm sm:text-lg mb-1" style={{ fontFamily: "var(--font-serif)", fontWeight: 500, color: giftTextColor }}>
                     {gift.title}
                   </h3>
                   {gift.description && (
-                    <p className="text-sm font-light mb-4 leading-relaxed" style={{ color: `${giftTextColor}aa` }}>
+                    <p className="text-xs sm:text-sm font-light mb-2 sm:mb-4 leading-relaxed line-clamp-2" style={{ color: `${giftTextColor}aa` }}>
                       {gift.description}
                     </p>
                   )}
                 </div>
-                <div className="mt-4">
+                <div className="mt-2 sm:mt-4">
                   <div className="flex justify-between text-xs mb-2" style={{ color: `${giftTextColor}88` }}>
-                    <span>{Number(gift.amount_collected).toFixed(0)}€ collectés</span>
+                    <span className="hidden sm:inline">{Number(gift.amount_collected).toFixed(0)}€ collectés</span>
+                    <span className="sm:hidden">{Number(gift.amount_collected).toFixed(0)}€</span>
                     <span>{Number(gift.price).toFixed(0)}€</span>
                   </div>
                   <div className="w-full h-px" style={{ backgroundColor: "#EDE8E2" }}>
@@ -646,19 +647,20 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                   </div>
                 </div>
                 {isFunded ? (
-                  <div className="mt-4 text-center py-3 text-xs tracking-widest uppercase" style={{ color: theme.accentDark, border: "1px solid #EDE8E2" }}>
-                    Cadeau financé ✓
+                  <div className="mt-2 sm:mt-4 text-center py-2 sm:py-3 text-xs tracking-widest uppercase" style={{ color: theme.accentDark, border: "1px solid #EDE8E2" }}>
+                    Financé ✓
                   </div>
                 ) : (
                   <button onClick={() => handleContribute(gift)}
-                    className="mt-4 py-3 text-xs tracking-widest uppercase transition-all duration-300"
+                    className="mt-2 sm:mt-4 py-2 sm:py-3 text-xs tracking-widest uppercase transition-all duration-300"
                     style={(isMinimaliste || isFleuri)
                       ? { backgroundColor: filterBtnBg, color: theme.text, border: `1.5px solid ${theme.border}` }
                       : { backgroundColor: theme.accentDark, color: giftTextColor }
                     }
                     onMouseEnter={e => (e.currentTarget.style.opacity = "0.7")}
                     onMouseLeave={e => (e.currentTarget.style.opacity = "1")}>
-                    Participer · {remaining.toFixed(0)}€ restants
+                    <span className="hidden sm:inline">Participer · {remaining.toFixed(0)}€ restants</span>
+                    <span className="sm:hidden">Participer · {remaining.toFixed(0)}€</span>
                   </button>
                 )}
               </div>
@@ -783,7 +785,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                         {catGifts.length}
                       </span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                       {catGifts.map(renderCard)}
                     </div>
                   </div>
