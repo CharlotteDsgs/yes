@@ -49,11 +49,8 @@ const moderneFontSize = "1.3rem";
 function ThemeCard({ theme }: { theme: typeof themes[0] }) {
   return (
     <div
-      className="rounded-2xl overflow-hidden flex-shrink-0"
-      style={{
-        width: "200px",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.10)",
-      }}
+      className="rounded-2xl overflow-hidden w-full"
+      style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.10)" }}
     >
       {/* Preview */}
       {theme.id === "fleuri" ? (
@@ -157,7 +154,7 @@ export default function Showcase() {
         </div>
 
         {/* Theme cards */}
-        <div className="flex gap-6 flex-wrap justify-center">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {themes.map((theme) => (
             <ThemeCard key={theme.id} theme={theme} />
           ))}
