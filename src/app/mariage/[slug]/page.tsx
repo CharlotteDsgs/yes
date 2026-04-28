@@ -20,11 +20,24 @@ export default async function RegistryPage({ params }: Props) {
 
   if (!registry) notFound();
 
-  const { data: profile } = await supabase
+  const { data: profileRaw } = await supabase
     .from("profiles")
     .select("partner1_name, partner2_name, wedding_date")
     .eq("id", registry.user_id)
     .single();
+
+  // Fallback: if RLS blocks profile read (anonymous visitor), extract names from registry title
+  let profile = profileRaw;
+  if (!profileRaw?.partner1_name || !profileRaw?.partner2_name) {
+    const match = registry.title?.match(/^Liste de mariage de (.+) & (.+)$/);
+    if (match) {
+      profile = {
+        ...profileRaw,
+        partner1_name: profileRaw?.partner1_name || match[1],
+        partner2_name: profileRaw?.partner2_name || match[2],
+      } as typeof profileRaw;
+    }
+  }
 
   const { data: gifts } = await supabase
     .from("gifts")
