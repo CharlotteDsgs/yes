@@ -299,10 +299,10 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           className="block md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none select-none" />
 
         {/* Content */}
-        <div className="relative z-10 w-full max-w-5xl mx-auto pt-12 pb-10 md:py-24 px-8 md:pl-[9%] md:pr-[20%] flex flex-col md:flex-row items-center gap-6 md:gap-12">
+        <div className="relative z-10 w-full max-w-5xl mx-auto pt-12 pb-10 md:py-24 px-8 md:pl-[9%] md:pr-[20%] flex flex-col md:flex-row items-center gap-6 md:gap-12" style={{ maxWidth: "none", boxSizing: "border-box" }}>
 
           {/* Left — names + date/location */}
-          <div className="flex-1 flex flex-col gap-5">
+          <div className="flex-1 flex flex-col gap-5 min-w-0">
             <p className="text-xs tracking-[0.4em] uppercase" style={{ color: theme.muted }}>
               Liste de mariage
             </p>
@@ -311,7 +311,13 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
               fontStyle: "italic",
               fontWeight: 300,
               color: coverTextColor,
-              fontSize: "clamp(1.8rem, 5.5vw, 3.5rem)",
+              fontSize: (() => {
+                const nameStr = p1 && p2 ? `${p1} & ${p2}` : (p1 || "");
+                const base = 3.5;
+                const ref = 14;
+                const scaled = nameStr.length > ref ? Math.max(1.6, base * ref / nameStr.length) : base;
+                return `${scaled}rem`;
+              })(),
               lineHeight: 1.1,
               whiteSpace: "nowrap",
             }}>
