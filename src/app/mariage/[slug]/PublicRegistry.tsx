@@ -296,7 +296,8 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
         <img src={(theme as any).bgImage} alt=""
           className="hidden md:block absolute inset-0 w-full h-full object-cover pointer-events-none select-none" />
         <img src="/th%C3%A8me%20fleuri/fleuri_1_complet_iphone2.png" alt=""
-          className="block md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none select-none" />
+          className="block md:hidden absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+          style={{ transform: "scale(0.8)", transformOrigin: "center center" }} />
 
         {/* Content */}
         <div className="relative z-10 w-full max-w-5xl mx-auto pt-12 pb-10 md:py-24 px-8 md:px-[14%] flex flex-col md:flex-row items-center gap-6 md:gap-12">
