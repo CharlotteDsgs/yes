@@ -60,7 +60,7 @@ export default function Pricing() {
             <span className="text-[#A8304A]">honnêtes.</span>
           </h2>
           <p className="text-sm text-[#888] font-light">
-            Stripe prélève 1,5% + 0,25€ par transaction. Nous, rien de plus.
+            1,65% + 0,30€ de commission par transaction. C'est tout.
           </p>
         </div>
 
