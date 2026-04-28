@@ -246,7 +246,12 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                 color: coverTextColor,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
-                fontSize: "clamp(1.4rem, 2.5vw, 1.9rem)",
+                fontSize: (() => {
+                  const nameStr = p1 && p2 ? `${p1} & ${p2}` : (p1 || "");
+                  const n = Math.max(nameStr.length, 1);
+                  // scales to fill ~40% column minus padding; capped 1.4–3.5rem
+                  return `max(1.4rem, min(3.5rem, calc(${(32.4 / n).toFixed(2)}vw)))`;
+                })(),
               }}
             >
               {p1 && (
