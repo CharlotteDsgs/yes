@@ -160,7 +160,7 @@ export default function VotreMariagePage() {
       const delta = ev.clientY - dragStartY.current;
       const containerH = container.clientHeight;
       const percentDelta = (delta / containerH) * 100;
-      const newPos = Math.min(100, Math.max(0, dragStartPos.current + percentDelta));
+      const newPos = Math.min(100, Math.max(0, dragStartPos.current - percentDelta));
       setPhotoPositionY(newPos);
     }
     function onUp(ev: PointerEvent) {
@@ -172,7 +172,7 @@ export default function VotreMariagePage() {
       const delta = ev.clientY - dragStartY.current;
       const containerH = container.clientHeight;
       const percentDelta = (delta / containerH) * 100;
-      const newPos = Math.min(100, Math.max(0, dragStartPos.current + percentDelta));
+      const newPos = Math.min(100, Math.max(0, dragStartPos.current - percentDelta));
       savePosition(newPos);
     }
     window.addEventListener("pointermove", onMove);
