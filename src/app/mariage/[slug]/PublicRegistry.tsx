@@ -805,7 +805,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
         >
           <div
             className="w-full max-w-md p-8 relative"
-            style={{ backgroundColor: theme.bg }}
+            style={{ backgroundColor: theme.bg, border: `1.5px solid ${theme.border}`, boxShadow: "0 32px 80px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.10)" }}
           >
             <button
               onClick={() => setSelectedGift(null)}
