@@ -101,7 +101,7 @@ function ThemePreview({ theme }: { theme: typeof themes[0] }) {
 
 export default function Showcase() {
   return (
-    <section className="py-32 bg-[#0A0A0A] overflow-hidden">
+    <section className="py-32 bg-[#6D1D3E] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
           <div>
