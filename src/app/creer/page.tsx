@@ -433,7 +433,7 @@ export default function CreerPage() {
                     ›
                   </button>
                 )}
-              <div ref={carouselRef} onScroll={handleCarouselScroll} className="flex gap-3 overflow-x-auto" style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none", padding: "6px 2px 8px" }}>
+              <div ref={carouselRef} onScroll={handleCarouselScroll} className="flex gap-3 overflow-x-auto" style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none", padding: "6px 6px 8px 6px" }}>
                 {themes.map((theme) => (
                   <button
                     key={theme.id}
