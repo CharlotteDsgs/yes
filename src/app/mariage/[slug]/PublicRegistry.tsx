@@ -234,20 +234,20 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           style={{ backgroundColor: theme.bg }}
         >
           {/* Left — Text */}
-          <div className="flex-1 flex flex-col justify-center px-10 md:px-20 py-24">
-            <p className="text-xs tracking-[0.35em] uppercase mb-8" style={{ color: theme.muted }}>
+          <div className="flex-1 flex flex-col justify-center px-10 md:px-20 pt-10 pb-4 md:py-24">
+            <p className="text-xs tracking-[0.35em] uppercase mb-6" style={{ color: theme.muted }}>
               Liste de mariage
             </p>
             <h1
-              className="leading-[1.0] mb-8"
+              className="leading-[1.0] mb-6"
               style={{
                 fontFamily: theme.font ?? "var(--font-montserrat)",
                 fontWeight: 300,
                 color: coverTextColor,
-                letterSpacing: "0.25em",
+                letterSpacing: "0.2em",
                 textTransform: "uppercase",
                 whiteSpace: "nowrap",
-                fontSize: "clamp(1rem, 3vw, 2.5rem)",
+                fontSize: "clamp(1.6rem, 6vw, 2.5rem)",
               }}
             >
               {p1 && (
@@ -271,7 +271,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           </div>
 
           {/* Right — Framed photo with whitespace */}
-          <div className="w-full md:w-[60%] flex items-center justify-center p-6">
+          <div className="w-full md:w-[60%] flex items-center justify-center px-6 pt-0 pb-6 md:p-6">
             <div className="w-[70%] aspect-square overflow-hidden flex-shrink-0" style={{ border: `1px solid ${theme.border}` }}>
               {themeCoverUrl ? (
                 <img src={themeCoverUrl} alt="Photo du couple" className="w-full h-full object-cover" />
@@ -296,7 +296,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" />
 
         {/* Content */}
-        <div className="relative z-10 w-full max-w-5xl mx-auto py-24 flex flex-col md:flex-row items-center gap-12" style={{ paddingLeft: "14%", paddingRight: "12%" }}>
+        <div className="relative z-10 w-full max-w-5xl mx-auto pt-12 pb-10 md:py-24 px-8 md:px-[14%] flex flex-col md:flex-row items-center gap-6 md:gap-12">
 
           {/* Left — names + date/location */}
           <div className="flex-1 flex flex-col gap-5">
@@ -308,12 +308,11 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
               fontStyle: "italic",
               fontWeight: 300,
               color: coverTextColor,
-              fontSize: "clamp(2.8rem, 5vw, 4.5rem)",
+              fontSize: "clamp(2rem, 7vw, 4.5rem)",
               lineHeight: 1.1,
+              whiteSpace: "nowrap",
             }}>
-              {p1 && (
-                <>{p1}<br />& {p2}</>
-              )}
+              {p1 && <>{p1} &amp; {p2}</>}
             </h1>
             <div className="flex flex-col gap-2 mt-2">
               {weddingDate && (
@@ -350,7 +349,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
 
       /* Hero — Standard layout */
       <section
-        className={`relative overflow-hidden ${theme.uppercase ? "min-h-screen flex items-stretch" : "min-h-screen py-20 flex flex-col items-center justify-center text-center px-6"}`}
+        className={`relative overflow-hidden ${theme.uppercase ? "min-h-screen flex items-stretch" : "min-h-screen pt-12 pb-10 md:py-20 flex flex-col items-center justify-start md:justify-center text-center px-6"}`}
         style={{
           backgroundColor: theme.uppercase ? theme.bg : theme.accentLight,
           backgroundImage: (theme as any).bgImage
@@ -437,7 +436,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                 Liste de mariage
               </p>
               <h1
-                className={`${theme.headingSize ?? "text-6xl md:text-8xl"} leading-[0.9] mb-8`}
+                className="leading-[0.9] mb-6"
                 style={{
                   fontFamily: theme.font ?? "var(--font-serif)",
                   fontWeight: theme.font ? 400 : 300,
@@ -445,15 +444,11 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                   color: coverTextColor,
                   textTransform: "none",
                   letterSpacing: "normal",
+                  fontSize: "clamp(2.4rem, 10vw, 5rem)",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {p1 && (
-                  <>
-                    {p1}
-                    <br />
-                    &amp; {p2}
-                  </>
-                )}
+                {p1 && <>{p1} &amp; {p2}</>}
               </h1>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
                 {weddingDate && (
