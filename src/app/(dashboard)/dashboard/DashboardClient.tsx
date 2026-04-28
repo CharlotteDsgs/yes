@@ -155,7 +155,12 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
       if (previewMode === "desktop") {
         setPreviewScale(Math.min(pw / 1280, 0.65));
       } else {
-        setPreviewScale(Math.min(pw / 390, ph / 844, 0.9));
+        // phone outer: W=390+20borders, H=760iframe+30notch+14bottom+20borders
+        const PHONE_OUTER_W = 390 + 20;
+        const PHONE_OUTER_H = 760 + 30 + 14 + 20;
+        const toggleBarH = 56;
+        const availH = rect.height - toggleBarH - 32;
+        setPreviewScale(Math.min(pw / PHONE_OUTER_W, availH / PHONE_OUTER_H, 0.85));
       }
     };
     measure();
@@ -1128,9 +1133,9 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
               {previewScale > 0 && previewMode === "mobile" && (() => {
                 const W = 390;
-                const H = 844;
-                const NOTCH = 36;
-                const BOTTOM = 20;
+                const H = 760;
+                const NOTCH = 30;
+                const BOTTOM = 14;
                 const BORDER = 10;
                 const outerW = (W + BORDER * 2) * previewScale;
                 const outerH = (H + NOTCH + BOTTOM + BORDER * 2) * previewScale;
