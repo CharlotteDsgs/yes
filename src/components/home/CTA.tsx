@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function CTA() {
   return (
-    <section className="relative overflow-hidden bg-[#FF4D7D]">
+    <section className="relative overflow-hidden bg-[#A8304A]">
       {/* Decorative big text in background */}
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
@@ -22,7 +22,7 @@ export default function CTA() {
           Votre jour J approche
         </p>
         <h2
-          className="text-5xl md:text-7xl font-extrabold text-white leading-[0.92] mb-10"
+          className="text-4xl md:text-6xl font-normal text-white leading-tight uppercase tracking-wide mb-10"
           style={{ fontFamily: "var(--font-display)" }}
         >
           Créez votre liste
@@ -36,7 +36,7 @@ export default function CTA() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/creer"
-            className="group px-12 py-5 bg-[#0A0A0A] text-white text-sm font-bold tracking-wide uppercase hover:bg-[#E8001A] transition-colors duration-200 flex items-center gap-3"
+            className="group px-12 py-5 bg-[#0A0A0A] text-white text-sm font-bold tracking-wide uppercase hover:bg-[#6D1D3E] transition-colors duration-200 flex items-center gap-3"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Commencer maintenant

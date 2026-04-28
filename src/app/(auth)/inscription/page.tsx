@@ -36,7 +36,7 @@ export default function InscriptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] flex">
+    <div className="min-h-screen bg-[#faf8f5] flex pt-20 lg:pt-0">
       {/* Left panel - decorative */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#2c2c2c] flex-col items-center justify-center p-16 relative overflow-hidden">
         <div

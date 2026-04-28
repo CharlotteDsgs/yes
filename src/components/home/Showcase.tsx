@@ -27,17 +27,17 @@ export default function Showcase() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
           <div>
-            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#FF4D7D] mb-4"
+            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#A8304A] mb-4"
               style={{ fontFamily: "var(--font-display)" }}>
               Votre identité visuelle
             </p>
             <h2
-              className="text-5xl md:text-6xl font-extrabold text-white leading-[0.92]"
+              className="text-4xl md:text-5xl font-normal text-white leading-tight uppercase tracking-wide"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Des thèmes
               <br />
-              <span className="text-[#FF4D7D]">soigneusement</span>
+              <span className="text-[#A8304A]">soigneusement</span>
               <br />
               designés.
             </h2>
@@ -70,7 +70,7 @@ export default function Showcase() {
                     {theme.tag}
                   </p>
                 </div>
-                <span className="text-[#FF4D7D] group-hover:translate-x-1 transition-transform duration-300 text-lg font-bold">
+                <span className="text-[#A8304A] group-hover:translate-x-1 transition-transform duration-300 text-lg font-bold">
                   →
                 </span>
               </div>

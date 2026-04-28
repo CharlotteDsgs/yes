@@ -1,9 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: 'Syne', sans-serif;
+  --font-display: 'Fredoka', sans-serif;
+  --font-script: 'Dancing Script', cursive;
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Jost', system-ui, sans-serif;
+  --font-ballet: 'Ballet', cursive;
+  --font-birthstone: 'Birthstone', cursive;
+  --font-great-vibes: 'Great Vibes', cursive;
+  --font-herr: 'Herr Von Muellerhoff', cursive;
+  --font-allura: 'Allura', cursive;
+  --font-pinyon: 'Pinyon Script', cursive;
+  --font-bagel: 'Bagel Fat One', cursive;
 
   /* Pop palette */
   --color-red: #E8001A;
@@ -38,8 +46,31 @@ html {
   scroll-behavior: smooth;
 }
 
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0px); }
+  40% { transform: translateY(-8px); }
+  60% { transform: translateY(-4px); }
+}
+
+@keyframes logo-bounce {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  30% { transform: translateY(-10px) rotate(-4deg); }
+  50% { transform: translateY(-6px) rotate(3deg); }
+  70% { transform: translateY(-2px) rotate(-2deg); }
+}
+
+@keyframes invitation-appear {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes card-rise {
+  from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(-90px); }
+}
+
 body {
-  background-color: #ffffff;
+  background-color: #FFF0F4;
   color: #0A0A0A;
   font-family: 'Jost', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;

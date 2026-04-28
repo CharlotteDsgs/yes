@@ -27,17 +27,17 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="comment-ca-marche" className="py-32 bg-[#E8001A]">
+    <section id="comment-ca-marche" className="py-32 bg-[#6D1D3E]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
           <div>
-            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#FF4D7D] mb-4"
+            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#A8304A] mb-4"
               style={{ fontFamily: "var(--font-display)" }}>
               Simple &amp; rapide
             </p>
             <h2
-              className="text-5xl md:text-7xl font-extrabold text-white leading-[0.92]"
+              className="text-4xl md:text-5xl font-normal text-white leading-tight uppercase tracking-wide"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Quatre étapes,
@@ -55,7 +55,7 @@ export default function HowItWorks() {
           {steps.map((step) => (
             <div
               key={step.number}
-              className="bg-[#E8001A] p-10 flex flex-col gap-6 group hover:bg-[#B8001A] transition-colors duration-300"
+              className="bg-[#6D1D3E] p-10 flex flex-col gap-6 group hover:bg-[#5A1733] transition-colors duration-300"
             >
               <span
                 className="text-7xl font-extrabold text-white/15 leading-none"
@@ -63,9 +63,9 @@ export default function HowItWorks() {
               >
                 {step.number}
               </span>
-              <div className="w-8 h-0.5 bg-[#FF4D7D] group-hover:w-16 transition-all duration-500" />
+              <div className="w-8 h-0.5 bg-[#A8304A] group-hover:w-16 transition-all duration-500" />
               <h3
-                className="text-xl font-bold text-white"
+                className="text-xl font-normal text-white uppercase tracking-wide"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 {step.title}

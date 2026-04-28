@@ -43,21 +43,21 @@ const plans = [
 
 export default function Pricing() {
   return (
-    <section id="tarifs" className="py-32 bg-white">
+    <section id="tarifs" className="py-32 bg-[#FFF0F4]">
       <div className="max-w-5xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-20">
-          <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#E8001A] mb-4"
+          <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#6D1D3E] mb-4"
             style={{ fontFamily: "var(--font-display)" }}>
             Transparent &amp; simple
           </p>
           <h2
-            className="text-5xl md:text-6xl font-extrabold text-[#0A0A0A] leading-[0.92] mb-6"
+            className="text-4xl md:text-5xl font-normal text-[#0A0A0A] leading-tight uppercase tracking-wide mb-6"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Des tarifs
             <br />
-            <span className="text-[#FF4D7D]">honnêtes.</span>
+            <span className="text-[#A8304A]">honnêtes.</span>
           </h2>
           <p className="text-sm text-[#888] font-light">
             Stripe prélève 1,5% + 0,25€ par transaction. Nous, rien de plus.
@@ -71,22 +71,22 @@ export default function Pricing() {
               key={plan.name}
               className={`p-10 flex flex-col gap-8 ${
                 plan.featured
-                  ? "bg-[#E8001A] text-white"
-                  : "bg-white border-2 border-[#F2F2F2]"
+                  ? "bg-[#6D1D3E] text-white"
+                  : "bg-[#FFF0F4] border-2 border-[#D4889A]"
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <span
                     className={`text-xs font-bold tracking-[0.3em] uppercase ${
-                      plan.featured ? "text-[#FFB3C8]" : "text-[#888]"
+                      plan.featured ? "text-[#D4889A]" : "text-[#888]"
                     }`}
                     style={{ fontFamily: "var(--font-display)" }}
                   >
                     {plan.name}
                   </span>
                   {plan.featured && (
-                    <span className="text-[10px] font-bold tracking-widest uppercase bg-white text-[#E8001A] px-3 py-1"
+                    <span className="text-[10px] font-bold tracking-widest uppercase bg-white text-[#6D1D3E] px-3 py-1"
                       style={{ fontFamily: "var(--font-display)" }}>
                       Recommandé
                     </span>
@@ -102,7 +102,7 @@ export default function Pricing() {
                 </div>
                 <p
                   className={`text-xs font-bold tracking-widest uppercase mb-4 ${
-                    plan.featured ? "text-[#FFB3C8]" : "text-[#888]"
+                    plan.featured ? "text-[#D4889A]" : "text-[#888]"
                   }`}
                   style={{ fontFamily: "var(--font-display)" }}
                 >
@@ -123,7 +123,7 @@ export default function Pricing() {
                     <Check
                       size={14}
                       className={`mt-0.5 flex-shrink-0 ${
-                        plan.featured ? "text-[#FFB3C8]" : "text-[#E8001A]"
+                        plan.featured ? "text-[#D4889A]" : "text-[#6D1D3E]"
                       }`}
                       strokeWidth={3}
                     />
@@ -142,8 +142,8 @@ export default function Pricing() {
                 href={plan.ctaHref}
                 className={`mt-auto text-center px-8 py-4 text-xs font-bold tracking-[0.25em] uppercase transition-colors duration-200 ${
                   plan.featured
-                    ? "bg-white text-[#E8001A] hover:bg-[#FFE8EE]"
-                    : "bg-[#0A0A0A] text-white hover:bg-[#E8001A]"
+                    ? "bg-white text-[#6D1D3E] hover:bg-[#FFE8EE]"
+                    : "bg-[#0A0A0A] text-white hover:bg-[#6D1D3E]"
                 }`}
                 style={{ fontFamily: "var(--font-display)" }}
               >

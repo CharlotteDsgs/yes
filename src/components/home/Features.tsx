@@ -62,22 +62,22 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="fonctionnalites" className="py-32 bg-[#FFF5F8]">
+    <section id="fonctionnalites" className="py-32 bg-[#FFF0F4]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
           <div>
-            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#E8001A] mb-4"
+            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#6D1D3E] mb-4"
               style={{ fontFamily: "var(--font-display)" }}>
               Tout ce dont vous avez besoin
             </p>
             <h2
-              className="text-5xl md:text-6xl font-extrabold text-[#0A0A0A] leading-[0.92]"
+              className="text-4xl md:text-5xl font-normal text-[#0A0A0A] leading-tight uppercase tracking-wide"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Des fonctionnalités
               <br />
-              <span className="text-[#FF4D7D]">pensées pour vous.</span>
+              <span className="text-[#A8304A]">pensées pour vous.</span>
             </h2>
           </div>
           <p className="text-sm text-[#888] font-light max-w-xs leading-relaxed">
@@ -86,19 +86,19 @@ export default function Features() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#FFB3C8]/30">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#D4889A]/30">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <div
                 key={feature.title}
-                className="bg-[#FFF5F8] p-8 flex flex-col gap-5 group hover:bg-white transition-colors duration-300"
+                className="bg-[#FFF0F4] p-8 flex flex-col gap-5 group hover:bg-white transition-colors duration-300"
               >
-                <div className="w-10 h-10 flex items-center justify-center bg-[#E8001A]">
+                <div className="w-10 h-10 flex items-center justify-center bg-[#6D1D3E]">
                   <Icon size={18} className="text-white" strokeWidth={2} />
                 </div>
                 <h3
-                  className="text-base font-bold text-[#0A0A0A]"
+                  className="text-base font-normal text-[#0A0A0A] uppercase tracking-wide"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {feature.title}

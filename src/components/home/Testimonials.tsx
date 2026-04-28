@@ -24,34 +24,34 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-32 bg-[#FFE8EE]">
+    <section className="py-32 bg-[#FFF0F4]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-20">
-          <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#E8001A] mb-4"
+          <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#6D1D3E] mb-4"
             style={{ fontFamily: "var(--font-display)" }}>
             Ils nous font confiance
           </p>
           <h2
-            className="text-5xl md:text-6xl font-extrabold text-[#0A0A0A] leading-[0.92]"
+            className="text-4xl md:text-5xl font-normal text-[#0A0A0A] leading-tight uppercase tracking-wide"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Des couples
             <br />
-            <span className="text-[#E8001A]">comblés.</span>
+            <span className="text-[#6D1D3E]">comblés.</span>
           </h2>
         </div>
 
         {/* Testimonials */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#FFB3C8]/40">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#D4889A]/40">
           {testimonials.map((t) => (
             <div
               key={t.names}
-              className="bg-[#FFE8EE] p-10 flex flex-col justify-between gap-8 hover:bg-white transition-colors duration-300"
+              className="bg-[#FFF0F4] p-10 flex flex-col justify-between gap-8 hover:bg-white transition-colors duration-300"
             >
               <div>
                 <span
-                  className="text-7xl font-extrabold text-[#FF4D7D] leading-none block mb-4"
+                  className="text-7xl font-extrabold text-[#A8304A] leading-none block mb-4"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   "
@@ -64,7 +64,7 @@ export default function Testimonials() {
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-[#E8001A] flex items-center justify-center text-white text-sm font-bold"
+                <div className="w-10 h-10 bg-[#6D1D3E] flex items-center justify-center text-white text-sm font-bold"
                   style={{ fontFamily: "var(--font-display)" }}>
                   {t.names.charAt(0)}
                 </div>
