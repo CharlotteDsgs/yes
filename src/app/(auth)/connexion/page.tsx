@@ -34,7 +34,7 @@ export default function ConnexionPage() {
     <div className="min-h-screen bg-[#faf8f5] flex pt-20 lg:pt-0">
       {/* Left panel - photo */}
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
-        <img src="/photo_couple/couple_3.JPG" alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <img src="/photo_couple/couple_1.JPG" alt="" className="absolute inset-0 w-full h-full object-cover" />
       </div>
 
       {/* Right panel */}
