@@ -41,14 +41,6 @@ export default function ConnexionPage() {
           }}
         />
         <div className="relative z-10 text-center">
-          <Link href="/">
-            <span
-              className="text-4xl text-white italic block mb-12"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              Yes
-            </span>
-          </Link>
           <p
             className="text-3xl text-white leading-snug mb-6"
             style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300 }}
