@@ -249,7 +249,7 @@ export default function CreerPage() {
 
   return (
     <>
-    <div className="min-h-screen flex flex-col lg:flex-row pt-20 lg:pt-0">
+    <div className="min-h-screen flex flex-col lg:flex-row">
 
       {/* Left panel — photo */}
       <div className="hidden lg:block lg:w-[33%] relative flex-shrink-0">
@@ -264,11 +264,20 @@ export default function CreerPage() {
 
       {/* Right panel — form */}
       <div
-        className="flex-1 flex flex-col justify-center px-8 lg:px-16 py-16"
+        className="flex-1 flex flex-col px-8 lg:px-16 py-10"
         style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}
       >
+        <div className="mb-8">
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-[#6D1D3E]/60 hover:text-[#6D1D3E] transition-colors"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            ← Retour à l'accueil
+          </a>
+        </div>
 
-        <div className="w-full">
+        <div className="flex-1 flex flex-col justify-center w-full">
 
           {/* Step 1 */}
           {step === 1 && (
