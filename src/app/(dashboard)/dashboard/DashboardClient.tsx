@@ -1308,6 +1308,48 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
       {activeTab === "cadeaux" && (
       <main className="w-full px-6 lg:px-10 py-12">
+
+        {/* Partager le lien */}
+        {slug && (
+          <div
+            className="rounded-2xl px-6 py-5 mb-10 flex flex-col sm:flex-row sm:items-center gap-4"
+            style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.1)", border: "1.5px solid #EABACB" }}
+          >
+            <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+              <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "rgba(109,29,62,0.45)", fontFamily: "var(--font-display)" }}>
+                Partager votre liste
+              </span>
+              <span className="text-sm truncate" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
+                wedy.fr/mariage/<strong>{slug}</strong>
+              </span>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/mariage/${slug}`);
+                }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-colors"
+                style={{ backgroundColor: "#6D1D3E", color: "#fff", fontFamily: "var(--font-display)" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#9e6b5c")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#6D1D3E")}
+              >
+                Copier le lien
+              </button>
+              <a
+                href={`/mariage/${slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-colors"
+                style={{ backgroundColor: "rgba(109,29,62,0.07)", color: "#6D1D3E", fontFamily: "var(--font-display)" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.14)")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.07)")}
+              >
+                Voir
+              </a>
+            </div>
+          </div>
+        )}
+
         {(() => {
           let displayed = [...localGifts];
           if (filterCategories.length > 0)
