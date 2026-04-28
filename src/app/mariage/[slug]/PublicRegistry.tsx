@@ -233,20 +233,20 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           className="relative flex flex-col md:flex-row md:min-h-screen items-stretch overflow-hidden"
           style={{ backgroundColor: theme.bg, height: "100dvh" }}
         >
-          {/* Left — Text (1/2 on mobile, flex-1 on desktop) */}
-          <div className="flex-[1] md:flex-1 flex flex-col justify-center px-10 md:px-20 pt-8 pb-0 md:py-24">
+          {/* Left — Text (1/2 on mobile, fixed 40% on desktop) */}
+          <div className="flex-[1] md:flex-none md:w-[40%] flex flex-col justify-center px-10 md:px-20 pt-8 pb-0 md:py-24 overflow-hidden">
             <p className="text-xs tracking-[0.35em] uppercase mb-6" style={{ color: theme.muted }}>
               Liste de mariage
             </p>
             <h1
-              className="leading-[1.0] mb-6"
+              className="leading-[1.0] mb-6 md:whitespace-nowrap"
               style={{
                 fontFamily: theme.font ?? "var(--font-montserrat)",
                 fontWeight: 300,
                 color: coverTextColor,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
-                fontSize: "clamp(1.6rem, 6vw, 2.5rem)",
+                fontSize: "clamp(1.4rem, 2.5vw, 1.9rem)",
               }}
             >
               {p1 && (
@@ -271,7 +271,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
 
           {/* Right — Framed photo with whitespace */}
           {/* Right — Image (1/2 on mobile, 60% on desktop) */}
-          <div className="flex-[1] md:flex-none md:w-[60%] flex items-start md:items-center justify-center md:justify-start px-4 pt-0 pb-6 md:p-6 md:pl-8 min-h-0">
+          <div className="flex-[1] md:flex-none md:w-[60%] flex items-start md:items-center justify-center md:justify-center px-4 pt-0 pb-6 md:p-6 min-h-0">
             <div className="w-[78%] md:w-[60%] aspect-square overflow-hidden max-h-full" style={{ border: `1px solid ${theme.border}` }}>
               {themeCoverUrl ? (
                 <img src={themeCoverUrl} alt="Photo du couple" className="w-full h-full object-cover" />
