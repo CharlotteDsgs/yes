@@ -155,12 +155,11 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
       if (previewMode === "desktop") {
         setPreviewScale(Math.min(pw / 1280, 0.65));
       } else {
-        // phone outer: W=390+20borders, H=760iframe+30notch+14bottom+20borders
-        const PHONE_OUTER_W = 390 + 20;
-        const PHONE_OUTER_H = 760 + 30 + 14 + 20;
-        const toggleBarH = 56;
+        const PHONE_W = 390 + 20; // W + 2*bezel
+        const PHONE_H = 700 + 28 + 12 + 20; // viewport + notch + home + 2*bezel
+        const toggleBarH = 60;
         const availH = rect.height - toggleBarH - 32;
-        setPreviewScale(Math.min(pw / PHONE_OUTER_W, availH / PHONE_OUTER_H, 0.85));
+        setPreviewScale(Math.min(pw / PHONE_W, availH / PHONE_H, 0.72));
       }
     };
     measure();
@@ -1133,48 +1132,55 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
               {previewScale > 0 && previewMode === "mobile" && (() => {
                 const W = 390;
-                const H = 760;
-                const NOTCH = 30;
-                const BOTTOM = 14;
-                const BORDER = 10;
-                const outerW = (W + BORDER * 2) * previewScale;
-                const outerH = (H + NOTCH + BOTTOM + BORDER * 2) * previewScale;
+                const VIEWPORT_H = 700;
+                const NOTCH_H = 28;
+                const HOME_H = 12;
+                const BEZEL = 10;
+                const RADIUS = 38;
+                const totalW = W + BEZEL * 2;
+                const totalH = VIEWPORT_H + NOTCH_H + HOME_H + BEZEL * 2;
                 return (
                   <div style={{
-                    width: outerW,
-                    height: outerH,
+                    width: totalW * previewScale,
+                    height: totalH * previewScale,
                     flexShrink: 0,
-                    borderRadius: 44 * previewScale,
-                    boxShadow: "0 24px 64px rgba(0,0,0,0.3)",
+                    borderRadius: (RADIUS + BEZEL) * previewScale,
                     backgroundColor: "#1a1a1a",
-                    padding: BORDER * previewScale,
+                    boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
                     overflow: "hidden",
                   }}>
                     <div style={{
-                      width: W + BORDER * 2,
-                      height: H + NOTCH + BOTTOM + BORDER * 2,
+                      width: totalW,
+                      height: totalH,
                       transform: `scale(${previewScale})`,
                       transformOrigin: "top left",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}>
+                      {/* Screen — overflow:hidden + borderRadius clip le contenu */}
                       <div style={{
                         width: W,
-                        height: H + NOTCH + BOTTOM,
-                        borderRadius: 38,
+                        height: VIEWPORT_H + NOTCH_H + HOME_H,
+                        borderRadius: RADIUS,
                         overflow: "hidden",
                         backgroundColor: "#000",
-                        position: "relative",
+                        display: "flex",
+                        flexDirection: "column",
                       }}>
-                        {/* Notch pill */}
-                        <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", width: 120, height: 12, borderRadius: 6, backgroundColor: "#1a1a1a", zIndex: 10 }} />
+                        {/* Notch */}
+                        <div style={{ height: NOTCH_H, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <div style={{ width: 100, height: 10, borderRadius: 5, backgroundColor: "#1a1a1a" }} />
+                        </div>
                         {/* iframe */}
                         <iframe
                           key={`mobile-${previewKey}`}
                           src={`/mariage/${registry.slug}?t=${previewKey}`}
-                          style={{ width: W, height: H, border: 0, display: "block", marginTop: NOTCH }}
+                          style={{ width: W, height: VIEWPORT_H, border: 0, display: "block", flexShrink: 0 }}
                         />
                         {/* Home indicator */}
-                        <div style={{ height: BOTTOM, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <div style={{ width: 120, height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.3)" }} />
+                        <div style={{ height: HOME_H, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <div style={{ width: 100, height: 4, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.25)" }} />
                         </div>
                       </div>
                     </div>
