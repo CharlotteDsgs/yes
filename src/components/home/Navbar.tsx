@@ -51,7 +51,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between h-20">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-1" style={{ animation: "logo-bounce 1.8s ease-in-out infinite" }}>
+        <Link href="/" className="flex items-center gap-1">
           <span
             style={{
               fontFamily: "var(--font-bagel)",
