@@ -1167,7 +1167,10 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                         backgroundColor: "#000",
                         display: "flex",
                         flexDirection: "column",
+                        position: "relative",
                       }}>
+                        {/* Dynamic Island */}
+                        <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", width: 110, height: 26, borderRadius: 14, backgroundColor: "#000", zIndex: 10, boxShadow: "0 0 0 1.5px #2a2a2a" }} />
                         {/* iframe */}
                         <iframe
                           key={`mobile-${previewKey}`}
