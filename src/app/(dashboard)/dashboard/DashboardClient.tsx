@@ -105,6 +105,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const mobileIframeRef = useRef<HTMLIFrameElement>(null);
   const themeCoversRef = useRef(themeCovers);
   const themeSettingsRef = useRef(themeSettings);
   const currentThemeRef = useRef(currentTheme);
@@ -125,20 +126,16 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
       const cover = themeCoversRef.current[theme] ?? DEFS[theme] ?? null;
       const settings = themeSettingsRef.current[theme];
       if (cover) {
-        iframeRef.current?.contentWindow?.postMessage(
-          { type: "WEDY_UPDATE_COVER", theme, cover }, "*"
-        );
+        postToIframes({ type: "WEDY_UPDATE_COVER", theme, cover });
       }
       if (settings) {
-        iframeRef.current?.contentWindow?.postMessage(
-          { type: "WEDY_UPDATE_SETTINGS", theme, settings }, "*"
-        );
+        postToIframes({ type: "WEDY_UPDATE_SETTINGS", theme, settings });
       }
       const nf = nameFormRef.current;
-      iframeRef.current?.contentWindow?.postMessage({
+      postToIframes({
         type: "WEDY_UPDATE_INFO",
         info: { partner1: nf.partner1_name, partner2: nf.partner2_name, date: nf.wedding_date, location: nf.ceremony_location },
-      }, "*");
+      });
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
@@ -268,8 +265,13 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [designSaving, setDesignSaving] = useState(false);
   const [designSaved, setDesignSaved] = useState(false);
 
+  function postToIframes(msg: object) {
+    iframeRef.current?.contentWindow?.postMessage(msg, "*");
+    mobileIframeRef.current?.contentWindow?.postMessage(msg, "*");
+  }
+
   function sendInfoMessage(form: typeof nameForm) {
-    iframeRef.current?.contentWindow?.postMessage({
+    postToIframes({
       type: "WEDY_UPDATE_INFO",
       info: {
         partner1: form.partner1_name,
@@ -277,7 +279,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
         date: form.wedding_date,
         location: form.ceremony_location,
       },
-    }, "*");
+    });
   }
 
   useEffect(() => {
@@ -285,10 +287,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   }, [nameForm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function sendSettingsMessage(settings: Record<string, any>) {
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: "WEDY_UPDATE_SETTINGS", theme: currentTheme, settings },
-      "*"
-    );
+    postToIframes({ type: "WEDY_UPDATE_SETTINGS", theme: currentTheme, settings });
   }
 
   function handleColorChange(key: "bgColor" | "textColor", value: string) {
@@ -303,25 +302,19 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   function handleMinimalisteSettingChange(key: string, value: string) {
     const updated = { ...themeSettings, minimaliste: { ...(themeSettings?.minimaliste ?? {}), [key]: value } };
     setThemeSettings(updated);
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: "WEDY_UPDATE_SETTINGS", theme: "minimaliste", settings: updated.minimaliste }, "*"
-    );
+    postToIframes({ type: "WEDY_UPDATE_SETTINGS", theme: "minimaliste", settings: updated.minimaliste });
   }
 
   function handleMinimalisteGiftBgChange(value: string) {
     const updated = { ...themeSettings, minimaliste: { ...(themeSettings?.minimaliste ?? {}), giftBgColor: value } };
     setThemeSettings(updated);
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: "WEDY_UPDATE_SETTINGS", theme: "minimaliste", settings: updated.minimaliste }, "*"
-    );
+    postToIframes({ type: "WEDY_UPDATE_SETTINGS", theme: "minimaliste", settings: updated.minimaliste });
   }
 
   function handleClassiqueSettingChange(key: string, value: string) {
     const updated = { ...themeSettings, classique: { ...(themeSettings?.classique ?? {}), [key]: value } };
     setThemeSettings(updated);
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: "WEDY_UPDATE_SETTINGS", theme: "classique", settings: updated.classique }, "*"
-    );
+    postToIframes({ type: "WEDY_UPDATE_SETTINGS", theme: "classique", settings: updated.classique });
   }
 
   function handleResetColors() {
@@ -384,19 +377,14 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   function handleResetClassiqueColors() {
     const updated = { ...themeSettings, classique: { ...(themeSettings?.classique ?? {}), coverTextColor: undefined, giftTextColor: undefined, giftBgColor: undefined } };
     setThemeSettings(updated);
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: "WEDY_UPDATE_SETTINGS", theme: "classique", settings: updated.classique }, "*"
-    );
+    postToIframes({ type: "WEDY_UPDATE_SETTINGS", theme: "classique", settings: updated.classique });
   }
 
   function handleSelectImage(imageUrl: string) {
     if (!registry) return;
     setThemeCovers(prev => ({ ...prev, [currentTheme]: imageUrl }));
     setShowPhotoPicker(false);
-    iframeRef.current?.contentWindow?.postMessage(
-      { type: "WEDY_UPDATE_COVER", theme: currentTheme, cover: imageUrl },
-      "*"
-    );
+    postToIframes({ type: "WEDY_UPDATE_COVER", theme: currentTheme, cover: imageUrl });
   }
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -428,9 +416,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
       const updatedCovers = { ...themeCoversRef.current, [currentTheme]: url };
       await supabase.from("registries").update({ theme_covers: updatedCovers }).eq("id", registry.id);
       setThemeCovers(prev => ({ ...prev, [currentTheme]: url }));
-      iframeRef.current?.contentWindow?.postMessage(
-        { type: "WEDY_UPDATE_COVER", theme: currentTheme, cover: url }, "*"
-      );
+      postToIframes({ type: "WEDY_UPDATE_COVER", theme: currentTheme, cover: url });
     }
     setPhotoUploading(false);
   }
@@ -923,9 +909,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                         onClick={() => {
                           const updated = { ...themeSettings, [currentTheme]: { ...(themeSettings?.[currentTheme] ?? {}), giftStyle: opt.value } };
                           setThemeSettings(updated);
-                          iframeRef.current?.contentWindow?.postMessage(
-                            { type: "WEDY_UPDATE_SETTINGS", theme: currentTheme, settings: (updated as Record<string, any>)[currentTheme] }, "*"
-                          );
+                          postToIframes({ type: "WEDY_UPDATE_SETTINGS", theme: currentTheme, settings: (updated as Record<string, any>)[currentTheme] });
                         }}
                         className="flex-1 py-2 text-xs font-semibold rounded-xl border transition-all"
                         style={{
@@ -1173,6 +1157,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                         <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", width: 110, height: 26, borderRadius: 14, backgroundColor: "#000", zIndex: 10, boxShadow: "0 0 0 1.5px #2a2a2a" }} />
                         {/* iframe — pleine hauteur */}
                         <iframe
+                          ref={mobileIframeRef}
                           key={`mobile-${previewKey}`}
                           src={`/mariage/${registry.slug}?t=${previewKey}`}
                           style={{ width: W, height: VIEWPORT_H + HOME_H, border: 0, display: "block", flexShrink: 0 }}
