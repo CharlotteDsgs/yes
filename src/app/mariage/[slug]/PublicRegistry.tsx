@@ -246,7 +246,6 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                 color: coverTextColor,
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
-                whiteSpace: "nowrap",
                 fontSize: "clamp(1.6rem, 6vw, 2.5rem)",
               }}
             >
