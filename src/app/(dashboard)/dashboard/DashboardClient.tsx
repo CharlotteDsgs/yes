@@ -115,6 +115,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   useEffect(() => { nameFormRef.current = nameForm; }, [nameForm]);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [previewScale, setPreviewScale] = useState(0);
+  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
 
   useEffect(() => {
     const handler = (e: MessageEvent) => {
@@ -148,14 +149,20 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
     const el = previewContainerRef.current;
     if (!el) return;
     const measure = () => {
-      const panelWidth = el.getBoundingClientRect().width - 48;
-      setPreviewScale(Math.min(panelWidth / 1280, 0.65));
+      const rect = el.getBoundingClientRect();
+      const pw = rect.width - 48;
+      const ph = rect.height - 48;
+      if (previewMode === "desktop") {
+        setPreviewScale(Math.min(pw / 1280, 0.65));
+      } else {
+        setPreviewScale(Math.min(pw / 390, ph / 844, 0.9));
+      }
     };
     measure();
     const obs = new ResizeObserver(measure);
     obs.observe(el);
     return () => obs.disconnect();
-  }, [activeTab]);
+  }, [activeTab, previewMode]);
 
   // Add-gift modal image states
   const [addGiftImageUrl, setAddGiftImageUrl] = useState<string | null>(null);
@@ -1041,58 +1048,135 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
           </div>
 
           {/* ── RIGHT PANEL — PREVIEW ── */}
-          <div ref={previewContainerRef} className="flex-1 min-w-0 flex items-center justify-center p-6" style={{ backgroundColor: "#EDE8E3", overflow: "hidden" }}>
-            {previewScale > 0 && (() => {
-              const W = 1280;
-              const H = 720;
-              const CHROME = 44;
-              return (
-                <div style={{
-                  width: W * previewScale,
-                  height: (H + CHROME) * previewScale,
-                  flexShrink: 0,
-                  borderRadius: 12 * previewScale,
-                  boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-                  overflow: "hidden",
-                }}>
-                  <div style={{
-                    width: W,
-                    height: H + CHROME,
-                    transform: `scale(${previewScale})`,
-                    transformOrigin: "top left",
-                  }}>
-                    {/* Browser chrome */}
-                    <div style={{ height: CHROME, backgroundColor: "#D8D1CA", display: "flex", alignItems: "center", gap: 12, padding: "0 16px" }}>
-                      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                        <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#FF5F57" }} />
-                        <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#FFBD2E" }} />
-                        <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#28C940" }} />
+          <div ref={previewContainerRef} className="flex-1 min-w-0 flex flex-col overflow-hidden" style={{ backgroundColor: "#EDE8E3" }}>
+
+            {/* Toggle desktop / mobile */}
+            <div className="flex items-center justify-center gap-1 pt-4 pb-2 flex-shrink-0">
+              <div className="flex items-center rounded-full p-1 gap-1" style={{ backgroundColor: "rgba(0,0,0,0.1)" }}>
+                <button
+                  onClick={() => setPreviewMode("desktop")}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  style={{
+                    backgroundColor: previewMode === "desktop" ? "#fff" : "transparent",
+                    color: previewMode === "desktop" ? "#6D1D3E" : "rgba(0,0,0,0.4)",
+                    boxShadow: previewMode === "desktop" ? "0 1px 4px rgba(0,0,0,0.12)" : "none",
+                    fontFamily: "var(--font-display)",
+                  }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+                  </svg>
+                  Ordinateur
+                </button>
+                <button
+                  onClick={() => setPreviewMode("mobile")}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  style={{
+                    backgroundColor: previewMode === "mobile" ? "#fff" : "transparent",
+                    color: previewMode === "mobile" ? "#6D1D3E" : "rgba(0,0,0,0.4)",
+                    boxShadow: previewMode === "mobile" ? "0 1px 4px rgba(0,0,0,0.12)" : "none",
+                    fontFamily: "var(--font-display)",
+                  }}
+                >
+                  <svg width="11" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
+                  </svg>
+                  Téléphone
+                </button>
+              </div>
+            </div>
+
+            {/* Preview frame */}
+            <div className="flex-1 flex items-center justify-center p-4 min-h-0">
+              {previewScale > 0 && previewMode === "desktop" && (() => {
+                const W = 1280;
+                const H = 720;
+                const CHROME = 44;
+                return (
+                  <div style={{ width: W * previewScale, height: (H + CHROME) * previewScale, flexShrink: 0, borderRadius: 12 * previewScale, boxShadow: "0 20px 60px rgba(0,0,0,0.25)", overflow: "hidden" }}>
+                    <div style={{ width: W, height: H + CHROME, transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
+                      <div style={{ height: CHROME, backgroundColor: "#D8D1CA", display: "flex", alignItems: "center", gap: 12, padding: "0 16px" }}>
+                        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                          <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#FF5F57" }} />
+                          <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#FFBD2E" }} />
+                          <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#28C940" }} />
+                        </div>
+                        <div style={{ flex: 1, backgroundColor: "rgba(255,255,255,0.7)", borderRadius: 6, padding: "6px 12px", fontSize: 12, color: "#888", textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          wedy.fr/mariage/{registry.slug}
+                        </div>
+                        <button
+                          onClick={() => setPreviewKey(k => k + 1)}
+                          style={{ flexShrink: 0, width: 28, height: 28, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#666" }}
+                          title="Actualiser"
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
+                          </svg>
+                        </button>
                       </div>
-                      <div style={{ flex: 1, backgroundColor: "rgba(255,255,255,0.7)", borderRadius: 6, padding: "6px 12px", fontSize: 12, color: "#888", textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        wedy.fr/mariage/{registry.slug}
-                      </div>
-                      <button
-                        onClick={() => setPreviewKey(k => k + 1)}
-                        style={{ flexShrink: 0, width: 28, height: 28, borderRadius: "50%", border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#666" }}
-                        title="Actualiser"
-                      >
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
-                          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
-                        </svg>
-                      </button>
+                      <iframe
+                        ref={iframeRef}
+                        key={previewKey}
+                        src={`/mariage/${registry.slug}?t=${previewKey}`}
+                        style={{ width: W, height: H, border: 0, display: "block" }}
+                      />
                     </div>
-                    {/* iframe — scrolls like a real browser */}
-                    <iframe
-                      ref={iframeRef}
-                      key={previewKey}
-                      src={`/mariage/${registry.slug}?t=${previewKey}`}
-                      style={{ width: W, height: H, border: 0, display: "block" }}
-                    />
                   </div>
-                </div>
-              );
-            })()}
+                );
+              })()}
+
+              {previewScale > 0 && previewMode === "mobile" && (() => {
+                const W = 390;
+                const H = 844;
+                const NOTCH = 36;
+                const BOTTOM = 20;
+                const BORDER = 10;
+                const outerW = (W + BORDER * 2) * previewScale;
+                const outerH = (H + NOTCH + BOTTOM + BORDER * 2) * previewScale;
+                return (
+                  <div style={{
+                    width: outerW,
+                    height: outerH,
+                    flexShrink: 0,
+                    borderRadius: 44 * previewScale,
+                    boxShadow: "0 24px 64px rgba(0,0,0,0.3)",
+                    backgroundColor: "#1a1a1a",
+                    padding: BORDER * previewScale,
+                    overflow: "hidden",
+                  }}>
+                    <div style={{
+                      width: W + BORDER * 2,
+                      height: H + NOTCH + BOTTOM + BORDER * 2,
+                      transform: `scale(${previewScale})`,
+                      transformOrigin: "top left",
+                    }}>
+                      <div style={{
+                        width: W,
+                        height: H + NOTCH + BOTTOM,
+                        borderRadius: 38,
+                        overflow: "hidden",
+                        backgroundColor: "#000",
+                        position: "relative",
+                      }}>
+                        {/* Notch pill */}
+                        <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", width: 120, height: 12, borderRadius: 6, backgroundColor: "#1a1a1a", zIndex: 10 }} />
+                        {/* iframe */}
+                        <iframe
+                          key={`mobile-${previewKey}`}
+                          src={`/mariage/${registry.slug}?t=${previewKey}`}
+                          style={{ width: W, height: H, border: 0, display: "block", marginTop: NOTCH }}
+                        />
+                        {/* Home indicator */}
+                        <div style={{ height: BOTTOM, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <div style={{ width: 120, height: 5, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.3)" }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
 
         </div>
