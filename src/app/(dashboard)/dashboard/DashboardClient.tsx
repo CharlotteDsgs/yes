@@ -1335,17 +1335,6 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
               >
                 Copier le lien
               </button>
-              <a
-                href={`/mariage/${slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-colors"
-                style={{ backgroundColor: "rgba(109,29,62,0.07)", color: "#6D1D3E", fontFamily: "var(--font-display)" }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.14)")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.07)")}
-              >
-                Voir
-              </a>
             </div>
           </div>
         )}
