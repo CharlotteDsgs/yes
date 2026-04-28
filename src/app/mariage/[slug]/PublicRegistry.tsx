@@ -569,9 +569,9 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                 <div key={gift.id} className="flex flex-col overflow-hidden transition-all duration-300"
                   style={{ borderRadius: "20px", backgroundColor: cardBg, boxShadow: `0 4px 20px 0 ${theme.text}38`, opacity: isFunded ? 0.7 : 1 }}>
                   {gift.image_url ? (
-                    <img src={gift.image_url} alt={gift.title} className="w-full h-28 sm:h-44 object-cover" />
+                    <img src={gift.image_url} alt={gift.title} className="w-full h-20 sm:h-44 object-cover" />
                   ) : (
-                    <div className="w-full h-24 sm:h-36 flex items-center justify-center" style={{ backgroundColor: "#E8E8E8" }}>
+                    <div className="w-full h-16 sm:h-36 flex items-center justify-center" style={{ backgroundColor: "#E8E8E8" }}>
                       <Heart size={28} strokeWidth={1} style={{ color: theme.text }} />
                     </div>
                   )}
@@ -619,10 +619,10 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
               <div key={gift.id} className={`flex flex-col transition-all duration-300 ${giftStyle !== "none" ? "p-3 sm:p-6" : ""}`}
                 style={{ border: cardBorder, borderRadius: cardRadius, backgroundColor: cardBg, opacity: isFunded ? 0.75 : 1 }}>
                 {gift.image_url ? (
-                  <img src={gift.image_url} alt={gift.title} className="w-full h-28 sm:h-40 object-cover mb-2 sm:mb-4"
+                  <img src={gift.image_url} alt={gift.title} className="w-full h-20 sm:h-40 object-cover mb-2 sm:mb-4"
                     style={{ borderRadius: giftStyle === "arrondi" ? "20px 20px 0 0" : "0" }} />
                 ) : (
-                  <div className="w-full h-20 sm:h-32 flex items-center justify-center mb-2 sm:mb-4" style={{ backgroundColor: "#F5F0EA", borderRadius: giftStyle === "arrondi" ? "20px 20px 0 0" : "0" }}>
+                  <div className="w-full h-16 sm:h-32 flex items-center justify-center mb-2 sm:mb-4" style={{ backgroundColor: "#F5F0EA", borderRadius: giftStyle === "arrondi" ? "20px 20px 0 0" : "0" }}>
                     <Heart size={20} strokeWidth={1} style={{ color: theme.accent }} />
                   </div>
                 )}
