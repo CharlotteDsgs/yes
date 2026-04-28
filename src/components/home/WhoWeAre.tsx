@@ -17,7 +17,7 @@ export default function WhoWeAre() {
               style={{ boxShadow: "0 24px 60px rgba(109,29,62,0.14)" }}
             >
               <Image
-                src="/qui-sommes-nous.jpg"
+                src="/Wedding_Venue_Tuscany_An_outdoor_wedding_ceremony_venue_is_set_in_a_6UKefLyk-fotor-20260422102925.png"
                 alt="L'équipe Wedy"
                 fill
                 className="object-cover"
