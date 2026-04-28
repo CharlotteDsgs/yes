@@ -1132,9 +1132,9 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
               {previewScale > 0 && previewMode === "mobile" && (() => {
                 const W = 390;
-                const VIEWPORT_H = 700;
-                const NOTCH_H = 28;
-                const HOME_H = 12;
+                const VIEWPORT_H = 720;
+                const NOTCH_H = 0;
+                const HOME_H = 8;
                 const BEZEL = 10;
                 const RADIUS = 38;
                 const totalW = W + BEZEL * 2;
@@ -1168,10 +1168,6 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                         display: "flex",
                         flexDirection: "column",
                       }}>
-                        {/* Notch */}
-                        <div style={{ height: NOTCH_H, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <div style={{ width: 100, height: 10, borderRadius: 5, backgroundColor: "#1a1a1a" }} />
-                        </div>
                         {/* iframe */}
                         <iframe
                           key={`mobile-${previewKey}`}
