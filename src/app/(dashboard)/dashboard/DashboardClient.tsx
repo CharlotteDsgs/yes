@@ -1315,11 +1315,11 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
             className="rounded-2xl px-6 py-5 mb-10 flex flex-col sm:flex-row sm:items-center gap-4"
             style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.1)", border: "1.5px solid #EABACB" }}
           >
-            <div className="flex flex-col gap-1 flex-1 min-w-0">
-              <span className="text-xs tracking-[0.25em] uppercase" style={{ color: "rgba(109,29,62,0.35)", fontFamily: "var(--font-display)", fontWeight: 400 }}>
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <span className="text-xs tracking-[0.25em] uppercase flex-shrink-0" style={{ color: "rgba(109,29,62,0.35)", fontFamily: "var(--font-display)", fontWeight: 400 }}>
                 Partager votre liste
               </span>
-              <span className="text-sm truncate" style={{ color: "rgba(109,29,62,0.55)", fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300, letterSpacing: "0.01em" }}>
+              <span className="text-sm truncate" style={{ color: "rgba(109,29,62,0.55)", fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300 }}>
                 wedy.fr/mariage/{slug}
               </span>
             </div>
