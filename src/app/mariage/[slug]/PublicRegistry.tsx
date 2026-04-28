@@ -230,11 +230,11 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
       {/* Hero — Minimaliste split layout */}
       {(theme as any).layout === "split" ? (
         <section
-          className="relative min-h-screen flex flex-col md:flex-row items-stretch overflow-hidden"
+          className="relative flex flex-col md:min-h-screen md:flex-row items-stretch overflow-hidden"
           style={{ backgroundColor: theme.bg }}
         >
           {/* Left — Text */}
-          <div className="flex-1 flex flex-col justify-center px-10 md:px-20 pt-10 pb-4 md:py-24">
+          <div className="flex-1 flex flex-col justify-center px-10 md:px-20 pt-10 pb-2 md:py-24">
             <p className="text-xs tracking-[0.35em] uppercase mb-6" style={{ color: theme.muted }}>
               Liste de mariage
             </p>
@@ -271,7 +271,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           </div>
 
           {/* Right — Framed photo with whitespace */}
-          <div className="w-full md:w-[60%] flex items-center justify-center px-6 pb-6 md:p-6 -mt-8 md:mt-0">
+          <div className="w-full md:w-[60%] flex items-center justify-center px-6 pb-10 md:p-6">
             <div className="w-[70%] aspect-square overflow-hidden flex-shrink-0" style={{ border: `1px solid ${theme.border}` }}>
               {themeCoverUrl ? (
                 <img src={themeCoverUrl} alt="Photo du couple" className="w-full h-full object-cover" />
