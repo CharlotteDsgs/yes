@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function DashboardClient({ profile, registry, gifts, totalCollected, totalGoal, contributions }: Props) {
-  const [activeTab, setActiveTab] = useState<"cadeaux" | "design">("cadeaux");
+  const [activeTab, setActiveTab] = useState<"participation" | "cadeaux" | "design">("participation");
   const [showAddGift, setShowAddGift] = useState(false);
   const [giftForm, setGiftForm] = useState({ title: "", description: "", price: "", category: "" });
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
@@ -652,19 +652,23 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
       {/* Tab bar */}
       <div className="bg-white border-b border-[#f0e6e2]">
         <div className="w-full px-6 lg:px-10 flex items-center gap-0">
-          {(["cadeaux", "design"] as const).map((tab) => (
+          {([
+            { id: "participation", label: "Participation" },
+            { id: "cadeaux", label: "Cadeaux" },
+            { id: "design", label: "Design" },
+          ] as const).map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className="relative px-6 py-4 font-semibold capitalize transition-colors"
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className="relative px-6 py-4 font-semibold transition-colors"
               style={{
                 fontFamily: "var(--font-display)",
                 fontSize: "0.95rem",
-                color: activeTab === tab ? "#6D1D3E" : "rgba(109,29,62,0.38)",
+                color: activeTab === tab.id ? "#6D1D3E" : "rgba(109,29,62,0.38)",
               }}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              {activeTab === tab && (
+              {tab.label}
+              {activeTab === tab.id && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ backgroundColor: "#6D1D3E" }} />
               )}
             </button>
@@ -678,7 +682,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
               className="relative px-6 py-4 font-semibold transition-colors flex items-center gap-1.5"
               style={{ fontFamily: "var(--font-display)", fontSize: "0.95rem", color: "rgba(109,29,62,0.38)" }}
             >
-              Voir ma page
+              Voir ma liste
               <Eye size={13} strokeWidth={2} style={{ opacity: 0.6 }} />
             </button>
           )}
@@ -1093,8 +1097,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
         </div>
       )}
 
-      {activeTab === "cadeaux" && <>
-
+      {activeTab === "participation" && (
       <main className="w-full px-6 lg:px-10 py-12">
 
         {/* Header */}
@@ -1227,9 +1230,85 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
           </div>
         )}
 
-        {/* Gifts section */}
+        {/* Participations */}
+        <div className="mb-10">
+          <span
+            style={{
+              display: "inline-block",
+              fontFamily: "var(--font-bagel)",
+              fontSize: "1.8rem",
+              color: "#7A1B45",
+              lineHeight: 1,
+              padding: "10px 28px",
+              borderRadius: "999px",
+              backgroundColor: "#FFF0F5",
+              boxShadow: "3px 4px 0px #D4789A",
+              border: "2px solid #EABACB",
+              marginBottom: "1.5rem",
+            }}
+          >
+            Participations
+          </span>
+
+          {contributions.length === 0 ? (
+            <div
+              className="py-14 px-8 text-center rounded-2xl flex flex-col items-center gap-4"
+              style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.08)", border: "2px dashed rgba(109,29,62,0.15)" }}
+            >
+              <p className="text-sm font-light" style={{ color: "rgba(109,29,62,0.5)" }}>
+                Aucune participation pour l'instant.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {contributions.map((c: any) => {
+                const gift = localGifts.find((g: any) => g.id === c.gift_id);
+                const date = c.created_at ? new Date(c.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : null;
+                return (
+                  <div
+                    key={c.id}
+                    className="rounded-2xl px-6 py-5 flex items-start justify-between gap-4"
+                    style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.1)" }}
+                  >
+                    <div className="flex flex-col gap-1 flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>
+                          {c.contributor_name || "Anonyme"}
+                        </span>
+                        {date && (
+                          <span className="text-xs" style={{ color: "rgba(109,29,62,0.4)" }}>{date}</span>
+                        )}
+                      </div>
+                      {gift && (
+                        <span className="text-xs" style={{ color: "rgba(109,29,62,0.55)", fontFamily: "var(--font-display)" }}>
+                          Pour : {gift.title}
+                        </span>
+                      )}
+                      {c.message && (
+                        <p className="text-sm font-light mt-1 italic" style={{ color: "rgba(44,44,44,0.65)" }}>
+                          &ldquo;{c.message}&rdquo;
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      className="text-lg font-bold flex-shrink-0"
+                      style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}
+                    >
+                      {Number(c.amount).toFixed(0)} €
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+      </main>
+      )}
+
+      {activeTab === "cadeaux" && (
+      <main className="w-full px-6 lg:px-10 py-12">
         {(() => {
-          // Compute filtered + sorted gifts
           let displayed = [...localGifts];
           if (filterCategories.length > 0)
             displayed = displayed.filter(g => filterCategories.includes(g.category));
@@ -1239,10 +1318,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
               r === "100-300" ? g.price >= 100 && g.price < 300 :
                                 g.price >= 300
             ));
-
-          // Collect existing categories from gifts
           const existingCategories = Array.from(new Set(localGifts.map((g: any) => g.category).filter(Boolean))) as string[];
-
           return (
             <>
               <div className="flex items-center justify-between mb-4">
@@ -1271,20 +1347,13 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                 </button>
               </div>
 
-              {/* Filter bar */}
               {localGifts.length > 0 && (
                 <div className="flex items-center gap-3 mb-6 flex-wrap">
-
-                  {/* Category multi-filter */}
                   <div className="relative">
                     <button
                       onClick={() => { setCategoryDropdownOpen(!categoryDropdownOpen); setPriceDropdownOpen(false); }}
                       className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors"
-                      style={{
-                        backgroundColor: "#F0F0F0",
-                        color: "#2c2c2c",
-                        fontFamily: "var(--font-display)",
-                      }}
+                      style={{ backgroundColor: "#F0F0F0", color: "#2c2c2c", fontFamily: "var(--font-display)" }}
                     >
                       {filterCategories.length > 0 ? `Catégories (${filterCategories.length})` : "Catégories"}
                       <ChevronDown size={14} />
@@ -1295,18 +1364,12 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                         {(existingCategories.length > 0 ? existingCategories : CATEGORIES).map(c => {
                           const checked = filterCategories.includes(c);
                           return (
-                            <button
-                              key={c}
+                            <button key={c}
                               onClick={() => setFilterCategories(prev => checked ? prev.filter(x => x !== c) : [...prev, c])}
                               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[#faf5f3]"
                               style={{ fontFamily: "var(--font-display)", color: "#2c2c2c" }}
                             >
-                              <span style={{
-                                width: 16, height: 16, borderRadius: 3, flexShrink: 0,
-                                border: `2px solid ${checked ? "#1a1a1a" : "rgba(0,0,0,0.2)"}`,
-                                backgroundColor: checked ? "rgba(0,0,0,0.07)" : "transparent",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                              }}>
+                              <span style={{ width: 16, height: 16, borderRadius: 3, flexShrink: 0, border: `2px solid ${checked ? "#1a1a1a" : "rgba(0,0,0,0.2)"}`, backgroundColor: checked ? "rgba(0,0,0,0.07)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                 {checked && <Check size={10} color="#1a1a1a" strokeWidth={3}/>}
                               </span>
                               {c}
@@ -1316,17 +1379,11 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                       </div>
                     )}
                   </div>
-
-                  {/* Price multi-filter */}
                   <div className="relative">
                     <button
                       onClick={() => { setPriceDropdownOpen(!priceDropdownOpen); setCategoryDropdownOpen(false); }}
                       className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-colors"
-                      style={{
-                        backgroundColor: "#F0F0F0",
-                        color: "#2c2c2c",
-                        fontFamily: "var(--font-display)",
-                      }}
+                      style={{ backgroundColor: "#F0F0F0", color: "#2c2c2c", fontFamily: "var(--font-display)" }}
                     >
                       {filterPrices.length > 0 ? `Prix (${filterPrices.length})` : "Prix"}
                       <ChevronDown size={14} />
@@ -1335,24 +1392,18 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                       <div className="absolute left-0 top-full mt-1 rounded-2xl bg-white z-50 min-w-[180px] py-2"
                         style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.12)", border: "1px solid #f0e6e2" }}>
                         {([
-                          { label: "0 – 100 €",   value: "0-100"   as const },
+                          { label: "0 – 100 €", value: "0-100" as const },
                           { label: "100 – 300 €", value: "100-300" as const },
-                          { label: "300 € +",     value: "300+"    as const },
+                          { label: "300 € +", value: "300+" as const },
                         ]).map(opt => {
                           const checked = filterPrices.includes(opt.value);
                           return (
-                            <button
-                              key={opt.value}
+                            <button key={opt.value}
                               onClick={() => setFilterPrices(prev => checked ? prev.filter(x => x !== opt.value) : [...prev, opt.value])}
                               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-[#faf5f3]"
                               style={{ fontFamily: "var(--font-display)", color: "#2c2c2c" }}
                             >
-                              <span style={{
-                                width: 16, height: 16, borderRadius: 3, flexShrink: 0,
-                                border: `2px solid ${checked ? "#1a1a1a" : "rgba(0,0,0,0.2)"}`,
-                                backgroundColor: checked ? "rgba(0,0,0,0.07)" : "transparent",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                              }}>
+                              <span style={{ width: 16, height: 16, borderRadius: 3, flexShrink: 0, border: `2px solid ${checked ? "#1a1a1a" : "rgba(0,0,0,0.2)"}`, backgroundColor: checked ? "rgba(0,0,0,0.07)" : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                 {checked && <Check size={10} color="#1a1a1a" strokeWidth={3}/>}
                               </span>
                               {opt.label}
@@ -1362,151 +1413,95 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                       </div>
                     )}
                   </div>
-
                 </div>
               )}
 
-              {/* Gift list */}
               {localGifts.length === 0 ? (
-          <div
-            className="py-14 px-8 text-center rounded-2xl flex flex-col items-center gap-4"
-            style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.08)", border: "2px dashed rgba(109,29,62,0.15)" }}
-          >
-            <img src="/logo/fox_sitting_gift.png" alt="" style={{ width: 120, height: 120, objectFit: "contain" }} />
-            <p className="text-sm font-light" style={{ color: "rgba(109,29,62,0.5)" }}>
-              Aucun cadeau pour l'instant. Ajoutez votre premier cadeau.
-            </p>
-          </div>
+                <div
+                  className="py-14 px-8 text-center rounded-2xl flex flex-col items-center gap-4"
+                  style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.08)", border: "2px dashed rgba(109,29,62,0.15)" }}
+                >
+                  <img src="/logo/fox_sitting_gift.png" alt="" style={{ width: 120, height: 120, objectFit: "contain" }} />
+                  <p className="text-sm font-light" style={{ color: "rgba(109,29,62,0.5)" }}>
+                    Aucun cadeau pour l'instant. Ajoutez votre premier cadeau.
+                  </p>
+                </div>
               ) : displayed.length === 0 ? (
                 <div className="p-12 text-center rounded-2xl" style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
                   <p className="text-sm font-light" style={{ color: "rgba(109,29,62,0.5)" }}>Aucun cadeau ne correspond à ce filtre.</p>
                 </div>
               ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-                {displayed.map((gift) => {
-              const funded = gift.is_funded;
-              return (
-                <div
-                  key={gift.id}
-                  className="rounded-2xl overflow-hidden flex flex-col"
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    boxShadow: "0 4px 20px rgba(109,29,62,0.12)",
-                    opacity: funded ? 0.65 : 1,
-                    filter: funded ? "grayscale(0.3)" : "none",
-                    transition: "opacity 0.3s, filter 0.3s",
-                  }}
-                >
-                  {/* Photo area */}
-                  <div
-                    className="relative cursor-pointer group"
-                    style={{ aspectRatio: "4/3", overflow: "hidden" }}
-                    onClick={() => { setGiftPickerGiftId(gift.id); setUnsplashQuery(""); setUnsplashResults([]); }}
-                  >
-                    {gift.image_url ? (
-                      <img
-                        src={gift.image_url}
-                        alt={gift.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+                  {displayed.map((gift) => {
+                    const funded = gift.is_funded;
+                    return (
                       <div
-                        className="w-full h-full flex items-center justify-center"
-                        style={{ backgroundColor: "rgba(109,29,62,0.05)" }}
+                        key={gift.id}
+                        className="rounded-2xl overflow-hidden flex flex-col"
+                        style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.12)", opacity: funded ? 0.65 : 1, filter: funded ? "grayscale(0.3)" : "none", transition: "opacity 0.3s, filter 0.3s" }}
                       >
-                        <Gift size={36} strokeWidth={1} style={{ color: "rgba(109,29,62,0.2)" }} />
-                      </div>
-                    )}
-                    {giftUploading[gift.id] ? (
-                      <div
-                        className="absolute inset-0 flex items-center justify-center"
-                        style={{ backgroundColor: "rgba(109,29,62,0.35)" }}
-                      >
-                        <span className="text-white text-xs tracking-widest uppercase">Envoi…</span>
-                      </div>
-                    ) : (
-                      <div
-                        className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ backgroundColor: "rgba(109,29,62,0.45)" }}
-                      >
-                        <span className="text-white text-2xl font-light">+</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Card body */}
-                  <div className="flex flex-col flex-1 p-4 gap-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-semibold truncate" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>
-                        {gift.title}
-                      </p>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <button
-                          onClick={() => startEditGift(gift)}
-                          className="transition-colors"
-                          style={{ color: "rgba(109,29,62,0.25)" }}
-                          onMouseEnter={e => (e.currentTarget.style.color = "rgba(109,29,62,0.7)")}
-                          onMouseLeave={e => (e.currentTarget.style.color = "rgba(109,29,62,0.25)")}
-                        >
-                          <SquarePen size={14} strokeWidth={1.5} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteGift(gift.id)}
-                          className="transition-colors"
-                          style={{ color: "rgba(109,29,62,0.25)" }}
-                          onMouseEnter={e => (e.currentTarget.style.color = "rgba(109,29,62,0.7)")}
-                          onMouseLeave={e => (e.currentTarget.style.color = "rgba(109,29,62,0.25)")}
-                        >
-                          <Trash2 size={14} strokeWidth={1.5} />
-                        </button>
-                      </div>
-                    </div>
-
-                    {gift.description && (
-                      <p className="text-xs font-light line-clamp-2" style={{ color: "rgba(44,44,44,0.55)" }}>
-                        {gift.description}
-                      </p>
-                    )}
-
-                    <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-                      <span className="text-base font-bold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
-                        {Number(gift.price).toFixed(0)} €
-                      </span>
-                      {funded && (
-                        <span
-                          className="text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5"
-                          style={{ backgroundColor: "#dcfce7", color: "#15803d" }}
-                        >
-                          <Check size={13} strokeWidth={2.5} />
-                          Financé
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Mini progress bar */}
-                    {!funded && (
-                      <div className="h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: "rgba(109,29,62,0.08)" }}>
                         <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${gift.price > 0 ? Math.min((gift.amount_collected / gift.price) * 100, 100) : 0}%`,
-                            backgroundColor: "#6D1D3E",
-                          }}
-                        />
+                          className="relative cursor-pointer group"
+                          style={{ aspectRatio: "4/3", overflow: "hidden" }}
+                          onClick={() => { setGiftPickerGiftId(gift.id); setUnsplashQuery(""); setUnsplashResults([]); }}
+                        >
+                          {gift.image_url ? (
+                            <img src={gift.image_url} alt={gift.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: "rgba(109,29,62,0.05)" }}>
+                              <Gift size={36} strokeWidth={1} style={{ color: "rgba(109,29,62,0.2)" }} />
+                            </div>
+                          )}
+                          {giftUploading[gift.id] ? (
+                            <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: "rgba(109,29,62,0.35)" }}>
+                              <span className="text-white text-xs tracking-widest uppercase">Envoi…</span>
+                            </div>
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: "rgba(109,29,62,0.45)" }}>
+                              <span className="text-white text-2xl font-light">+</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col flex-1 p-4 gap-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-semibold truncate" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{gift.title}</p>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <button onClick={() => startEditGift(gift)} className="transition-colors" style={{ color: "rgba(109,29,62,0.25)" }} onMouseEnter={e => (e.currentTarget.style.color = "rgba(109,29,62,0.7)")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(109,29,62,0.25)")}>
+                                <SquarePen size={14} strokeWidth={1.5} />
+                              </button>
+                              <button onClick={() => handleDeleteGift(gift.id)} className="transition-colors" style={{ color: "rgba(109,29,62,0.25)" }} onMouseEnter={e => (e.currentTarget.style.color = "rgba(109,29,62,0.7)")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(109,29,62,0.25)")}>
+                                <Trash2 size={14} strokeWidth={1.5} />
+                              </button>
+                            </div>
+                          </div>
+                          {gift.description && (
+                            <p className="text-xs font-light line-clamp-2" style={{ color: "rgba(44,44,44,0.55)" }}>{gift.description}</p>
+                          )}
+                          <div className="mt-auto pt-3 flex items-center justify-between gap-2">
+                            <span className="text-base font-bold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>{Number(gift.price).toFixed(0)} €</span>
+                            {funded && (
+                              <span className="text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5" style={{ backgroundColor: "#dcfce7", color: "#15803d" }}>
+                                <Check size={13} strokeWidth={2.5} />
+                                Financé
+                              </span>
+                            )}
+                          </div>
+                          {!funded && (
+                            <div className="h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: "rgba(109,29,62,0.08)" }}>
+                              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${gift.price > 0 ? Math.min((gift.amount_collected / gift.price) * 100, 100) : 0}%`, backgroundColor: "#6D1D3E" }} />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
-                );
-              })}
-              </div>
               )}
             </>
           );
         })()}
       </main>
-
-      </> /* end activeTab === "cadeaux" */}
+      )}
 
       {/* Unsplash image picker modal */}
       {giftPickerGiftId && (
