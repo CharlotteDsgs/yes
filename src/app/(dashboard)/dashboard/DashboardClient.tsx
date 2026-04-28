@@ -1312,30 +1312,28 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
         {/* Partager le lien */}
         {slug && (
           <div
-            className="rounded-2xl px-6 py-5 mb-10 flex flex-col sm:flex-row sm:items-center gap-4"
-            style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.1)", border: "1.5px solid #EABACB" }}
+            className="inline-flex items-center gap-4 rounded-2xl px-5 py-3 mb-10"
+            style={{ backgroundColor: "#FFFFFF", boxShadow: "0 4px 20px rgba(109,29,62,0.08)", border: "1.5px solid #EABACB" }}
           >
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <span className="text-xs tracking-[0.25em] uppercase flex-shrink-0" style={{ color: "rgba(109,29,62,0.35)", fontFamily: "var(--font-display)", fontWeight: 400 }}>
-                Partager votre liste
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs tracking-[0.2em] uppercase flex-shrink-0" style={{ color: "rgba(109,29,62,0.35)", fontFamily: "var(--font-display)", fontWeight: 400 }}>
+                Partager
               </span>
-              <span className="text-sm truncate" style={{ color: "rgba(109,29,62,0.55)", fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300 }}>
+              <span className="text-sm truncate" style={{ color: "rgba(109,29,62,0.5)", fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300 }}>
                 wedy.fr/mariage/{slug}
               </span>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button
+            <button
                 onClick={() => {
                   navigator.clipboard.writeText(`${window.location.origin}/mariage/${slug}`);
                 }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-colors"
-                style={{ backgroundColor: "#6D1D3E", color: "#fff", fontFamily: "var(--font-display)" }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#9e6b5c")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#6D1D3E")}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors flex-shrink-0"
+                style={{ backgroundColor: "rgba(109,29,62,0.07)", color: "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)", fontWeight: 500 }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.14)")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.07)")}
               >
                 Copier le lien
               </button>
-            </div>
           </div>
         )}
 
