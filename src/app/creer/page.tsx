@@ -267,14 +267,22 @@ export default function CreerPage() {
         className="flex-1 flex flex-col px-8 lg:px-16 py-10"
         style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}
       >
-        <div className="mb-8">
-          <a
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-[#6D1D3E]/60 hover:text-[#6D1D3E] transition-colors"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            ← Retour à l'accueil
+        <div className="flex items-center justify-between mb-8">
+          <a href="/" className="text-sm text-[#6D1D3E]/60 hover:text-[#6D1D3E] transition-colors"
+            style={{ fontFamily: "var(--font-display)" }}>
+            ← Accueil
           </a>
+          <div className="flex items-center gap-4">
+            <a href="/connexion" className="text-sm font-medium text-[#6D1D3E]/70 hover:text-[#6D1D3E] transition-colors"
+              style={{ fontFamily: "var(--font-display)" }}>
+              Connexion
+            </a>
+            <a href="/creer"
+              className="px-5 py-2.5 rounded-full text-sm font-bold text-white transition-colors"
+              style={{ backgroundColor: "#6D1D3E", fontFamily: "var(--font-display)" }}>
+              Créer ma liste
+            </a>
+          </div>
         </div>
 
         <div className="flex-1 flex flex-col justify-center w-full">
