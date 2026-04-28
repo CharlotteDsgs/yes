@@ -109,29 +109,6 @@ export default function Hero() {
               </Link>
             </div>
 
-            {/* Stats */}
-            <div
-              className="flex items-center gap-8 mt-12 pt-8 w-full"
-              style={{ borderTop: "2px dashed #EABACB" }}
-            >
-              {[
-                { number: "3 200+", label: "couples" },
-                { number: "48k+", label: "cadeaux offerts" },
-                { number: "4.9★", label: "note moyenne" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <span
-                    className="block text-2xl"
-                    style={{ fontFamily: "var(--font-bagel)", color: "#D4789A", textShadow: "2px 3px 0px #7A1B45" }}
-                  >
-                    {stat.number}
-                  </span>
-                  <span className="text-xs" style={{ color: "#9A7080", fontFamily: "var(--font-display)" }}>
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* ── RIGHT — Visual ── */}
