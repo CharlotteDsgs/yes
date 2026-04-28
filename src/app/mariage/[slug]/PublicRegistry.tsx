@@ -350,7 +350,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
 
       /* Hero — Standard layout */
       <section
-        className={`relative overflow-hidden ${theme.uppercase ? "min-h-screen flex items-stretch" : "pt-8 pb-10 md:py-20 flex flex-col items-center justify-start md:justify-center text-center px-6"}`}
+        className={`relative overflow-hidden ${theme.uppercase ? "min-h-screen flex items-stretch" : "flex flex-col items-center justify-center text-center px-6"}`}
         style={{
           backgroundColor: theme.uppercase ? theme.bg : theme.accentLight,
           backgroundImage: (theme as any).bgImage
@@ -359,7 +359,6 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           backgroundSize: "cover",
           backgroundPosition: "center",
           height: theme.uppercase ? undefined : "100dvh",
-          minHeight: theme.uppercase ? undefined : "100dvh",
         }}
       >
         {(theme as any).bgImage && (
