@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Camera, CalendarDays, MapPin, Link as LinkIcon } from "lucide-react";
+import { Camera, CalendarDays, MapPin, Link as LinkIcon, Move } from "lucide-react";
 
 type Field = "partner1_name" | "partner2_name" | "wedding_date" | "ceremony_location" | "slug" | null;
 
@@ -18,6 +18,11 @@ export default function VotreMariagePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [registryId, setRegistryId] = useState<string | null>(null);
   const [couplePhoto, setCouplePhoto] = useState<string | null>(null);
+  const [photoPositionY, setPhotoPositionY] = useState(50);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartY = useRef(0);
+  const dragStartPos = useRef(50);
+  const photoContainerRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({
     partner1_name: "",
@@ -64,6 +69,7 @@ export default function VotreMariagePage() {
       setSlug(registry.slug ?? "");
       setSlugDraft(registry.slug ?? "");
       setCouplePhoto(registry.cover_image_url ?? null);
+      setPhotoPositionY((registry as any).cover_image_position ?? 50);
       setForm({
         partner1_name: profile?.partner1_name ?? "",
         partner2_name: profile?.partner2_name ?? "",
@@ -135,6 +141,44 @@ export default function VotreMariagePage() {
     if (e.key === "Escape") setEditing(null);
   }
 
+  async function savePosition(posY: number) {
+    if (!registryId) return;
+    const supabase = createClient();
+    await supabase.from("registries").update({ cover_image_position: posY } as any).eq("id", registryId);
+  }
+
+  function handleDragStart(e: React.PointerEvent) {
+    if (!couplePhoto) return;
+    e.preventDefault();
+    setIsDragging(true);
+    dragStartY.current = e.clientY;
+    dragStartPos.current = photoPositionY;
+
+    function onMove(ev: PointerEvent) {
+      const container = photoContainerRef.current;
+      if (!container) return;
+      const delta = ev.clientY - dragStartY.current;
+      const containerH = container.clientHeight;
+      const percentDelta = (delta / containerH) * 100;
+      const newPos = Math.min(100, Math.max(0, dragStartPos.current + percentDelta));
+      setPhotoPositionY(newPos);
+    }
+    function onUp(ev: PointerEvent) {
+      setIsDragging(false);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      const container = photoContainerRef.current;
+      if (!container) return;
+      const delta = ev.clientY - dragStartY.current;
+      const containerH = container.clientHeight;
+      const percentDelta = (delta / containerH) * 100;
+      const newPos = Math.min(100, Math.max(0, dragStartPos.current + percentDelta));
+      savePosition(newPos);
+    }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }
+
   async function handlePhotoUpload(file: File) {
     if (!registryId) return;
     setPhotoUploading(true);
@@ -176,9 +220,10 @@ export default function VotreMariagePage() {
       <div className="max-w-xl mx-auto flex flex-col items-center gap-6">
 
         {/* Photo area */}
-        <label
-          className="relative w-full cursor-pointer group block"
-          style={{ aspectRatio: "3/2", borderRadius: "20px", overflow: "hidden" }}
+        <div
+          ref={photoContainerRef}
+          className="relative w-full group"
+          style={{ aspectRatio: "3/2", borderRadius: "20px", overflow: "hidden", cursor: couplePhoto ? (isDragging ? "grabbing" : "grab") : "pointer" }}
         >
           <input
             ref={fileInputRef}
@@ -188,52 +233,53 @@ export default function VotreMariagePage() {
             onChange={e => { const f = e.target.files?.[0]; if (f) handlePhotoUpload(f); }}
           />
           {couplePhoto ? (
-            <img src={couplePhoto} alt="Photo du couple" className="w-full h-full object-cover" />
+            <img
+              src={couplePhoto}
+              alt="Photo du couple"
+              className="w-full h-full object-cover select-none"
+              style={{ objectPosition: `center ${photoPositionY}%` }}
+              draggable={false}
+              onPointerDown={handleDragStart}
+            />
           ) : (
             <div
-              className="w-full h-full"
-              style={{
-                border: "2px dashed rgba(109,29,62,0.25)",
-                borderRadius: "20px",
-                backgroundColor: "rgba(109,29,62,0.03)",
-              }}
-            />
-          )}
-
-          {/* Upload overlay */}
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2 transition-opacity"
-            style={{
-              opacity: couplePhoto ? 0 : 1,
-              backgroundColor: couplePhoto ? "transparent" : "transparent",
-            }}
-          >
-            {!couplePhoto && (
-              <>
-                <Camera size={28} strokeWidth={1.5} style={{ color: "rgba(109,29,62,0.4)" }} />
-                <span className="text-sm font-medium" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
-                  Ajouter une photo
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Hover overlay (when photo exists) */}
-          {couplePhoto && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: "rgba(0,0,0,0.35)" }}>
-              <Camera size={28} strokeWidth={1.5} style={{ color: "white" }} />
-              <span className="text-sm font-medium text-white" style={{ fontFamily: "var(--font-display)" }}>
-                Changer la photo
+              className="w-full h-full flex flex-col items-center justify-center gap-2 cursor-pointer"
+              style={{ border: "2px dashed rgba(109,29,62,0.25)", borderRadius: "20px", backgroundColor: "rgba(109,29,62,0.03)" }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Camera size={28} strokeWidth={1.5} style={{ color: "rgba(109,29,62,0.4)" }} />
+              <span className="text-sm font-medium" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
+                Ajouter une photo
               </span>
             </div>
           )}
 
+          {/* Boutons overlay quand photo existe */}
+          {couplePhoto && !isDragging && (
+            <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onPointerDown={e => e.stopPropagation()}
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white transition-opacity hover:opacity-80"
+                style={{ backgroundColor: "rgba(0,0,0,0.55)", fontFamily: "var(--font-display)" }}
+              >
+                <Camera size={12} strokeWidth={2} /> Changer
+              </button>
+              <div
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+                style={{ backgroundColor: "rgba(0,0,0,0.55)", fontFamily: "var(--font-display)", pointerEvents: "none" }}
+              >
+                <Move size={12} strokeWidth={2} /> Glisser pour repositionner
+              </div>
+            </div>
+          )}
+
           {photoUploading && (
-            <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: "rgba(109,29,62,0.4)" }}>
+            <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: "rgba(109,29,62,0.4)", borderRadius: "20px" }}>
               <span className="text-white text-sm font-medium" style={{ fontFamily: "var(--font-display)" }}>Envoi…</span>
             </div>
           )}
-        </label>
+        </div>
 
         {/* Names — inline editable */}
         <div className="flex items-baseline justify-center gap-3 w-full flex-wrap">
