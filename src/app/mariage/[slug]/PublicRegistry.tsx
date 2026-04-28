@@ -299,7 +299,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           className="block md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none select-none" />
 
         {/* Content */}
-        <div className="relative z-10 w-full max-w-5xl mx-auto pt-12 pb-10 md:py-24 px-8 md:px-[14%] flex flex-col md:flex-row items-center gap-6 md:gap-12">
+        <div className="relative z-10 w-full max-w-5xl mx-auto pt-12 pb-10 md:py-24 px-8 md:pl-[7%] md:pr-[20%] flex flex-col md:flex-row items-center gap-6 md:gap-12">
 
           {/* Left — names + date/location */}
           <div className="flex-1 flex flex-col gap-5">
