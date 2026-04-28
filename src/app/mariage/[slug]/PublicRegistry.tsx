@@ -350,7 +350,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
 
       /* Hero — Standard layout */
       <section
-        className={`relative overflow-hidden ${theme.uppercase ? "min-h-screen flex items-stretch" : "min-h-screen pt-12 pb-10 md:py-20 flex flex-col items-center justify-start md:justify-center text-center px-6"}`}
+        className={`relative overflow-hidden ${theme.uppercase ? "min-h-screen flex items-stretch" : "pt-8 pb-10 md:py-20 flex flex-col items-center justify-start md:justify-center text-center px-6"}`}
         style={{
           backgroundColor: theme.uppercase ? theme.bg : theme.accentLight,
           backgroundImage: (theme as any).bgImage
@@ -358,6 +358,8 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
             : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          height: theme.uppercase ? undefined : "100dvh",
+          minHeight: theme.uppercase ? undefined : "100dvh",
         }}
       >
         {(theme as any).bgImage && (
@@ -437,7 +439,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                 Liste de mariage
               </p>
               <h1
-                className="leading-[0.9] mb-6"
+                className="leading-[0.9] mb-6 w-full"
                 style={{
                   fontFamily: theme.font ?? "var(--font-serif)",
                   fontWeight: theme.font ? 400 : 300,
@@ -445,8 +447,9 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
                   color: coverTextColor,
                   textTransform: "none",
                   letterSpacing: "normal",
-                  fontSize: "clamp(2.4rem, 10vw, 5rem)",
+                  fontSize: "clamp(1.5rem, 11vw, 6rem)",
                   whiteSpace: "nowrap",
+                  overflow: "visible",
                 }}
               >
                 {p1 && <>{p1} &amp; {p2}</>}
