@@ -272,7 +272,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           {/* Right — Framed photo with whitespace */}
           {/* Right — Image (1/2 on mobile, 60% on desktop) */}
           <div className="flex-[1] md:flex-none md:w-[60%] flex items-start md:items-center justify-center md:justify-center px-4 pt-0 pb-6 md:p-6 min-h-0">
-            <div className="w-[78%] md:w-[60%] aspect-square overflow-hidden max-h-full" style={{ border: `1px solid ${theme.border}` }}>
+            <div className="w-[78%] md:w-[50%] aspect-square overflow-hidden max-h-full" style={{ border: `1px solid ${theme.border}` }}>
               {themeCoverUrl ? (
                 <img src={themeCoverUrl} alt="Photo du couple" className="w-full h-full object-cover" />
               ) : theme.squareImage ? (
