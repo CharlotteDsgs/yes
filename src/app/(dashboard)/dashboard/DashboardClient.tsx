@@ -1171,16 +1171,14 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                       }}>
                         {/* Dynamic Island */}
                         <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", width: 110, height: 26, borderRadius: 14, backgroundColor: "#000", zIndex: 10, boxShadow: "0 0 0 1.5px #2a2a2a" }} />
-                        {/* iframe */}
+                        {/* iframe — pleine hauteur */}
                         <iframe
                           key={`mobile-${previewKey}`}
                           src={`/mariage/${registry.slug}?t=${previewKey}`}
-                          style={{ width: W, height: VIEWPORT_H, border: 0, display: "block", flexShrink: 0 }}
+                          style={{ width: W, height: VIEWPORT_H + HOME_H, border: 0, display: "block", flexShrink: 0 }}
                         />
-                        {/* Home indicator */}
-                        <div style={{ height: HOME_H, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <div style={{ width: 100, height: 4, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.25)" }} />
-                        </div>
+                        {/* Home indicator — superposé en absolu */}
+                        <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", width: 100, height: 4, borderRadius: 2, backgroundColor: "rgba(0,0,0,0.35)", zIndex: 10 }} />
                       </div>
                     </div>
                   </div>
