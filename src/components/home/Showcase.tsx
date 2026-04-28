@@ -1,23 +1,23 @@
 const themes = [
   {
-    name: "Douceur Dorée",
-    palette: ["#f5edd8", "#c4a35a", "#2c2c2c", "#faf8f5"],
-    tag: "Classique",
+    name: "Classique",
+    palette: ["#1a1510", "#3a3020", "#c9a89a", "#FFFFFF"],
+    tag: "Intemporel",
   },
   {
-    name: "Rose Poudré",
-    palette: ["#f0e6e2", "#c9a89a", "#9e6b5c", "#fffef9"],
+    name: "Moderne",
+    palette: ["#FFF8D6", "#E85C00", "#C44A00", "#F5D88A"],
+    tag: "Audacieux",
+  },
+  {
+    name: "Fleuri",
+    palette: ["#f5f0e4", "#8a7156", "#6b5535", "#c4a97a"],
     tag: "Romantique",
   },
   {
-    name: "Jardin de Sauge",
-    palette: ["#e8ede9", "#8a9e8c", "#3d5440", "#faf8f5"],
-    tag: "Nature",
-  },
-  {
-    name: "Nuit Élégante",
-    palette: ["#2c2c2c", "#7a7370", "#c9a89a", "#1a1a1a"],
-    tag: "Luxe",
+    name: "Minimaliste",
+    palette: ["#FFFFFF", "#0A0A0A", "#888888", "#E8E8E8"],
+    tag: "Épuré",
   },
 ];
 
