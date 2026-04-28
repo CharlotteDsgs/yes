@@ -302,7 +302,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
         <div className="relative z-10 w-full max-w-5xl mx-auto pt-12 pb-10 md:py-24 px-8 md:pl-[9%] md:pr-[20%] flex flex-col md:flex-row items-center gap-6 md:gap-12">
 
           {/* Left — names + date/location */}
-          <div className="flex-1 flex flex-col gap-5 min-w-0">
+          <div className="flex-1 flex flex-col gap-5">
             <p className="text-xs tracking-[0.4em] uppercase" style={{ color: theme.muted }}>
               Liste de mariage
             </p>
