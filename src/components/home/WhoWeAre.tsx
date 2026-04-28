@@ -18,7 +18,7 @@ export default function WhoWeAre() {
             >
               <Image
                 src="/qui-sommes-nous.jpg"
-                alt="L'équipe Yes"
+                alt="L'équipe Wedy"
                 fill
                 className="object-cover"
               />
@@ -41,7 +41,7 @@ export default function WhoWeAre() {
               <br />pour des amoureux.
             </h2>
             <p className="text-base text-[#8B6070] font-light leading-relaxed mb-6 max-w-lg">
-              Yes est né d'une frustration simple : les listes de mariage existantes étaient soit laides, soit compliquées, soit les deux. On a décidé de faire mieux.
+              Wedy est né d'une frustration simple : les listes de mariage existantes étaient soit laides, soit compliquées, soit les deux. On a décidé de faire mieux.
             </p>
             <p className="text-base text-[#8B6070] font-light leading-relaxed max-w-lg">
               Notre équipe est petite, passionnée, et obsédée par les détails. On croit que votre liste de mariage mérite autant de soin que votre robe ou votre lieu de réception — et on met tout en œuvre pour que ce soit le cas.
@@ -53,7 +53,7 @@ export default function WhoWeAre() {
                   className="block text-2xl font-bold text-[#6D1D3E]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  2024
+                  2026
                 </span>
                 <span className="text-xs text-[#8B6070]">année de création</span>
               </div>
