@@ -59,6 +59,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [editGiftError, setEditGiftError] = useState<string | null>(null);
   const [editGiftSaving, setEditGiftSaving] = useState(false);
   const [slug, setSlug] = useState<string>(registry?.slug ?? "");
+  const [linkCopied, setLinkCopied] = useState(false);
   const [slugEditing, setSlugEditing] = useState(false);
   const [slugDraft, setSlugDraft] = useState("");
   const [slugStatus, setSlugStatus] = useState<"idle" | "checking" | "available" | "taken" | "saved">("idle");
@@ -1325,14 +1326,32 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
             </div>
             <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/mariage/${slug}`);
+                  const url = `${window.location.origin}/mariage/${slug}`;
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(() => {
+                      setLinkCopied(true);
+                      setTimeout(() => setLinkCopied(false), 2000);
+                    });
+                  } else {
+                    const ta = document.createElement("textarea");
+                    ta.value = url;
+                    ta.style.position = "fixed";
+                    ta.style.opacity = "0";
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(ta);
+                    setLinkCopied(true);
+                    setTimeout(() => setLinkCopied(false), 2000);
+                  }
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors flex-shrink-0"
-                style={{ backgroundColor: "rgba(109,29,62,0.07)", color: "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)", fontWeight: 500 }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.14)")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.07)")}
+                style={{ backgroundColor: linkCopied ? "rgba(109,29,62,0.15)" : "rgba(109,29,62,0.07)", color: linkCopied ? "#6D1D3E" : "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)", fontWeight: 500 }}
+                onMouseEnter={e => { if (!linkCopied) e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.14)"; }}
+                onMouseLeave={e => { if (!linkCopied) e.currentTarget.style.backgroundColor = "rgba(109,29,62,0.07)"; }}
               >
-                Copier le lien
+                {linkCopied ? "Copié ✓" : "Copier le lien"}
               </button>
           </div>
         )}
