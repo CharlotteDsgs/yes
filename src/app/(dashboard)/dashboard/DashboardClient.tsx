@@ -285,7 +285,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
       [currentTheme]: { ...(themeSettings[currentTheme] ?? {}), [key]: value },
     };
     setThemeSettings(updated);
-    sendSettingsMessage(updated[currentTheme]);
+    sendSettingsMessage((updated as Record<string, any>)[currentTheme]);
   }
 
   function handleMinimalisteSettingChange(key: string, value: string) {
@@ -908,7 +908,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                           const updated = { ...themeSettings, [currentTheme]: { ...(themeSettings?.[currentTheme] ?? {}), giftStyle: opt.value } };
                           setThemeSettings(updated);
                           iframeRef.current?.contentWindow?.postMessage(
-                            { type: "WEDY_UPDATE_SETTINGS", theme: currentTheme, settings: updated[currentTheme] }, "*"
+                            { type: "WEDY_UPDATE_SETTINGS", theme: currentTheme, settings: (updated as Record<string, any>)[currentTheme] }, "*"
                           );
                         }}
                         className="flex-1 py-2 text-xs font-semibold rounded-xl border transition-all"
