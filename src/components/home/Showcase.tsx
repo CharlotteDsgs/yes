@@ -56,7 +56,10 @@ function ThemeCard({ theme }: { theme: typeof themes[0] }) {
       {theme.id === "fleuri" ? (
         <div className="relative h-36 overflow-hidden flex items-center px-4 gap-3" style={{ backgroundColor: theme.bg }}>
           <img src={(theme as any).bgImage} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
-          <div className="relative z-10 flex-1 flex flex-col justify-center gap-0.5 min-w-0 pl-5">
+          <div className="relative z-10 flex-shrink-0 overflow-hidden ml-3" style={{ width: "58px", height: "58px", border: "1.5px solid rgba(61,43,31,0.3)" }}>
+            <img src={(theme as any).squareImage} alt="" className="w-full h-full object-cover" />
+          </div>
+          <div className="relative z-10 flex-1 flex flex-col justify-center gap-0.5 min-w-0 pr-5 items-end text-right">
             <span style={{ fontFamily: theme.font, color: theme.text, fontSize: classiqueFontSize, fontStyle: "italic", fontWeight: 500, lineHeight: 1.2, whiteSpace: "nowrap" }}>
               {p1} &amp;
             </span>
@@ -64,9 +67,6 @@ function ThemeCard({ theme }: { theme: typeof themes[0] }) {
               {p2}
             </span>
             <span style={{ fontFamily: theme.font, color: theme.text, fontSize: "0.55rem", opacity: 0.6, marginTop: "2px" }}>{dateShort}</span>
-          </div>
-          <div className="relative z-10 flex-shrink-0 overflow-hidden" style={{ width: "58px", height: "58px", border: "1.5px solid rgba(61,43,31,0.3)" }}>
-            <img src={(theme as any).squareImage} alt="" className="w-full h-full object-cover" />
           </div>
         </div>
       ) : (
@@ -96,12 +96,12 @@ function ThemeCard({ theme }: { theme: typeof themes[0] }) {
             </div>
           ) : theme.id === "minimaliste" ? (
             <>
-              <div className="relative z-10 flex flex-col items-start text-left flex-1 justify-center pr-4">
+              <div className="relative z-10 flex-shrink-0 overflow-hidden ml-3" style={{ width: "52px", height: "52px" }}>
+                <img src={(theme as any).squareImage} alt="" className="w-full h-full object-cover" />
+              </div>
+              <div className="relative z-10 flex flex-col items-end text-right flex-1 justify-center pl-4">
                 <span style={{ fontFamily: theme.font, color: theme.text, fontSize: minimalisteFontSize, fontWeight: 400, letterSpacing: "0.2em", textTransform: "uppercase", lineHeight: 1.3 }}>{p1} &amp; {p2}</span>
                 <span style={{ fontFamily: theme.font, color: theme.text, fontSize: "0.5rem", letterSpacing: "0.15em", opacity: 0.6, marginTop: "0.3em" }}>{dateShort}</span>
-              </div>
-              <div className="relative z-10 flex-shrink-0 overflow-hidden mr-3" style={{ width: "52px", height: "52px" }}>
-                <img src={(theme as any).squareImage} alt="" className="w-full h-full object-cover" />
               </div>
             </>
           ) : null}
