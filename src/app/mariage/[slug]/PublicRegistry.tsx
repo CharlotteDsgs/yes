@@ -233,8 +233,8 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           className="relative min-h-screen flex flex-col md:flex-row items-stretch overflow-hidden"
           style={{ backgroundColor: theme.bg }}
         >
-          {/* Left — Text (2/3 on mobile, flex-1 on desktop) */}
-          <div className="flex-[2] md:flex-1 flex flex-col justify-center px-10 md:px-20 pt-10 pb-2 md:py-24">
+          {/* Left — Text (~55% on mobile, flex-1 on desktop) */}
+          <div className="flex-[11] md:flex-1 flex flex-col justify-center px-10 md:px-20 pt-10 pb-2 md:py-24">
             <p className="text-xs tracking-[0.35em] uppercase mb-6" style={{ color: theme.muted }}>
               Liste de mariage
             </p>
@@ -271,8 +271,8 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           </div>
 
           {/* Right — Framed photo with whitespace */}
-          {/* Right — Image (1/3 on mobile, 60% on desktop) */}
-          <div className="flex-[1] md:flex-none md:w-[60%] flex items-center justify-center px-6 pb-6 md:p-6">
+          {/* Right — Image (~45% on mobile, 60% on desktop) */}
+          <div className="flex-[9] md:flex-none md:w-[60%] flex items-center justify-center px-6 pb-6 md:p-6">
             <div className="w-[70%] aspect-square overflow-hidden flex-shrink-0" style={{ border: `1px solid ${theme.border}` }}>
               {themeCoverUrl ? (
                 <img src={themeCoverUrl} alt="Photo du couple" className="w-full h-full object-cover" />
