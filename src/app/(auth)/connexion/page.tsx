@@ -32,23 +32,9 @@ export default function ConnexionPage() {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] flex pt-20 lg:pt-0">
-      {/* Left panel - decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#2c2c2c] flex-col items-center justify-center p-16 relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: "radial-gradient(circle at 30% 50%, #c9a89a 0%, transparent 60%)",
-          }}
-        />
-        <div className="relative z-10 text-center">
-          <p
-            className="text-3xl text-white leading-snug mb-6"
-            style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300 }}
-          >
-            Votre liste de mariage vous attend.
-          </p>
-          <p className="text-sm text-[#7a7370]">Bon retour parmi nous.</p>
-        </div>
+      {/* Left panel - photo */}
+      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
+        <img src="/photo_couple/couple_1.JPG" alt="" className="absolute inset-0 w-full h-full object-cover" />
       </div>
 
       {/* Right panel */}
