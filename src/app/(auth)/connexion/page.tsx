@@ -31,24 +31,22 @@ export default function ConnexionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] flex pt-20 lg:pt-0">
+    <div className="min-h-screen bg-[#faf8f5] flex">
       {/* Left panel - photo */}
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
         <img src="/photo_couple/couple_1.JPG" alt="" className="absolute inset-0 w-full h-full object-cover" />
       </div>
 
       {/* Right panel */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex flex-col p-8">
+        <div className="mb-8">
+          <a href="/" className="text-sm text-[#6D1D3E]/60 hover:text-[#6D1D3E] transition-colors"
+            style={{ fontFamily: "var(--font-display)" }}>
+            ← Accueil
+          </a>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center">
         <div className="w-full max-w-md">
-          <Link href="/" className="lg:hidden block mb-10">
-            <span
-              className="text-3xl text-[#2c2c2c] italic"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              Yes
-            </span>
-          </Link>
-
           <p className="text-xs tracking-[0.3em] uppercase text-[#c9a89a] mb-3">
             Bon retour
           </p>
@@ -112,6 +110,7 @@ export default function ConnexionPage() {
               Créer un compte gratuit
             </Link>
           </p>
+        </div>
         </div>
       </div>
     </div>
