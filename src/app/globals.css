@@ -44,11 +44,6 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #EFF6FF;
-}
-
-body {
-  background-color: #EFF6FF;
 }
 
 @keyframes gentle-bounce {
