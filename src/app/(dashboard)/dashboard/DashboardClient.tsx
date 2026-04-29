@@ -1212,6 +1212,52 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
       {activeTab === "participation" && (
       <main className="w-full px-6 lg:px-10 py-12">
 
+        {/* Stripe Connect */}
+        <div
+          className="rounded-2xl p-6 mb-10 w-full flex flex-col sm:flex-row items-start sm:items-center gap-5"
+          style={{ border: "1.5px solid #EABACB", backgroundColor: "#FFFBFD" }}
+        >
+          <div className="flex-1 flex flex-col gap-1">
+            <span className="text-sm font-semibold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
+              Paiements
+            </span>
+            {stripeEnabled ? (
+              <span className="text-sm font-light" style={{ color: "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)" }}>
+                Votre compte Stripe est connecté — vos invités peuvent participer.
+              </span>
+            ) : (
+              <span className="text-sm font-light" style={{ color: "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)" }}>
+                Connectez votre compte Stripe pour recevoir les participations directement sur votre compte bancaire.
+              </span>
+            )}
+          </div>
+          {stripeEnabled ? (
+            <div
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium"
+              style={{ backgroundColor: "#d4edda", color: "#155724", border: "1px solid #c3e6cb", fontFamily: "var(--font-display)" }}
+            >
+              <Check size={14} strokeWidth={2.5} />
+              Stripe connecté
+            </div>
+          ) : (
+            <button
+              onClick={handleStripeConnect}
+              disabled={stripeConnecting}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-opacity"
+              style={{
+                backgroundColor: "#6D1D3E",
+                color: "#fff",
+                fontFamily: "var(--font-display)",
+                opacity: stripeConnecting ? 0.7 : 1,
+                cursor: stripeConnecting ? "not-allowed" : "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {stripeConnecting ? "Redirection…" : "Connecter mon compte Stripe"}
+            </button>
+          )}
+        </div>
+
         {/* Header */}
         <div className="mb-10 flex items-center justify-between flex-wrap gap-4">
           <span
@@ -1287,52 +1333,6 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
               <p className="text-xs text-red-500 pl-5" style={{ fontFamily: "var(--font-display)" }}>Cette URL est déjà prise.</p>
             )}
           </div>
-        </div>
-
-        {/* Stripe Connect */}
-        <div
-          className="rounded-2xl p-6 mb-10 w-full flex flex-col sm:flex-row items-start sm:items-center gap-5"
-          style={{ border: "1.5px solid #EABACB", backgroundColor: "#FFFBFD" }}
-        >
-          <div className="flex-1 flex flex-col gap-1">
-            <span className="text-sm font-semibold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
-              Paiements
-            </span>
-            {stripeEnabled ? (
-              <span className="text-sm font-light" style={{ color: "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)" }}>
-                Votre compte Stripe est connecté — vos invités peuvent participer.
-              </span>
-            ) : (
-              <span className="text-sm font-light" style={{ color: "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)" }}>
-                Connectez votre compte Stripe pour recevoir les participations directement sur votre compte bancaire.
-              </span>
-            )}
-          </div>
-          {stripeEnabled ? (
-            <div
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium"
-              style={{ backgroundColor: "#d4edda", color: "#155724", border: "1px solid #c3e6cb", fontFamily: "var(--font-display)" }}
-            >
-              <Check size={14} strokeWidth={2.5} />
-              Stripe connecté
-            </div>
-          ) : (
-            <button
-              onClick={handleStripeConnect}
-              disabled={stripeConnecting}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-opacity"
-              style={{
-                backgroundColor: "#6D1D3E",
-                color: "#fff",
-                fontFamily: "var(--font-display)",
-                opacity: stripeConnecting ? 0.7 : 1,
-                cursor: stripeConnecting ? "not-allowed" : "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {stripeConnecting ? "Redirection…" : "Connecter mon compte Stripe"}
-            </button>
-          )}
         </div>
 
         {/* Stats */}
