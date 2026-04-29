@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Gift, TrendingUp, Trash2, ChevronDown, Pencil, Check, X, SquarePen, ImagePlus, Paintbrush, Eye } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -98,6 +99,36 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
     setSlugStatus("saved");
     setTimeout(() => setSlugStatus("idle"), 2500);
   }
+  // Handle Stripe Connect redirect callbacks
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("stripe_ok") === "1") {
+      fetch(`/api/stripe/connect?registryId=${registry.id}`)
+        .then(r => r.json())
+        .then(d => { if (d.enabled) setStripeEnabled(true); });
+      router.replace("/dashboard");
+    } else if (params.get("stripe_refresh") === "1") {
+      router.replace("/dashboard");
+      handleStripeConnect();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleStripeConnect() {
+    setStripeConnecting(true);
+    try {
+      const res = await fetch("/api/stripe/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registryId: registry.id }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } finally {
+      setStripeConnecting(false);
+    }
+  }
+
   const [giftPickerGiftId, setGiftPickerGiftId] = useState<string | null>(null);
   const [unsplashQuery, setUnsplashQuery] = useState("");
   const [unsplashResults, setUnsplashResults] = useState<any[]>([]);
@@ -117,6 +148,9 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [previewScale, setPreviewScale] = useState(0);
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [stripeEnabled, setStripeEnabled] = useState<boolean>(registry?.stripe_charges_enabled ?? false);
+  const [stripeConnecting, setStripeConnecting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handler = (e: MessageEvent) => {
@@ -1253,6 +1287,52 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
               <p className="text-xs text-red-500 pl-5" style={{ fontFamily: "var(--font-display)" }}>Cette URL est déjà prise.</p>
             )}
           </div>
+        </div>
+
+        {/* Stripe Connect */}
+        <div
+          className="rounded-2xl p-6 mb-10 w-full flex flex-col sm:flex-row items-start sm:items-center gap-5"
+          style={{ border: "1.5px solid #EABACB", backgroundColor: "#FFFBFD" }}
+        >
+          <div className="flex-1 flex flex-col gap-1">
+            <span className="text-sm font-semibold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
+              Paiements
+            </span>
+            {stripeEnabled ? (
+              <span className="text-sm font-light" style={{ color: "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)" }}>
+                Votre compte Stripe est connecté — vos invités peuvent participer.
+              </span>
+            ) : (
+              <span className="text-sm font-light" style={{ color: "rgba(109,29,62,0.6)", fontFamily: "var(--font-display)" }}>
+                Connectez votre compte Stripe pour recevoir les participations directement sur votre compte bancaire.
+              </span>
+            )}
+          </div>
+          {stripeEnabled ? (
+            <div
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium"
+              style={{ backgroundColor: "#d4edda", color: "#155724", border: "1px solid #c3e6cb", fontFamily: "var(--font-display)" }}
+            >
+              <Check size={14} strokeWidth={2.5} />
+              Stripe connecté
+            </div>
+          ) : (
+            <button
+              onClick={handleStripeConnect}
+              disabled={stripeConnecting}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-opacity"
+              style={{
+                backgroundColor: "#6D1D3E",
+                color: "#fff",
+                fontFamily: "var(--font-display)",
+                opacity: stripeConnecting ? 0.7 : 1,
+                cursor: stripeConnecting ? "not-allowed" : "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {stripeConnecting ? "Redirection…" : "Connecter mon compte Stripe"}
+            </button>
+          )}
         </div>
 
         {/* Stats */}

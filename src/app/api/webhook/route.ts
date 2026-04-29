@@ -17,17 +17,37 @@ export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature")!;
 
-  let event: Stripe.Event;
+  let event!: Stripe.Event;
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch {
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  // Try Connect webhook secret first, then fall back to regular secret
+  const secrets = [
+    process.env.STRIPE_CONNECT_WEBHOOK_SECRET,
+    process.env.STRIPE_WEBHOOK_SECRET,
+  ].filter(Boolean) as string[];
+
+  let verified = false;
+  for (const secret of secrets) {
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, secret);
+      verified = true;
+      break;
+    } catch {
+      // try next secret
+    }
+  }
+  if (!verified) return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+
+  if (event.type === "account.updated") {
+    const account = event.data.object as Stripe.Account;
+    if (account.charges_enabled) {
+      const supabase = createAdminClient();
+      await supabase
+        .from("registries")
+        .update({ stripe_charges_enabled: true })
+        .eq("stripe_account_id", account.id);
+    }
+    return NextResponse.json({ received: true });
   }
 
   if (event.type === "checkout.session.completed") {
