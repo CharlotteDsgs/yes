@@ -1458,12 +1458,14 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
           transition: bookTransition,
         }}>
 
-          {/* ── Right panel: template design (static, always in front) ── */}
+          {/* ── Right panel: template design — caché en phase 0 (couverture devant) ── */}
           <div style={{
             position: "absolute", left: W, top: 0, width: W, height: H,
             overflow: "hidden",
             transform: "translateZ(2px)",
             boxShadow: "inset 6px 0 18px rgba(0,0,0,0.1), 8px 32px 64px rgba(0,0,0,0.45)",
+            opacity: phase === 0 ? 0 : 1,
+            transition: phase === 1 ? "opacity 0.4s ease 0.3s" : "none",
           }}>
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
