@@ -64,6 +64,11 @@ html {
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+@keyframes card-inside-appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 @keyframes card-rise {
   from { opacity: 0; transform: translateX(-50%) translateY(30px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(-90px); }

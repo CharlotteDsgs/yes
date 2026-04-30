@@ -1354,131 +1354,223 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, fontPreset, 
 }
 
 /* ═══════════════════════════════════════════════
-   ENVELOPE ANIMATION MODAL
+   CARD FOLD ANIMATION MODAL
+   3D greeting-card open: front cover rotates around
+   its left edge (spine) to reveal the inside.
 ═══════════════════════════════════════════════ */
 
-function EnvelopeModal({ tpl, paletteId, user, isStd, envCfg, fontPreset, label, namesText, dateText, locationText, footer, photoUrl, elementStyles, customPaperBg, onClose }: {
+function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, photoUrl, elementStyles, customPaperBg, onClose }: {
   tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
-  envCfg: EnvelopeConfig; fontPreset?: string;
+  fontPreset?: string;
   label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string; photoUrl?: string;
   elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
   customPaperBg?: string;
   onClose: () => void;
 }) {
-  const [phase, setPhase] = useState(0);
   const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
 
+  // Respect prefers-reduced-motion: skip straight to open state
+  const [reducedMotion] = useState<boolean>(() =>
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+
+  // phase 0: closed + tilted  |  phase 1: opening  |  phase 2: fully open
+  const [phase, setPhase] = useState<0 | 1 | 2>(reducedMotion ? 2 : 0);
+
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 600);   // flap starts opening
-    const t2 = setTimeout(() => setPhase(2), 2000);  // card starts rising
-    const t3 = setTimeout(() => setPhase(3), 3900);  // final card display
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, []);
+    if (reducedMotion) return;
+    const t1 = setTimeout(() => setPhase(1), 900);   // begin opening
+    const t2 = setTimeout(() => setPhase(2), 2700);  // animation settled
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [reducedMotion]);
 
-  const envW     = 360;
-  const openH    = Math.round(envW * ENV_OPEN_H   / ENV_OPEN_W);   // ≈ 475
-  const closedH  = Math.round(envW * ENV_CLOSED_H / ENV_CLOSED_W); // ≈ 263
-  const openingY = Math.round(openH * 0.455);                      // ≈ 216 — fold line
-  const cardW    = Math.round(envW * 0.72);                        // ≈ 259
-  const cardH    = Math.round(cardW * 1.4);                        // ≈ 363
-  const envTop   = cardH - openingY;                               // ≈ 147
-  const containerH = envTop + openH;                               // ≈ 622
+  const W = 260;
+  const H = Math.round(W * 1.4); // 364
 
-  const texture = ENVELOPE_TEXTURES.find(t => t.id === (envCfg?.textureId ?? "naturel")) ?? ENVELOPE_TEXTURES[0];
-  const imgFilter = texture.filter || undefined;
+  // Formatted display values
+  const displayNames   = namesText   || (user.p1 && user.p2 ? `${user.p1} & ${user.p2}` : "Emma & Louis");
+  const displayDate    = dateText    || (user.date
+    ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+    : "samedi 12 juillet 2026");
+  const displayLocation = locationText || user.location || "";
+  const displayLabel   = label || "Save the Date";
+
+  // Cover angle: 0° = closed (facing viewer), -180° = fully open (flipped behind)
+  const coverAngle = phase === 0 ? 0 : -180;
+  // Whole-book tilt: slight initial perspective, disappears as cover opens
+  const bookTilt   = phase === 0 ? -22 : 0;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8"
       style={{ backgroundColor: "rgba(8,6,14,0.92)" }}
-      onClick={phase < 3 ? undefined : onClose}
     >
-      <button onClick={onClose} className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white" }}>
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center"
+        style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white" }}
+      >
         <X size={18}/>
       </button>
 
-      {phase < 3 ? (
-        <div style={{ position: "relative", width: envW, height: containerH }}>
-
-          {/* Card — rises slowly out of envelope */}
-          <div style={{
-            position: "absolute", top: 0, left: "50%",
-            width: cardW, height: cardH,
-            transform: `translateX(-50%) translateY(${phase >= 2 ? 0 : cardH}px)`,
-            opacity: phase >= 2 ? 1 : 0,
-            transition: phase >= 2
-              ? "transform 1.8s cubic-bezier(0.22, 0.8, 0.35, 1), opacity 0.8s ease"
-              : "none",
-            boxShadow: "0 16px 48px rgba(0,0,0,0.4)",
-            overflow: "hidden", zIndex: 4,
-          }}>
-            <TemplateRender id={tpl.id} W={cardW} H={cardH} palette={palette} user={user} isStd={isStd}
-              fontPreset={fontPreset} label={label} namesText={namesText}
-              dateText={dateText} locationText={locationText} footer={footer}
-              photoUrl={photoUrl} elementStyles={elementStyles} customPaperBg={customPaperBg}/>
-          </div>
-
-          {/* Envelope area */}
-          <div style={{ position: "absolute", top: envTop, left: 0, zIndex: 2 }}>
-
-            {/* Open SVG — always underneath, revealed as closed fades */}
-            <img src="/enveloppe/ouverte.svg" width={envW} height={openH}
-              style={{ display: "block", filter: imgFilter }} alt=""/>
-
-            {/* Closed SVG — fades out once flap starts opening */}
-            <img src="/enveloppe/fermee.svg" width={envW} height={closedH}
-              style={{
-                display: "block", position: "absolute", top: 0, left: 0,
-                filter: imgFilter,
-                opacity: phase >= 1 ? 0 : 1,
-                transition: "opacity 0.8s ease 0.3s",
-                pointerEvents: "none",
-              }} alt=""/>
-
-            {/* 3D flap — top openingY px of the open SVG, rotates from flat to upright */}
-            <div style={{
-              position: "absolute", top: 0, left: 0,
-              width: envW, height: openingY,
-              transformOrigin: "center bottom",
-              transform: phase >= 1
-                ? "perspective(1000px) rotateX(0deg)"
-                : "perspective(1000px) rotateX(-175deg)",
-              transition: phase >= 1
-                ? "transform 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s"
-                : "none",
-              overflow: "hidden",
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
-              zIndex: 3,
+      {/* ── 3D scene ── */}
+      <div style={{ perspective: "1200px", perspectiveOrigin: "50% 48%" }}>
+        <div
+          style={{
+            position: "relative",
+            width: W,
+            height: H,
+            transformStyle: "preserve-3d",
+            transform: `rotateY(${bookTilt}deg)`,
+            transition: phase >= 1 ? "transform 0.75s cubic-bezier(0.4, 0, 0.2, 1)" : "none",
+            /* ground shadow */
+            filter: "drop-shadow(0 40px 48px rgba(0,0,0,0.55))",
+          }}
+        >
+          {/* ── Inside panel (always in place behind the cover) ── */}
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              background: palette.bg,
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center",
+              padding: "36px 28px",
+              textAlign: "center",
+              /* subtle spine shadow on inside-left edge */
+              boxShadow: "inset -6px 0 18px rgba(0,0,0,0.07)",
+              /* appear only when cover has cleared (backface trick not needed, just fade) */
+              opacity: phase >= 1 ? 1 : 0,
+              animation: phase === 2 ? "card-inside-appear 0.5s ease forwards" : "none",
+              transition: phase >= 1 ? "opacity 0.6s ease 0.5s" : "none",
+            }}
+          >
+            <p style={{
+              fontSize: "8px", letterSpacing: "0.42em", textTransform: "uppercase",
+              color: palette.textSecondary, marginBottom: "20px",
+              fontFamily: "var(--font-display)", opacity: 0.65,
             }}>
-              <img src="/enveloppe/ouverte.svg" width={envW} height={openH}
-                style={{ display: "block", position: "absolute", top: 0, left: 0, filter: imgFilter }} alt=""/>
+              {displayLabel}
+            </p>
+
+            <p style={{
+              fontSize: "30px", fontFamily: "var(--font-script)",
+              color: palette.textPrimary, lineHeight: 1.2, marginBottom: "18px",
+            }}>
+              {displayNames}
+            </p>
+
+            <div style={{ width: "44px", height: "1px", background: palette.accent, opacity: 0.45, marginBottom: "18px" }}/>
+
+            <p style={{
+              fontSize: "12px", fontFamily: "var(--font-display)",
+              color: palette.textSecondary, letterSpacing: "0.07em",
+              marginBottom: displayLocation ? "5px" : "20px",
+            }}>
+              {displayDate}
+            </p>
+
+            {displayLocation && (
+              <p style={{
+                fontSize: "11px", fontFamily: "var(--font-serif)", fontStyle: "italic",
+                color: palette.textSecondary, opacity: 0.6, marginBottom: "20px",
+              }}>
+                {displayLocation}
+              </p>
+            )}
+
+            {footer && (
+              <p style={{
+                fontSize: "11px", fontFamily: "var(--font-serif)", fontStyle: "italic",
+                color: palette.textSecondary, opacity: 0.75,
+                lineHeight: 1.65, maxWidth: "200px", marginBottom: "24px",
+              }}>
+                {footer}
+              </p>
+            )}
+
+            {/* RSVP CTA placeholder */}
+            <div style={{
+              marginTop: "auto",
+              padding: "9px 22px",
+              border: `1.5px solid ${palette.accent}`,
+              borderRadius: "3px",
+              fontSize: "8px", letterSpacing: "0.32em", textTransform: "uppercase",
+              color: palette.accent, fontFamily: "var(--font-display)",
+              opacity: 0.9,
+            }}>
+              Confirmer ma présence →
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-6" style={{ animation: "invitation-appear 0.45s ease forwards" }}>
-          <div style={{ width: cardW, height: cardH, boxShadow: "0 24px 80px rgba(0,0,0,0.55)", overflow: "hidden" }}>
-            <TemplateRender id={tpl.id} W={cardW} H={cardH} palette={palette} user={user} isStd={isStd}
-              fontPreset={fontPreset} label={label} namesText={namesText}
-              dateText={dateText} locationText={locationText} footer={footer}
-              photoUrl={photoUrl} elementStyles={elementStyles} customPaperBg={customPaperBg}/>
+
+          {/* ── Cover panel (front flap — rotates around left/spine edge) ── */}
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              transformOrigin: "left center",
+              transformStyle: "preserve-3d",
+              transform: `rotateY(${coverAngle}deg)`,
+              transition: phase >= 1
+                ? "transform 1.65s cubic-bezier(0.42, 0, 0.12, 1) 0.08s"
+                : "none",
+            }}
+          >
+            {/* Front face: the template design */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
+              overflow: "hidden",
+            }}>
+              <TemplateRender
+                id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
+                fontPreset={fontPreset} label={label} namesText={namesText}
+                dateText={dateText} locationText={locationText} footer={footer}
+                photoUrl={photoUrl} elementStyles={elementStyles} customPaperBg={customPaperBg}
+              />
+            </div>
+
+            {/* Back face: inner side of the cover flap (seen as it swings past 90°) */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
+              transform: "rotateY(180deg)",
+              background: `linear-gradient(to right, ${palette.bg}, color-mix(in srgb, ${palette.bg} 85%, #fff))`,
+              boxShadow: "inset 6px 0 20px rgba(0,0,0,0.1)",
+            }}/>
           </div>
-          <div className="flex gap-3">
-            <button onClick={onClose} className="px-5 py-2.5 rounded-full text-sm font-semibold" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white", fontFamily: "var(--font-display)" }}>Retour</button>
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold" style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}>
-              <Sparkles size={14}/> Personnaliser
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* Status label */}
+      {phase < 2 && (
+        <p style={{
+          fontSize: "13px", fontFamily: "var(--font-serif)", fontStyle: "italic",
+          color: "rgba(255,255,255,0.32)",
+          transition: "opacity 0.4s ease",
+        }}>
+          {phase === 0 ? "Votre invitation…" : "La carte s'ouvre…"}
+        </p>
       )}
 
-      {phase < 3 && (
-        <p className="text-sm" style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-serif)", fontStyle: "italic" }}>
-          {phase === 0 && "Votre invitation arrive…"}
-          {phase === 1 && "L'enveloppe s'ouvre…"}
-          {phase === 2 && "Votre invitation apparaît…"}
-        </p>
+      {/* Action buttons once open */}
+      {phase === 2 && (
+        <div className="flex gap-3" style={{ animation: "invitation-appear 0.45s ease forwards" }}>
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 rounded-full text-sm font-semibold"
+            style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white", fontFamily: "var(--font-display)" }}
+          >
+            Retour
+          </button>
+          <button
+            onClick={onClose}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold"
+            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+          >
+            <Sparkles size={14}/> Personnaliser
+          </button>
+        </div>
       )}
     </div>
   );
@@ -2639,12 +2731,11 @@ export default function SaveTheDatePage() {
       )}
 
       {mainTab === "personnalisation" && mode === "animate" && activeTpl && (
-        <EnvelopeModal
+        <CardFoldModal
           tpl={activeTpl}
           paletteId={getPalette(activeTpl.id)}
           user={user}
           isStd={true}
-          envCfg={envCfg}
           fontPreset={cardCustom.fontPreset}
           label={cardCustom.label}
           namesText={cardCustom.namesText}
