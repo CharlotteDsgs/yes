@@ -1464,7 +1464,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             transform: "translateZ(2px)",
             boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
             opacity: phase === 0 ? 0 : 1,
-            transition: phase === 1 ? "opacity 0.4s ease 0.3s" : "none",
+            transition: phase === 1 ? "opacity 0.4s ease 2.1s" : "none",
           }}>
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
