@@ -1414,7 +1414,8 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
       </button>
 
       {/* ── 3D scene ── */}
-      <div style={{ perspective: "1200px", perspectiveOrigin: "50% 48%" }}>
+      {/* perspectiveOrigin left of centre: bord droit part en premier, illusion de rabattement gauche */}
+      <div style={{ perspective: "900px", perspectiveOrigin: "15% 50%" }}>
         <div
           style={{
             position: "relative",
@@ -1445,16 +1446,17 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             />
           </div>
 
-          {/* ── Cover panel (front flap — rotates around left/spine edge) ── */}
+          {/* ── Cover panel — rotates around centre so it lands directly behind inside ── */}
           <div
             style={{
               position: "absolute", inset: 0,
-              transformOrigin: "left center",
+              transformOrigin: "center center",
               transformStyle: "preserve-3d",
-              transform: `rotateY(${coverAngle}deg)`,
-              transition: phase >= 1
-                ? "transform 1.65s cubic-bezier(0.42, 0, 0.12, 1) 0.08s"
+              /* Use keyframe when opening for the leftward arc; instant when closed */
+              animation: phase >= 1
+                ? `page-fold-back 1.6s cubic-bezier(0.42, 0, 0.12, 1) forwards`
                 : "none",
+              transform: phase === 0 ? "rotateY(0deg)" : undefined,
             }}
           >
             {/* Front face: simple cover — paper texture + "Save the Date" */}
