@@ -1427,79 +1427,22 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             filter: "drop-shadow(0 40px 48px rgba(0,0,0,0.55))",
           }}
         >
-          {/* ── Inside panel (always in place behind the cover) ── */}
+          {/* ── Inside panel: the template design, revealed after opening ── */}
           <div
             style={{
               position: "absolute", inset: 0,
-              background: palette.bg,
-              display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center",
-              padding: "36px 28px",
-              textAlign: "center",
-              /* subtle spine shadow on inside-left edge */
+              overflow: "hidden",
               boxShadow: "inset -6px 0 18px rgba(0,0,0,0.07)",
-              /* appear only when cover has cleared (backface trick not needed, just fade) */
               opacity: phase >= 1 ? 1 : 0,
-              animation: phase === 2 ? "card-inside-appear 0.5s ease forwards" : "none",
-              transition: phase >= 1 ? "opacity 0.6s ease 0.5s" : "none",
+              transition: phase >= 1 ? "opacity 0.55s ease 0.6s" : "none",
             }}
           >
-            <p style={{
-              fontSize: "8px", letterSpacing: "0.42em", textTransform: "uppercase",
-              color: palette.textSecondary, marginBottom: "20px",
-              fontFamily: "var(--font-display)", opacity: 0.65,
-            }}>
-              {displayLabel}
-            </p>
-
-            <p style={{
-              fontSize: "30px", fontFamily: "var(--font-script)",
-              color: palette.textPrimary, lineHeight: 1.2, marginBottom: "18px",
-            }}>
-              {displayNames}
-            </p>
-
-            <div style={{ width: "44px", height: "1px", background: palette.accent, opacity: 0.45, marginBottom: "18px" }}/>
-
-            <p style={{
-              fontSize: "12px", fontFamily: "var(--font-display)",
-              color: palette.textSecondary, letterSpacing: "0.07em",
-              marginBottom: displayLocation ? "5px" : "20px",
-            }}>
-              {displayDate}
-            </p>
-
-            {displayLocation && (
-              <p style={{
-                fontSize: "11px", fontFamily: "var(--font-serif)", fontStyle: "italic",
-                color: palette.textSecondary, opacity: 0.6, marginBottom: "20px",
-              }}>
-                {displayLocation}
-              </p>
-            )}
-
-            {footer && (
-              <p style={{
-                fontSize: "11px", fontFamily: "var(--font-serif)", fontStyle: "italic",
-                color: palette.textSecondary, opacity: 0.75,
-                lineHeight: 1.65, maxWidth: "200px", marginBottom: "24px",
-              }}>
-                {footer}
-              </p>
-            )}
-
-            {/* RSVP CTA placeholder */}
-            <div style={{
-              marginTop: "auto",
-              padding: "9px 22px",
-              border: `1.5px solid ${palette.accent}`,
-              borderRadius: "3px",
-              fontSize: "8px", letterSpacing: "0.32em", textTransform: "uppercase",
-              color: palette.accent, fontFamily: "var(--font-display)",
-              opacity: 0.9,
-            }}>
-              Confirmer ma présence →
-            </div>
+            <TemplateRender
+              id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
+              fontPreset={fontPreset} label={label} namesText={namesText}
+              dateText={dateText} locationText={locationText} footer={footer}
+              photoUrl={photoUrl} elementStyles={elementStyles} customPaperBg={customPaperBg}
+            />
           </div>
 
           {/* ── Cover panel (front flap — rotates around left/spine edge) ── */}
@@ -1514,19 +1457,54 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
                 : "none",
             }}
           >
-            {/* Front face: the template design */}
+            {/* Front face: simple cover — paper texture + "Save the Date" */}
             <div style={{
               position: "absolute", inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
               overflow: "hidden",
+              background: palette.bg,
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center",
+              textAlign: "center",
             }}>
-              <TemplateRender
-                id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
-                fontPreset={fontPreset} label={label} namesText={namesText}
-                dateText={dateText} locationText={locationText} footer={footer}
-                photoUrl={photoUrl} elementStyles={elementStyles} customPaperBg={customPaperBg}
-              />
+              {/* Paper background image if the template has one */}
+              {tpl.paperImage && (
+                <img
+                  src={tpl.paperImage}
+                  alt=""
+                  style={{
+                    position: "absolute", inset: 0,
+                    width: "100%", height: "100%",
+                    objectFit: "cover",
+                    pointerEvents: "none",
+                  }}
+                />
+              )}
+              {/* Centred "Save the Date" text over the paper */}
+              <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+                <p style={{
+                  fontSize: "9px", letterSpacing: "0.42em", textTransform: "uppercase",
+                  color: palette.textSecondary, fontFamily: "var(--font-display)", opacity: 0.7,
+                }}>
+                  {displayLabel}
+                </p>
+                <p style={{
+                  fontSize: "34px", fontFamily: "var(--font-script)",
+                  color: palette.textPrimary, lineHeight: 1.15,
+                }}>
+                  {displayNames}
+                </p>
+                <div style={{ width: "36px", height: "1px", background: palette.accent, opacity: 0.4 }}/>
+                <p style={{
+                  fontSize: "11px", fontFamily: "var(--font-display)",
+                  color: palette.textSecondary, letterSpacing: "0.08em", opacity: 0.8,
+                }}>
+                  {user.date
+                    ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+                    : "12 juillet 2026"}
+                </p>
+              </div>
             </div>
 
             {/* Back face: inner side of the cover flap (seen as it swings past 90°) */}
