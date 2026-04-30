@@ -1124,7 +1124,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                           <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#28C940" }} />
                         </div>
                         <div style={{ flex: 1, backgroundColor: "rgba(255,255,255,0.7)", borderRadius: 6, padding: "6px 12px", fontSize: 12, color: "#888", textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          wedy.fr/mariage/{registry.slug}
+                          https://wedy-app.vercel.app/mariage/{registry.slug}
                         </div>
                         <button
                           onClick={() => setPreviewKey(k => k + 1)}
@@ -1289,7 +1289,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                 </svg>
                 <span className="text-xs font-bold tracking-widest uppercase whitespace-nowrap" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>Mon URL :</span>
                 <div className="flex items-center rounded-lg overflow-hidden border border-[#6D1D3E] bg-[#FFF5F0] flex-1">
-                  <span className="pl-2 pr-0.5 text-xs text-[#6D1D3E]/40 whitespace-nowrap" style={{ fontFamily: "var(--font-display)" }}>wedy.fr/mariage/</span>
+                  <span className="pl-2 pr-0.5 text-xs text-[#6D1D3E]/40 whitespace-nowrap" style={{ fontFamily: "var(--font-display)" }}>https://wedy-app.vercel.app/mariage/</span>
                   <input
                     autoFocus
                     value={slugDraft}
@@ -1313,7 +1313,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                 </svg>
                 <span className="text-xs font-bold tracking-widest uppercase whitespace-nowrap" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>Mon URL :</span>
                 <span className="text-sm" style={{ fontFamily: "var(--font-display)" }}>
-                  <span style={{ color: "rgba(109,29,62,0.4)" }}>wedy.fr/mariage/</span><span
+                  <span style={{ color: "rgba(109,29,62,0.4)" }}>https://wedy-app.vercel.app/mariage/</span><span
                     className="font-bold cursor-pointer"
                     style={{ color: "#6D1D3E", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: "3px" }}
                     onClick={() => { setSlugDraft(slug); setSlugStatus("idle"); setSlugEditing(true); }}
@@ -1478,7 +1478,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                 Partager
               </span>
               <span className="text-sm truncate" style={{ color: "rgba(109,29,62,0.5)", fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300 }}>
-                wedy.fr/mariage/{slug}
+                https://wedy-app.vercel.app/mariage/{slug}
               </span>
             </div>
             <button
