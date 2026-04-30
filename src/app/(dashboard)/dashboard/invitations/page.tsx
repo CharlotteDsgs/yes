@@ -1403,8 +1403,8 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
 
    Panneau gauche — transform-origin: right center (reliure à x=W)
      phase 0 : rotateY(180°)  → panneau à [W,2W], face arrière (couverture) visible
-     phase 1 : rotateY(0°)    → panneau à [0,W], face avant (intérieur) visible
-     phase 2-3: rotateY(-180°) → panneau à [W,2W] mais DERRIÈRE panneau droit
+     phase 1 : rotateY(0°)    → panneau à [0,W], face avant (intérieur) ; passe par 90° z=+W → couvre panneau droit
+     phase 2-3: rotateY(-180°) → panneau à [W,2W] mais DERRIÈRE panneau droit ; passe par -90° z=-W → sous panneau droit
 
    Double rotation back face (180° panneau + 180° face) = 360° net → contenu non-miroir ✓
 
@@ -1415,6 +1415,8 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
    ─────────────────────────────────────────────── */
 
   const bookTX    = phase === 1 ? 0 : -(W / 2);
+  // 180→0° : passe par 90° où z=+W (vers le spectateur) → couvre le panneau droit ✓
+  // 0→-180° : passe par -90° où z=-W (derrière) → se rabat derrière le panneau droit ✓
   const leftAngle = phase === 0 ? 180 : phase === 1 ? 0 : -180;
 
   const OPEN_EASE = "2.2s cubic-bezier(0.4, 0, 0.2, 1)";
@@ -1464,7 +1466,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             transform: "translateZ(2px)",
             boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
             opacity: phase === 0 ? 0 : 1,
-            transition: phase === 1 ? "opacity 0.4s ease 2.1s" : "none",
+            transition: phase === 1 ? "opacity 0.6s ease 0s" : "none",
           }}>
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
