@@ -2147,7 +2147,7 @@ export default function SaveTheDatePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [registryId, setRegistryId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
-  const [mainTab, setMainTab] = useState<"design" | "personnalisation" | "envoi" | "reponses">("design");
+  const [mainTab, setMainTab] = useState<"accueil" | "design" | "personnalisation" | "envoi" | "reponses">("accueil");
   const [mode, setMode] = useState<"gallery" | "detail" | "animate">("gallery");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [paletteIds, setPaletteIds] = useState<Record<string, string>>({});
@@ -2267,6 +2267,7 @@ export default function SaveTheDatePage() {
       <div className="bg-white border-b border-[#f0e6e2]">
         <div className="w-full px-6 lg:px-10 flex items-center gap-0">
           {([
+            { id: "accueil",         label: "Accueil" },
             { id: "design",          label: "Design" },
             { id: "personnalisation",label: "Personnalisation" },
             { id: "envoi",           label: "Envoi" },
@@ -2290,6 +2291,163 @@ export default function SaveTheDatePage() {
           ))}
         </div>
       </div>
+
+      {/* ── Accueil ── */}
+      {mainTab === "accueil" && (
+        <div style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
+
+          {/* Hero */}
+          <div className="max-w-5xl mx-auto px-8 py-16 flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1">
+              <p className="text-xs font-bold tracking-[0.35em] uppercase mb-4" style={{ color: "rgba(109,29,62,0.45)", fontFamily: "var(--font-display)" }}>
+                Wedy · Save the Date
+              </p>
+              <h1 className="text-4xl md:text-5xl font-light leading-tight mb-6" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
+                Annoncez votre mariage<br />
+                <em style={{ color: "#6D1D3E" }}>avec élégance</em>
+              </h1>
+              <p className="text-base font-light mb-8 leading-relaxed" style={{ color: "rgba(44,44,44,0.6)", fontFamily: "var(--font-display)", maxWidth: "420px" }}>
+                Envoyez un Save the Date digital à vos invités, suivez leurs réponses en temps réel, le tout depuis votre espace Wedy.
+              </p>
+              <button
+                onClick={() => setMainTab("design")}
+                className="px-8 py-4 rounded-full text-sm font-bold text-white transition-all"
+                style={{ backgroundColor: "#6D1D3E", fontFamily: "var(--font-display)", boxShadow: "0 4px 20px rgba(109,29,62,0.3)" }}
+              >
+                Choisir mon design →
+              </button>
+            </div>
+
+            {/* Mock card preview */}
+            <div className="flex-shrink-0 relative" style={{ width: "280px", height: "360px" }}>
+              <div style={{ position: "absolute", top: 20, left: 20, right: 0, bottom: 0, backgroundColor: "#EABACB", borderRadius: "16px", transform: "rotate(-4deg)" }} />
+              <div style={{ position: "absolute", top: 10, left: 10, right: 10, bottom: 10, backgroundColor: "#D4789A", borderRadius: "16px", transform: "rotate(-2deg)" }} />
+              <div style={{ position: "absolute", inset: 0, backgroundColor: "white", borderRadius: "16px", boxShadow: "0 20px 60px rgba(109,29,62,0.2)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px", textAlign: "center" }}>
+                <p style={{ fontSize: "9px", letterSpacing: "0.35em", textTransform: "uppercase", color: "#9e6b5c", marginBottom: "12px", fontFamily: "var(--font-display)" }}>save the date</p>
+                <p style={{ fontSize: "26px", fontFamily: "var(--font-script)", color: "#6D1D3E", lineHeight: 1.2, marginBottom: "16px" }}>
+                  {user.p1 || "Emma"} &amp; {user.p2 || "Louis"}
+                </p>
+                <div style={{ width: "40px", height: "1px", backgroundColor: "#EABACB", marginBottom: "16px" }} />
+                <p style={{ fontSize: "12px", fontFamily: "var(--font-display)", color: "#9e6b5c", letterSpacing: "0.1em" }}>
+                  {user.date ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "12 juillet 2026"}
+                </p>
+                {(user.location || "Paris, France") && (
+                  <p style={{ fontSize: "11px", fontFamily: "var(--font-display)", color: "rgba(158,107,92,0.6)", marginTop: "6px" }}>
+                    {user.location || "Paris, France"}
+                  </p>
+                )}
+                <p style={{ fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(158,107,92,0.45)", marginTop: "20px", fontFamily: "var(--font-display)" }}>invitation à suivre</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div className="max-w-5xl mx-auto px-8 pb-16">
+            <h2 className="text-2xl font-light text-center mb-10" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
+              Tout ce dont vous avez besoin
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  emoji: "✉️",
+                  title: "Designs élégants",
+                  desc: "Des dizaines de modèles personnalisables — couleurs, typographies, photo.",
+                },
+                {
+                  emoji: "💌",
+                  title: "Envoi par email",
+                  desc: "Chaque invité reçoit un email avec une enveloppe animée qui s'ouvre sur votre annonce.",
+                },
+                {
+                  emoji: "✅",
+                  title: "Suivi des réponses",
+                  desc: "Visualisez en un coup d'œil qui a confirmé, décliné ou n'a pas encore répondu.",
+                },
+                {
+                  emoji: "🎨",
+                  title: "Personnalisation complète",
+                  desc: "Textes, polices, couleurs, photo — chaque détail est ajustable.",
+                },
+                {
+                  emoji: "📱",
+                  title: "Compatible mobile",
+                  desc: "Vos invités ouvrent et répondent depuis leur téléphone en quelques secondes.",
+                },
+                {
+                  emoji: "🔗",
+                  title: "Lien unique par invité",
+                  desc: "Chaque lien de réponse est personnel et sécurisé — aucun compte requis pour vos invités.",
+                },
+              ].map((f) => (
+                <div key={f.title} className="rounded-2xl p-6" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.07)" }}>
+                  <span style={{ fontSize: "28px" }}>{f.emoji}</span>
+                  <h3 className="text-base font-semibold mt-3 mb-2" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{f.title}</h3>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: "rgba(44,44,44,0.6)", fontFamily: "var(--font-display)" }}>{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pricing */}
+          <div className="max-w-4xl mx-auto px-8 pb-20">
+            <h2 className="text-2xl font-light text-center mb-3" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
+              Tarifs
+            </h2>
+            <p className="text-sm text-center mb-10" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>
+              Simple et transparent.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                {
+                  name: "Essentiel",
+                  price: "À définir",
+                  desc: "Pour commencer",
+                  features: ["Jusqu'à X invités", "Tous les designs", "Suivi des réponses", "Enveloppe animée"],
+                  cta: "Commencer",
+                  highlight: false,
+                },
+                {
+                  name: "Premium",
+                  price: "À définir",
+                  desc: "Pour les grandes listes",
+                  features: ["Invités illimités", "Tous les designs", "Suivi des réponses", "Enveloppe animée", "Relances automatiques (bientôt)"],
+                  cta: "Choisir Premium",
+                  highlight: true,
+                },
+              ].map((plan) => (
+                <div key={plan.name} className="rounded-2xl p-8 flex flex-col" style={{
+                  backgroundColor: plan.highlight ? "#6D1D3E" : "white",
+                  boxShadow: plan.highlight ? "0 8px 40px rgba(109,29,62,0.25)" : "0 4px 20px rgba(109,29,62,0.08)",
+                }}>
+                  <p className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: plan.highlight ? "rgba(255,255,255,0.5)" : "rgba(109,29,62,0.45)", fontFamily: "var(--font-display)" }}>{plan.desc}</p>
+                  <h3 className="text-2xl font-bold mb-1" style={{ color: plan.highlight ? "white" : "#2c2c2c", fontFamily: "var(--font-display)" }}>{plan.name}</h3>
+                  <p className="text-3xl font-light mb-6" style={{ color: plan.highlight ? "rgba(255,255,255,0.8)" : "#6D1D3E", fontFamily: "var(--font-serif)", fontStyle: "italic" }}>{plan.price}</p>
+                  <ul className="flex flex-col gap-2 mb-8 flex-1">
+                    {plan.features.map(f => (
+                      <li key={f} className="flex items-center gap-2 text-sm" style={{ color: plan.highlight ? "rgba(255,255,255,0.75)" : "rgba(44,44,44,0.7)", fontFamily: "var(--font-display)" }}>
+                        <span style={{ color: plan.highlight ? "rgba(255,255,255,0.5)" : "#EABACB", fontSize: "16px" }}>✓</span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => setMainTab("design")}
+                    className="w-full py-3 rounded-xl text-sm font-semibold transition-colors"
+                    style={{
+                      backgroundColor: plan.highlight ? "white" : "#6D1D3E",
+                      color: plan.highlight ? "#6D1D3E" : "white",
+                      fontFamily: "var(--font-display)",
+                    }}
+                  >
+                    {plan.cta}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      )}
 
       {/* ── Envoi ── */}
       {mainTab === "envoi" && (
