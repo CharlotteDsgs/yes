@@ -1415,7 +1415,6 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
    ─────────────────────────────────────────────── */
 
   const bookTX    = phase === 1 ? 0 : -(W / 2);
-  const bookTilt  = phase === 0 ? -18 : 0;
   const leftAngle = phase === 0 ? 180 : phase === 1 ? 0 : -180;
 
   const OPEN_EASE = "1.4s cubic-bezier(0.4, 0, 0.2, 1)";
@@ -1454,7 +1453,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
           width: 2 * W,
           height: H,
           transformStyle: "preserve-3d",
-          transform: `translateX(${bookTX}px) rotateY(${bookTilt}deg)`,
+          transform: `translateX(${bookTX}px)`,
           transition: bookTransition,
         }}>
 
