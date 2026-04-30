@@ -1382,8 +1382,8 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
   useEffect(() => {
     if (reducedMotion) return;
     const t1 = setTimeout(() => setPhase(1), 900);   // ouverture du livre
-    const t2 = setTimeout(() => setPhase(2), 900 + 2200 + 400);  // rabattement (après fin ouverture)
-    const t3 = setTimeout(() => setPhase(3), 900 + 2200 + 400 + 2400 + 300);  // fini
+    const t2 = setTimeout(() => setPhase(2), 900 + 2200 + 80);   // rabattement (pause courte)
+    const t3 = setTimeout(() => setPhase(3), 900 + 2200 + 80 + 2400 + 300);  // fini
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [reducedMotion]);
 
@@ -1419,7 +1419,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
   // 0→-180° : passe par -90° où z=-W (derrière) → se rabat derrière le panneau droit ✓
   const leftAngle = phase === 0 ? 180 : phase === 1 ? 0 : -180;
 
-  const OPEN_EASE = "2.2s cubic-bezier(0.4, 0, 0.2, 1)";
+  const OPEN_EASE = "2.2s linear";
   const FOLD_EASE = "2.4s cubic-bezier(0.42, 0, 0.12, 1)";
 
   const bookTransition = phase === 0 ? "none"
