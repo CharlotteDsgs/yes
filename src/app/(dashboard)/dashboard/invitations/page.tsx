@@ -2147,7 +2147,7 @@ export default function SaveTheDatePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [registryId, setRegistryId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
-  const [mainTab, setMainTab] = useState<"design" | "envoyer" | "reponses">("design");
+  const [mainTab, setMainTab] = useState<"design" | "personnalisation" | "envoi" | "reponses">("design");
   const [mode, setMode] = useState<"gallery" | "detail" | "animate">("gallery");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [paletteIds, setPaletteIds] = useState<Record<string, string>>({});
@@ -2215,8 +2215,8 @@ export default function SaveTheDatePage() {
   const activeTpl = TEMPLATES.find(t => t.id === selectedId);
 
   function getPalette(id: string) { return paletteIds[id] ?? TEMPLATES.find(t => t.id === id)!.palettes[0].id; }
-  function openDetail(id: string) { setSelectedId(id); setMode("detail"); }
-  function goBack() { setMode("gallery"); setSelectedId(null); }
+  function openDetail(id: string) { setSelectedId(id); setMode("detail"); setMainTab("personnalisation"); }
+  function goBack() { setMode("gallery"); setSelectedId(null); setMainTab("design"); }
 
   async function loadGuests() {
     if (!registryId) return;
@@ -2263,53 +2263,36 @@ export default function SaveTheDatePage() {
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
 
-      {/* Header */}
-      <div className="px-8 pt-10 pb-5 max-w-5xl mx-auto">
-        {mainTab === "design" && mode === "detail" && activeTpl ? (
-          <div className="flex items-center gap-3">
-            <button onClick={goBack} className="flex items-center gap-1.5 text-sm" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>
-              <ArrowLeft size={15}/> Retour
-            </button>
-            <span style={{ color: "rgba(44,44,44,0.25)" }}>›</span>
-            <h1 className="text-sm font-semibold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>{activeTpl.name}</h1>
-          </div>
-        ) : (
-          <>
-            <h1 className="text-3xl font-light" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>Save the Date</h1>
-            <p className="mt-1 text-sm" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>
-              Vos invités reçoivent une enveloppe animée qui s'ouvre sur votre annonce.
-            </p>
-          </>
-        )}
-      </div>
-
-      {/* Main tab bar */}
-      {!(mainTab === "design" && (mode === "detail" || mode === "animate")) && (
-        <div className="px-8 max-w-5xl mx-auto flex gap-2 mb-0 pb-0">
-          {(["design", "envoyer", "reponses"] as const).map((t) => (
+      {/* Tab bar — same style as dashboard */}
+      <div className="bg-white border-b border-[#f0e6e2]">
+        <div className="w-full px-6 lg:px-10 flex items-center gap-0">
+          {([
+            { id: "design",          label: "Design" },
+            { id: "personnalisation",label: "Personnalisation" },
+            { id: "envoi",           label: "Envoi" },
+            { id: "reponses",        label: "Gestion des réponses" },
+          ] as const).map((tab) => (
             <button
-              key={t}
-              onClick={() => { setMainTab(t); if (t === "reponses") loadGuests(); }}
-              className="px-5 py-2.5 rounded-t-xl text-sm font-semibold transition-colors"
+              key={tab.id}
+              onClick={() => { setMainTab(tab.id); if (tab.id === "reponses") loadGuests(); }}
+              className="relative px-6 py-4 font-semibold transition-colors whitespace-nowrap"
               style={{
                 fontFamily: "var(--font-display)",
-                backgroundColor: mainTab === t ? "white" : "transparent",
-                color: mainTab === t ? "#6D1D3E" : "rgba(44,44,44,0.45)",
-                border: mainTab === t ? "1.5px solid #f0e6e2" : "1.5px solid transparent",
-                borderBottom: mainTab === t ? "1.5px solid white" : "1.5px solid transparent",
-                marginBottom: mainTab === t ? "-1px" : 0,
+                fontSize: "0.95rem",
+                color: mainTab === tab.id ? "#6D1D3E" : "rgba(109,29,62,0.38)",
               }}
             >
-              {t === "design" ? "Design" : t === "envoyer" ? "Envoyer" : "Réponses"}
+              {tab.label}
+              {mainTab === tab.id && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ backgroundColor: "#6D1D3E" }} />
+              )}
             </button>
           ))}
         </div>
-      )}
+      </div>
 
-      <div className="border-b border-[#f0e6e2]"/>
-
-      {/* ── Envoyer ── */}
-      {mainTab === "envoyer" && (
+      {/* ── Envoi ── */}
+      {mainTab === "envoi" && (
         <div className="px-8 py-8 max-w-2xl mx-auto">
 
           {sendResult && (
@@ -2442,7 +2425,8 @@ export default function SaveTheDatePage() {
         </div>
       )}
 
-      {mainTab === "design" && mode === "gallery" && (
+      {/* ── Design (galerie) ── */}
+      {mainTab === "design" && (
         <>
           <div className="px-8 py-5 max-w-5xl mx-auto flex gap-2 flex-wrap">
             {FILTERS.map(f => (
@@ -2468,7 +2452,22 @@ export default function SaveTheDatePage() {
         </>
       )}
 
-      {mainTab === "design" && mode === "detail" && activeTpl && (
+      {/* ── Personnalisation ── */}
+      {mainTab === "personnalisation" && !activeTpl && (
+        <div className="px-8 py-16 text-center max-w-xl mx-auto">
+          <p className="text-sm mb-4" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>
+            Choisissez d'abord un design dans l'onglet <strong>Design</strong>.
+          </p>
+          <button
+            onClick={() => setMainTab("design")}
+            className="px-6 py-3 rounded-xl text-sm font-semibold"
+            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+          >
+            Choisir un design →
+          </button>
+        </div>
+      )}
+      {mainTab === "personnalisation" && activeTpl && mode !== "animate" && (
         <DetailView
           tpl={activeTpl}
           paletteId={getPalette(activeTpl.id)}
@@ -2485,7 +2484,7 @@ export default function SaveTheDatePage() {
         />
       )}
 
-      {mainTab === "design" && mode === "animate" && activeTpl && (
+      {mainTab === "personnalisation" && mode === "animate" && activeTpl && (
         <EnvelopeModal
           tpl={activeTpl}
           paletteId={getPalette(activeTpl.id)}
