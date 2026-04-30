@@ -1462,7 +1462,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             position: "absolute", left: W, top: 0, width: W, height: H,
             overflow: "hidden",
             transform: "translateZ(2px)",
-            boxShadow: "inset 6px 0 18px rgba(0,0,0,0.1), 8px 32px 64px rgba(0,0,0,0.45)",
+            boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
             opacity: phase === 0 ? 0 : 1,
             transition: phase === 1 ? "opacity 0.4s ease 0.3s" : "none",
           }}>
@@ -1474,16 +1474,6 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             />
           </div>
 
-          {/* ── Spine shadow (visible when book is open) ── */}
-          <div style={{
-            position: "absolute", left: W - 5, top: 0,
-            width: 10, height: H,
-            background: "linear-gradient(to right, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.0) 100%)",
-            pointerEvents: "none",
-            opacity: phase === 1 || phase === 2 ? 1 : 0,
-            transition: "opacity 0.5s ease",
-            zIndex: 5,
-          }}/>
 
           {/* ── Left panel: couverture, tourne autour de la reliure (bord droit) ── */}
           <div style={{
@@ -1500,7 +1490,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
               position: "absolute", inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
-              background: palette.bg,
+              background: "#ffffff",
             }}/>
 
             {/* Face arrière : page blanche (couverture fermée, phase 0) */}
