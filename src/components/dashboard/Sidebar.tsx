@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import WedyLogo from "@/components/WedyLogo";
 import { usePathname, useRouter } from "next/navigation";
-import { Heart, Gift, LogOut } from "lucide-react";
+import { Heart, Gift, Mail, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function Sidebar() {
@@ -36,6 +36,7 @@ export default function Sidebar() {
   const navItems = [
     { href: "/dashboard/mariage", label: "Votre mariage", Icon: Heart },
     { href: "/dashboard", label: "Liste de mariage", Icon: Gift },
+    { href: "/dashboard/invitations", label: "Save the Date", Icon: Mail },
   ];
 
   const labelStyle = {

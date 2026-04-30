@@ -705,13 +705,6 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
               )}
             </button>
           ))}
-          <a
-            href="/dashboard/invitations"
-            className="relative px-6 py-4 font-semibold transition-colors whitespace-nowrap"
-            style={{ fontFamily: "var(--font-display)", fontSize: "0.95rem", color: "rgba(109,29,62,0.38)" }}
-          >
-            Save the Date
-          </a>
           {registry?.slug && (
             <button
               onClick={async () => {
