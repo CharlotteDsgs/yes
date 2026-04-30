@@ -1498,22 +1498,35 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             opacity: phase >= 3 ? 0 : 1,
           }}>
 
-            {/* Face avant : intérieur du volet (visible quand livre ouvert, phase 1) */}
+            {/* Face avant : intérieur du volet — papier texturé */}
             <div style={{
               position: "absolute", inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
-              background: "#ffffff",
+              backgroundImage: "url('/papier lettre/Papier_1.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}/>
 
-            {/* Face arrière : page blanche (couverture fermée, phase 0) */}
+            {/* Face arrière : couverture (phase 0) — papier texturé + sceau en cire */}
             <div style={{
               position: "absolute", inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
               transform: "rotateY(180deg)",
-              background: "#ffffff",
-            }}/>
+              backgroundImage: "url('/papier lettre/Papier_1.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <img
+                src="/papier lettre/Cire/cire-rouge.png"
+                alt=""
+                style={{ width: Math.round(W * 0.42), height: Math.round(W * 0.42), objectFit: "contain", pointerEvents: "none" }}
+              />
+            </div>
 
           </div>
         </div>
