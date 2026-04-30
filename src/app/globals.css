@@ -69,18 +69,6 @@ html {
   to   { opacity: 1; }
 }
 
-/* Page fold-back: cover rotates around centre and ends directly behind inside panel.
-   A translateX arc in the middle fakes the leftward page-turn sweep. */
-@keyframes page-fold-back {
-  0%   { transform: translateX(0)     rotateY(0deg); }
-  48%  { transform: translateX(-18%)  rotateY(-90deg); }
-  100% { transform: translateX(0)     rotateY(-180deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  @keyframes page-fold-back {
-    0%, 100% { transform: translateX(0) rotateY(-180deg); }
-  }
-}
 
 @keyframes card-rise {
   from { opacity: 0; transform: translateX(-50%) translateY(30px); }

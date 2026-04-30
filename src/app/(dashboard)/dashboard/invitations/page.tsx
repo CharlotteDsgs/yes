@@ -1355,8 +1355,11 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, fontPreset, 
 
 /* ═══════════════════════════════════════════════
    CARD FOLD ANIMATION MODAL
-   3D greeting-card open: front cover rotates around
-   its left edge (spine) to reveal the inside.
+   3-act animation:
+     0 → cover seule (single page, slightly tilted)
+     1 → livre ouvert (2 pages côte-à-côte)
+     2 → page gauche se rabat derrière page droite
+     3 → page droite seule (template design)
 ═══════════════════════════════════════════════ */
 
 function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, photoUrl, elementStyles, customPaperBg, onClose }: {
@@ -1369,36 +1372,62 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
 }) {
   const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
 
-  // Respect prefers-reduced-motion: skip straight to open state
   const [reducedMotion] = useState<boolean>(() =>
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 
-  // phase 0: closed + tilted  |  phase 1: opening  |  phase 2: fully open
-  const [phase, setPhase] = useState<0 | 1 | 2>(reducedMotion ? 2 : 0);
+  // 0: cover seule  1: livre ouvert  2: rabattement  3: page droite seule
+  const [phase, setPhase] = useState<0 | 1 | 2 | 3>(reducedMotion ? 3 : 0);
 
   useEffect(() => {
     if (reducedMotion) return;
-    const t1 = setTimeout(() => setPhase(1), 900);   // begin opening
-    const t2 = setTimeout(() => setPhase(2), 2700);  // animation settled
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const t1 = setTimeout(() => setPhase(1), 900);   // ouverture du livre
+    const t2 = setTimeout(() => setPhase(2), 2500);  // rabattement
+    const t3 = setTimeout(() => setPhase(3), 4100);  // fini
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [reducedMotion]);
 
   const W = 260;
   const H = Math.round(W * 1.4); // 364
 
-  // Formatted display values
-  const displayNames   = namesText   || (user.p1 && user.p2 ? `${user.p1} & ${user.p2}` : "Emma & Louis");
-  const displayDate    = dateText    || (user.date
-    ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
-    : "samedi 12 juillet 2026");
-  const displayLocation = locationText || user.location || "";
-  const displayLabel   = label || "Save the Date";
+  const displayNames = namesText || (user.p1 && user.p2 ? `${user.p1} & ${user.p2}` : "Emma & Louis");
+  const displayDate  = user.date
+    ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+    : "12 juillet 2026";
+  const displayLabel = label || "Save the Date";
 
-  // Cover angle: 0° = closed (facing viewer), -180° = fully open (flipped behind)
-  const coverAngle = phase === 0 ? 0 : -180;
-  // Whole-book tilt: slight initial perspective, disappears as cover opens
-  const bookTilt   = phase === 0 ? -22 : 0;
+  /* ── Géométrie ───────────────────────────────────
+   Le "livre" fait toujours 2W de large.
+   Page gauche [0,W] = couverture (rotate autour du bord droit = reliure).
+   Page droite [W,2W] = template (fixe).
+
+   Panneau gauche — transform-origin: right center (reliure à x=W)
+     phase 0 : rotateY(180°)  → panneau à [W,2W], face arrière (couverture) visible
+     phase 1 : rotateY(0°)    → panneau à [0,W], face avant (intérieur) visible
+     phase 2-3: rotateY(-180°) → panneau à [W,2W] mais DERRIÈRE panneau droit
+
+   Double rotation back face (180° panneau + 180° face) = 360° net → contenu non-miroir ✓
+
+   Décalage du livre :
+     phase 0 : translateX(-W/2) → centre sur la page droite [W,2W] = couverture
+     phase 1 : translateX(0)    → livre entier centré, deux pages visibles
+     phase 2-3: translateX(-W/2) → recentre sur page droite
+   ─────────────────────────────────────────────── */
+
+  const bookTX    = phase === 1 ? 0 : -(W / 2);
+  const bookTilt  = phase === 0 ? -18 : 0;
+  const leftAngle = phase === 0 ? 180 : phase === 1 ? 0 : -180;
+
+  const OPEN_EASE = "1.4s cubic-bezier(0.4, 0, 0.2, 1)";
+  const FOLD_EASE = "1.5s cubic-bezier(0.42, 0, 0.12, 1)";
+
+  const bookTransition = phase === 0 ? "none"
+    : `transform ${phase === 1 ? OPEN_EASE : FOLD_EASE}`;
+
+  const leftTransition = phase === 0 ? "none"
+    : phase === 1 ? `transform ${OPEN_EASE}`
+    : phase === 2 ? `transform ${FOLD_EASE}`
+    : "opacity 0.35s ease";
 
   return (
     <div
@@ -1414,30 +1443,26 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
       </button>
 
       {/* ── 3D scene ── */}
-      {/* perspectiveOrigin left of centre: bord droit part en premier, illusion de rabattement gauche */}
-      <div style={{ perspective: "900px", perspectiveOrigin: "15% 50%" }}>
-        <div
-          style={{
-            position: "relative",
-            width: W,
-            height: H,
-            transformStyle: "preserve-3d",
-            transform: `rotateY(${bookTilt}deg)`,
-            transition: phase >= 1 ? "transform 0.75s cubic-bezier(0.4, 0, 0.2, 1)" : "none",
-            /* ground shadow */
-            filter: "drop-shadow(0 40px 48px rgba(0,0,0,0.55))",
-          }}
-        >
-          {/* ── Inside panel: the template design, revealed after opening ── */}
-          <div
-            style={{
-              position: "absolute", inset: 0,
-              overflow: "hidden",
-              boxShadow: "inset -6px 0 18px rgba(0,0,0,0.07)",
-              opacity: phase >= 1 ? 1 : 0,
-              transition: phase >= 1 ? "opacity 0.55s ease 0.6s" : "none",
-            }}
-          >
+      <div style={{ perspective: "1400px", perspectiveOrigin: "50% 50%" }}>
+
+        {/* Book container — 2W wide, shifts to keep visible page centred */}
+        <div style={{
+          position: "relative",
+          width: 2 * W,
+          height: H,
+          transformStyle: "preserve-3d",
+          transform: `translateX(${bookTX}px) rotateY(${bookTilt}deg)`,
+          transition: bookTransition,
+          filter: "drop-shadow(0 32px 52px rgba(0,0,0,0.6))",
+        }}>
+
+          {/* ── Right panel: template design (static, always in front) ── */}
+          <div style={{
+            position: "absolute", left: W, top: 0, width: W, height: H,
+            overflow: "hidden",
+            transform: "translateZ(2px)",
+            boxShadow: "inset 6px 0 18px rgba(0,0,0,0.1)",
+          }}>
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
               fontPreset={fontPreset} label={label} namesText={namesText}
@@ -1446,108 +1471,90 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             />
           </div>
 
-          {/* ── Cover panel — rotates around centre so it lands directly behind inside ── */}
-          <div
-            style={{
-              position: "absolute", inset: 0,
-              transformOrigin: "center center",
-              transformStyle: "preserve-3d",
-              /* Use keyframe when opening for the leftward arc; instant when closed */
-              animation: phase >= 1
-                ? `page-fold-back 1.6s cubic-bezier(0.42, 0, 0.12, 1) forwards`
-                : "none",
-              transform: phase === 0 ? "rotateY(0deg)" : undefined,
-            }}
-          >
-            {/* Front face: simple cover — paper texture + "Save the Date" */}
+          {/* ── Spine shadow (visible when book is open) ── */}
+          <div style={{
+            position: "absolute", left: W - 5, top: 0,
+            width: 10, height: H,
+            background: "linear-gradient(to right, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.0) 100%)",
+            pointerEvents: "none",
+            opacity: phase === 1 || phase === 2 ? 1 : 0,
+            transition: "opacity 0.5s ease",
+            zIndex: 5,
+          }}/>
+
+          {/* ── Left panel: couverture, tourne autour de la reliure (bord droit) ── */}
+          <div style={{
+            position: "absolute", left: 0, top: 0, width: W, height: H,
+            transformOrigin: "right center",
+            transformStyle: "preserve-3d",
+            transform: `rotateY(${leftAngle}deg)`,
+            transition: leftTransition,
+            opacity: phase >= 3 ? 0 : 1,
+          }}>
+
+            {/* Face avant : intérieur du volet (visible quand livre ouvert, phase 1) */}
             <div style={{
               position: "absolute", inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
+              background: palette.bg,
+              boxShadow: "inset -10px 0 24px rgba(0,0,0,0.06)",
+            }}/>
+
+            {/* Face arrière : couverture (visible en phase 0 — couverture fermée)
+                Double rotation (180° panneau + 180° face) = 0° net → contenu à l'endroit */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
+              transform: "rotateY(180deg)",
               overflow: "hidden",
               background: palette.bg,
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center",
               textAlign: "center",
             }}>
-              {/* Paper background image if the template has one */}
               {tpl.paperImage && (
-                <img
-                  src={tpl.paperImage}
-                  alt=""
-                  style={{
-                    position: "absolute", inset: 0,
-                    width: "100%", height: "100%",
-                    objectFit: "cover",
-                    pointerEvents: "none",
-                  }}
+                <img src={tpl.paperImage} alt=""
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }}
                 />
               )}
-              {/* Centred "Save the Date" text over the paper */}
               <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-                <p style={{
-                  fontSize: "9px", letterSpacing: "0.42em", textTransform: "uppercase",
-                  color: palette.textSecondary, fontFamily: "var(--font-display)", opacity: 0.7,
-                }}>
+                <p style={{ fontSize: "9px", letterSpacing: "0.42em", textTransform: "uppercase", color: palette.textSecondary, fontFamily: "var(--font-display)", opacity: 0.65 }}>
                   {displayLabel}
                 </p>
-                <p style={{
-                  fontSize: "34px", fontFamily: "var(--font-script)",
-                  color: palette.textPrimary, lineHeight: 1.15,
-                }}>
+                <p style={{ fontSize: "32px", fontFamily: "var(--font-script)", color: palette.textPrimary, lineHeight: 1.15 }}>
                   {displayNames}
                 </p>
-                <div style={{ width: "36px", height: "1px", background: palette.accent, opacity: 0.4 }}/>
-                <p style={{
-                  fontSize: "11px", fontFamily: "var(--font-display)",
-                  color: palette.textSecondary, letterSpacing: "0.08em", opacity: 0.8,
-                }}>
-                  {user.date
-                    ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
-                    : "12 juillet 2026"}
+                <div style={{ width: "34px", height: "1px", background: palette.accent, opacity: 0.38 }}/>
+                <p style={{ fontSize: "11px", fontFamily: "var(--font-display)", color: palette.textSecondary, letterSpacing: "0.08em", opacity: 0.75 }}>
+                  {displayDate}
                 </p>
               </div>
             </div>
 
-            {/* Back face: inner side of the cover flap (seen as it swings past 90°) */}
-            <div style={{
-              position: "absolute", inset: 0,
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
-              transform: "rotateY(180deg)",
-              background: `linear-gradient(to right, ${palette.bg}, color-mix(in srgb, ${palette.bg} 85%, #fff))`,
-              boxShadow: "inset 6px 0 20px rgba(0,0,0,0.1)",
-            }}/>
           </div>
         </div>
       </div>
 
-      {/* Status label */}
-      {phase < 2 && (
-        <p style={{
-          fontSize: "13px", fontFamily: "var(--font-serif)", fontStyle: "italic",
-          color: "rgba(255,255,255,0.32)",
-          transition: "opacity 0.4s ease",
-        }}>
-          {phase === 0 ? "Votre invitation…" : "La carte s'ouvre…"}
+      {/* Status text */}
+      {phase < 3 && (
+        <p style={{ fontSize: "13px", fontFamily: "var(--font-serif)", fontStyle: "italic", color: "rgba(255,255,255,0.3)" }}>
+          {phase === 0 && "Votre invitation…"}
+          {phase === 1 && "La carte s'ouvre…"}
+          {phase === 2 && "La page se rabat…"}
         </p>
       )}
 
-      {/* Action buttons once open */}
-      {phase === 2 && (
+      {/* Buttons once done */}
+      {phase === 3 && (
         <div className="flex gap-3" style={{ animation: "invitation-appear 0.45s ease forwards" }}>
-          <button
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-full text-sm font-semibold"
-            style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white", fontFamily: "var(--font-display)" }}
-          >
+          <button onClick={onClose} className="px-5 py-2.5 rounded-full text-sm font-semibold"
+            style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white", fontFamily: "var(--font-display)" }}>
             Retour
           </button>
-          <button
-            onClick={onClose}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold"
-            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
-          >
+          <button onClick={onClose} className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold"
+            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}>
             <Sparkles size={14}/> Personnaliser
           </button>
         </div>
