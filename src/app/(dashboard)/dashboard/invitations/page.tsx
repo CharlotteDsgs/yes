@@ -1422,10 +1422,14 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
   const OPEN_EASE = "2.2s linear";
   const FOLD_EASE = "2.4s cubic-bezier(0.42, 0, 0.12, 1)";
 
-  const bookTransition = phase === 0 ? "none"
+  // Toujours définir une transition (jamais "none") pour éviter le snap navigateur
+  // quand React change transition + valeur en même render.
+  const bookTransition = phase === 0
+    ? "transform 0.001s linear"
     : `transform ${phase === 1 ? OPEN_EASE : FOLD_EASE}`;
 
-  const leftTransition = phase === 0 ? "none"
+  const leftTransition = phase === 0
+    ? "transform 0.001s linear"
     : phase === 1 ? `transform ${OPEN_EASE}`
     : phase === 2 ? `transform ${FOLD_EASE}`
     : "opacity 0.35s ease";
@@ -1463,10 +1467,13 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
           <div style={{
             position: "absolute", left: W, top: 0, width: W, height: H,
             overflow: "hidden",
-            transform: "translateZ(2px)",
+            // translateZ(-2px) : template derrière dans le z-buffer.
+            // À la reliure (pivot du volet blanc, z=0), le template est à z=-2px
+            // donc toujours derrière le volet blanc — élimine le dépassement à gauche.
+            transform: "translateZ(-2px)",
             boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
             opacity: phase === 0 ? 0 : 1,
-            transition: phase === 1 ? "opacity 0.6s ease 0s" : "none",
+            transition: phase === 1 ? "opacity 0.5s ease 0.1s" : "none",
           }}>
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
