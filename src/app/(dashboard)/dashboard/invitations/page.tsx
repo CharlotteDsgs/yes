@@ -1467,13 +1467,17 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
           <div style={{
             position: "absolute", left: W, top: 0, width: W, height: H,
             overflow: "hidden",
-            // translateZ(-2px) : template derrière dans le z-buffer.
-            // À la reliure (pivot du volet blanc, z=0), le template est à z=-2px
-            // donc toujours derrière le volet blanc — élimine le dépassement à gauche.
-            transform: "translateZ(-2px)",
+            // Phase 0-1 (ouverture) : translateZ(-2px) → template DERRIÈRE le volet blanc.
+            //   Le pivot (spine) du volet blanc est toujours z=0 ; avec -2px le template
+            //   est derrière sur toute la largeur, pas de dépassement à gauche.
+            // Phase 2-3 (rabattement) : snap vers +2px au moment où le volet est à 0°
+            //   (plat à gauche [0,W]) et le template à droite [W,2W] : zéro chevauchement,
+            //   donc le snap est invisible. Avec +2px le template reste devant pendant
+            //   tout le rabattement (volet blanc z < 0 sauf pivot z=0 < +2px).
+            transform: `translateZ(${phase <= 1 ? -2 : 2}px)`,
             boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
             opacity: phase === 0 ? 0 : 1,
-            transition: phase === 1 ? "opacity 0.5s ease 0.1s" : "none",
+            transition: phase === 1 ? "opacity 0.5s ease 0s" : "none",
           }}>
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
