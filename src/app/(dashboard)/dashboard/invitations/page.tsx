@@ -1504,38 +1504,15 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
               boxShadow: "inset -10px 0 24px rgba(0,0,0,0.06)",
             }}/>
 
-            {/* Face arrière : couverture (visible en phase 0 — couverture fermée)
-                Double rotation (180° panneau + 180° face) = 0° net → contenu à l'endroit */}
+            {/* Face arrière : page blanche (couverture fermée, phase 0) */}
             <div style={{
               position: "absolute", inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
               transform: "rotateY(180deg)",
-              overflow: "hidden",
-              background: palette.bg,
+              background: "#ffffff",
               boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
-              display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center",
-              textAlign: "center",
-            }}>
-              {tpl.paperImage && (
-                <img src={tpl.paperImage} alt=""
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }}
-                />
-              )}
-              <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-                <p style={{ fontSize: "9px", letterSpacing: "0.42em", textTransform: "uppercase", color: palette.textSecondary, fontFamily: "var(--font-display)", opacity: 0.65 }}>
-                  {displayLabel}
-                </p>
-                <p style={{ fontSize: "32px", fontFamily: "var(--font-script)", color: palette.textPrimary, lineHeight: 1.15 }}>
-                  {displayNames}
-                </p>
-                <div style={{ width: "34px", height: "1px", background: palette.accent, opacity: 0.38 }}/>
-                <p style={{ fontSize: "11px", fontFamily: "var(--font-display)", color: palette.textSecondary, letterSpacing: "0.08em", opacity: 0.75 }}>
-                  {displayDate}
-                </p>
-              </div>
-            </div>
+            }}/>
 
           </div>
         </div>
