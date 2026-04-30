@@ -1415,6 +1415,9 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
    ─────────────────────────────────────────────── */
 
   const bookTX    = phase === 1 ? 0 : -(W / 2);
+  // Counter-translateX : annule exactement le déplacement du book container
+  // pour que le panneau droit reste fixe à l'écran (même timing = annulation parfaite).
+  const rightTX   = phase === 1 ? 0 : W / 2;
   // 180→0° : passe par 90° où z=+W (vers le spectateur) → couvre le panneau droit ✓
   // 0→-180° : passe par -90° où z=-W (derrière) → se rabat derrière le panneau droit ✓
   const leftAngle = phase === 0 ? 180 : phase === 1 ? 0 : -180;
@@ -1433,6 +1436,11 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
     : phase === 1 ? `transform ${OPEN_EASE}`
     : phase === 2 ? `transform ${FOLD_EASE}`
     : "opacity 0.35s ease";
+
+  // Même timing que le book container pour que la compensation soit exacte à chaque frame.
+  const rightXTransition = phase === 0
+    ? "transform 0.001s linear"
+    : `transform ${phase === 1 ? OPEN_EASE : phase === 2 ? FOLD_EASE : "0.001s linear"}`;
 
   return (
     <div
@@ -1464,27 +1472,32 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
         }}>
 
           {/* ── Right panel: template design — caché en phase 0 (couverture devant) ── */}
+          {/* Couche externe : translateX counter pour garder le panneau fixe à l'écran.
+               transformStyle preserve-3d pour que la couche interne (translateZ) reste
+               dans le même contexte 3D que le volet gauche. */}
           <div style={{
             position: "absolute", left: W, top: 0, width: W, height: H,
-            overflow: "hidden",
-            // Phase 0-1 (ouverture) : translateZ(-2px) → template DERRIÈRE le volet blanc.
-            //   Le pivot (spine) du volet blanc est toujours z=0 ; avec -2px le template
-            //   est derrière sur toute la largeur, pas de dépassement à gauche.
-            // Phase 2-3 (rabattement) : snap vers +2px au moment où le volet est à 0°
-            //   (plat à gauche [0,W]) et le template à droite [W,2W] : zéro chevauchement,
-            //   donc le snap est invisible. Avec +2px le template reste devant pendant
-            //   tout le rabattement (volet blanc z < 0 sauf pivot z=0 < +2px).
-            transform: `translateZ(${phase <= 1 ? -2 : 2}px)`,
-            boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
-            opacity: phase === 0 ? 0 : 1,
-            transition: phase === 1 ? "opacity 0.5s ease 0s" : "none",
+            transform: `translateX(${rightTX}px)`,
+            transition: rightXTransition,
+            transformStyle: "preserve-3d",
           }}>
-            <TemplateRender
-              id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
-              fontPreset={fontPreset} label={label} namesText={namesText}
-              dateText={dateText} locationText={locationText} footer={footer}
-              photoUrl={photoUrl} elementStyles={elementStyles} customPaperBg={customPaperBg}
-            />
+            {/* Couche interne : translateZ seul, sans transition
+                 (snape au passage phase 1→2 quand les panneaux ne se chevauchent pas). */}
+            <div style={{
+              position: "absolute", inset: 0,
+              overflow: "hidden",
+              transform: `translateZ(${phase <= 1 ? -2 : 2}px)`,
+              boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
+              opacity: phase === 0 ? 0 : 1,
+              transition: phase === 1 ? "opacity 0.5s ease 0s" : "none",
+            }}>
+              <TemplateRender
+                id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
+                fontPreset={fontPreset} label={label} namesText={namesText}
+                dateText={dateText} locationText={locationText} footer={footer}
+                photoUrl={photoUrl} elementStyles={elementStyles} customPaperBg={customPaperBg}
+              />
+            </div>
           </div>
 
 
