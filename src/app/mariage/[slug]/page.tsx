@@ -1,8 +1,16 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
 import RegistryClient from "./PublicRegistry";
 
 export const dynamic = "force-dynamic";
+
+function createAdminClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } }
+  );
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -10,7 +18,7 @@ interface Props {
 
 export default async function RegistryPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: registry } = await supabase
     .from("registries")
@@ -43,7 +51,7 @@ export default async function RegistryPage({ params }: Props) {
     .from("gifts")
     .select("*")
     .eq("registry_id", registry.id)
-    .order("display_order");
+    .order("display_order", { ascending: true });
 
   return (
     <RegistryClient
