@@ -1442,7 +1442,10 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
         <X size={18}/>
       </button>
 
-      {/* ── 3D scene ── */}
+      {/* ── 3D scene ──
+           IMPORTANT: filter ne peut PAS être sur le conteneur preserve-3d
+           (ça aplatirait le contexte 3D et casserait backfaceVisibility).
+           L'ombre est gérée séparément via box-shadow sur chaque panneau. */}
       <div style={{ perspective: "1400px", perspectiveOrigin: "50% 50%" }}>
 
         {/* Book container — 2W wide, shifts to keep visible page centred */}
@@ -1453,7 +1456,6 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
           transformStyle: "preserve-3d",
           transform: `translateX(${bookTX}px) rotateY(${bookTilt}deg)`,
           transition: bookTransition,
-          filter: "drop-shadow(0 32px 52px rgba(0,0,0,0.6))",
         }}>
 
           {/* ── Right panel: template design (static, always in front) ── */}
@@ -1461,7 +1463,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             position: "absolute", left: W, top: 0, width: W, height: H,
             overflow: "hidden",
             transform: "translateZ(2px)",
-            boxShadow: "inset 6px 0 18px rgba(0,0,0,0.1)",
+            boxShadow: "inset 6px 0 18px rgba(0,0,0,0.1), 8px 32px 64px rgba(0,0,0,0.45)",
           }}>
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
@@ -1510,6 +1512,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
               transform: "rotateY(180deg)",
               overflow: "hidden",
               background: palette.bg,
+              boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center",
               textAlign: "center",
