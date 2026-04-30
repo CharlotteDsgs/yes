@@ -1382,8 +1382,8 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
   useEffect(() => {
     if (reducedMotion) return;
     const t1 = setTimeout(() => setPhase(1), 900);   // ouverture du livre
-    const t2 = setTimeout(() => setPhase(2), 2500);  // rabattement
-    const t3 = setTimeout(() => setPhase(3), 4100);  // fini
+    const t2 = setTimeout(() => setPhase(2), 900 + 2200 + 400);  // rabattement (après fin ouverture)
+    const t3 = setTimeout(() => setPhase(3), 900 + 2200 + 400 + 2400 + 300);  // fini
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [reducedMotion]);
 
@@ -1417,8 +1417,8 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
   const bookTX    = phase === 1 ? 0 : -(W / 2);
   const leftAngle = phase === 0 ? 180 : phase === 1 ? 0 : -180;
 
-  const OPEN_EASE = "1.4s cubic-bezier(0.4, 0, 0.2, 1)";
-  const FOLD_EASE = "1.5s cubic-bezier(0.42, 0, 0.12, 1)";
+  const OPEN_EASE = "2.2s cubic-bezier(0.4, 0, 0.2, 1)";
+  const FOLD_EASE = "2.4s cubic-bezier(0.42, 0, 0.12, 1)";
 
   const bookTransition = phase === 0 ? "none"
     : `transform ${phase === 1 ? OPEN_EASE : FOLD_EASE}`;
@@ -1501,7 +1501,6 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
               background: palette.bg,
-              boxShadow: "inset -10px 0 24px rgba(0,0,0,0.06)",
             }}/>
 
             {/* Face arrière : page blanche (couverture fermée, phase 0) */}
@@ -1511,7 +1510,6 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
               transform: "rotateY(180deg)",
               background: "#ffffff",
-              boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
             }}/>
 
           </div>
