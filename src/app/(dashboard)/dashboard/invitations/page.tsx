@@ -2318,27 +2318,23 @@ export default function SaveTheDatePage() {
               </button>
             </div>
 
-            {/* Mock card preview */}
-            <div className="flex-shrink-0 relative" style={{ width: "280px", height: "360px" }}>
-              <div style={{ position: "absolute", top: 20, left: 20, right: 0, bottom: 0, backgroundColor: "#EABACB", borderRadius: "16px", transform: "rotate(-4deg)" }} />
-              <div style={{ position: "absolute", top: 10, left: 10, right: 10, bottom: 10, backgroundColor: "#D4789A", borderRadius: "16px", transform: "rotate(-2deg)" }} />
-              <div style={{ position: "absolute", inset: 0, backgroundColor: "white", borderRadius: "16px", boxShadow: "0 20px 60px rgba(109,29,62,0.2)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px", textAlign: "center" }}>
-                <p style={{ fontSize: "9px", letterSpacing: "0.35em", textTransform: "uppercase", color: "#9e6b5c", marginBottom: "12px", fontFamily: "var(--font-display)" }}>save the date</p>
-                <p style={{ fontSize: "26px", fontFamily: "var(--font-script)", color: "#6D1D3E", lineHeight: 1.2, marginBottom: "16px" }}>
-                  {user.p1 || "Emma"} &amp; {user.p2 || "Louis"}
-                </p>
-                <div style={{ width: "40px", height: "1px", backgroundColor: "#EABACB", marginBottom: "16px" }} />
-                <p style={{ fontSize: "12px", fontFamily: "var(--font-display)", color: "#9e6b5c", letterSpacing: "0.1em" }}>
-                  {user.date ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "12 juillet 2026"}
-                </p>
-                {(user.location || "Paris, France") && (
-                  <p style={{ fontSize: "11px", fontFamily: "var(--font-display)", color: "rgba(158,107,92,0.6)", marginTop: "6px" }}>
-                    {user.location || "Paris, France"}
-                  </p>
-                )}
-                <p style={{ fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(158,107,92,0.45)", marginTop: "20px", fontFamily: "var(--font-display)" }}>invitation à suivre</p>
-              </div>
-            </div>
+            {/* Bouquet I card preview */}
+            {(() => {
+              const W = 260;
+              const H = Math.round(W * 1.4);
+              const tpl = TEMPLATES.find(t => t.id === "lettre-flower-big-3")!;
+              const palette = tpl.palettes[0];
+              const previewUser = { ...user, p1: user.p1 || "Emma", p2: user.p2 || "Louis", date: user.date || "2026-07-12", location: user.location || "Paris, France" };
+              return (
+                <div className="flex-shrink-0 relative" style={{ width: W + 24, height: H + 24, flexShrink: 0 }}>
+                  <div style={{ position: "absolute", top: 20, left: 20, width: W, height: H, backgroundColor: "#EABACB", borderRadius: "12px", transform: "rotate(-4deg)" }} />
+                  <div style={{ position: "absolute", top: 10, left: 10, width: W, height: H, backgroundColor: "#D4789A", borderRadius: "12px", transform: "rotate(-2deg)" }} />
+                  <div style={{ position: "absolute", top: 0, left: 0, width: W, height: H, borderRadius: "12px", boxShadow: "0 20px 60px rgba(109,29,62,0.25)", overflow: "hidden" }}>
+                    <TemplateRender id="lettre-flower-big-3" W={W} H={H} palette={palette} user={previewUser} isStd={true} />
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Features */}
