@@ -1501,7 +1501,16 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
           </div>
 
 
-          {/* ── Left panel: couverture, tourne autour de la reliure (bord droit) ── */}
+          {/* ── Left panel wrapper: même counter-translateX que le panneau droit
+               pour que l'axe de rotation (bord droit du volet) reste collé
+               au bord gauche du panneau droit, quelle que soit la phase. ── */}
+          <div style={{
+            position: "absolute", left: 0, top: 0, width: W, height: H,
+            transform: `translateX(${rightTX}px)`,
+            transition: rightXTransition,
+            transformStyle: "preserve-3d",
+          }}>
+          {/* ── Left panel: rotateY uniquement — l'axe est à right center de CE div ── */}
           <div style={{
             position: "absolute", left: 0, top: 0, width: W, height: H,
             transformOrigin: "right center",
@@ -1542,6 +1551,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             </div>
 
           </div>
+          </div>{/* end left panel wrapper */}
         </div>
       </div>
 
