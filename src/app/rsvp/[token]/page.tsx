@@ -79,79 +79,78 @@ export default function RsvpPage() {
 
   // ── Animation step ──────────────────────────────────────────
   if (step === "animation" && cfg && tpl && palette) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center" style={{ backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
-        {cfg.animation_type === "ouverture" && (
-          <div style={{ width: "100%", height: "100vh", position: "relative" }}>
-            <CardFoldModal
-              key={replayKey}
-              tpl={tpl}
-              paletteId={cfg.palette_id}
-              user={userData}
-              isStd={true}
-              fontPreset={cc?.fontPreset}
-              label={cc?.label}
-              namesText={cc?.namesText}
-              dateText={cc?.dateText}
-              locationText={cc?.locationText}
-              footer={cc?.footer}
-              photoUrl={cc?.photoUrl || undefined}
-              photoUrls={cc?.photoUrls}
-              elementStyles={cc?.styles}
-              customPaperBg={cc?.customPaperBg}
-              onClose={() => setStep("form")}
-              inline
-            />
-            {/* "Continuer" button shown after animation */}
-            <button
-              onClick={() => setStep("form")}
-              style={{
-                position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)",
-                padding: "14px 36px", background: "rgba(109,29,62,0.85)", color: "white",
-                border: "none", borderRadius: "2px", fontSize: "11px", letterSpacing: "0.25em",
-                textTransform: "uppercase", fontFamily: "var(--font-display)", cursor: "pointer",
-                backdropFilter: "blur(4px)",
-              }}
-            >
-              Continuer →
-            </button>
-          </div>
-        )}
+    const AnimationCard = cfg.animation_type === "ouverture" ? (
+      <CardFoldModal
+        key={replayKey}
+        tpl={tpl} paletteId={cfg.palette_id} user={userData} isStd={true}
+        fontPreset={cc?.fontPreset} label={cc?.label} namesText={cc?.namesText}
+        dateText={cc?.dateText} locationText={cc?.locationText} footer={cc?.footer}
+        photoUrl={cc?.photoUrl || undefined} photoUrls={cc?.photoUrls}
+        elementStyles={cc?.styles} customPaperBg={cc?.customPaperBg}
+        onClose={() => {}} inline
+      />
+    ) : (
+      <CardFlipScene
+        key={replayKey}
+        tpl={tpl} paletteId={cfg.palette_id} user={userData} isStd={true}
+        fontPreset={cc?.fontPreset} label={cc?.label} namesText={cc?.namesText}
+        dateText={cc?.dateText} locationText={cc?.locationText} footer={cc?.footer}
+        photoUrl={cc?.photoUrl || undefined} photoUrls={cc?.photoUrls}
+        elementStyles={cc?.styles} customPaperBg={cc?.customPaperBg}
+        onAnimationDone={() => {}}
+      />
+    );
 
-        {cfg.animation_type === "retournement" && (
-          <div style={{ width: "100%", height: "100vh", position: "relative" }}>
-            <CardFlipScene
-              key={replayKey}
-              tpl={tpl}
-              paletteId={cfg.palette_id}
-              user={userData}
-              isStd={true}
-              fontPreset={cc?.fontPreset}
-              label={cc?.label}
-              namesText={cc?.namesText}
-              dateText={cc?.dateText}
-              locationText={cc?.locationText}
-              footer={cc?.footer}
-              photoUrl={cc?.photoUrl || undefined}
-              photoUrls={cc?.photoUrls}
-              elementStyles={cc?.styles}
-              customPaperBg={cc?.customPaperBg}
-              onAnimationDone={() => {}}
-            />
-            <button
-              onClick={() => setStep("form")}
-              style={{
-                position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)",
-                padding: "14px 36px", background: "rgba(109,29,62,0.85)", color: "white",
-                border: "none", borderRadius: "2px", fontSize: "11px", letterSpacing: "0.25em",
-                textTransform: "uppercase", fontFamily: "var(--font-display)", cursor: "pointer",
-                backdropFilter: "blur(4px)",
-              }}
-            >
-              Continuer →
-            </button>
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+        {/* Animation */}
+        <div style={{ flex: "1 1 auto", minHeight: 0, position: "relative" }}>
+          {AnimationCard}
+        </div>
+
+        {/* RSVP section */}
+        <div style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", padding: "28px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+          {/* Texte personnalisé */}
+          {(cc?.footer || userData.p1) && (
+            <div style={{ textAlign: "center", marginBottom: "4px" }}>
+              {userData.p1 && userData.p2 && (
+                <p style={{ fontFamily: "Georgia, serif", fontSize: "15px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 4px" }}>
+                  {userData.p1} &amp; {userData.p2}
+                </p>
+              )}
+              {cc?.footer && (
+                <p style={{ fontFamily: "Georgia, serif", fontSize: "13px", color: "#9e6b5c", margin: 0 }}>
+                  {cc.footer}
+                </p>
+              )}
+            </div>
+          )}
+
+          <p style={{ textAlign: "center", fontFamily: "var(--font-display)", fontSize: "10px", color: "#9e6b5c", letterSpacing: "0.2em", textTransform: "uppercase", margin: "0 0 4px" }}>
+            Votre réponse
+          </p>
+          <div style={{ width: "100%", maxWidth: "360px", display: "flex", flexDirection: "column", gap: "10px" }}>
+            {rsvpLabels.map((label, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSubmit(label, idx === 0 ? "confirmed" : "declined")}
+                disabled={submitting}
+                style={{
+                  padding: "16px 24px",
+                  background: idx === 0 ? "#6D1D3E" : "white",
+                  color: idx === 0 ? "white" : "#6D1D3E",
+                  border: idx === 0 ? "none" : "1.5px solid rgba(109,29,62,0.25)",
+                  borderRadius: "4px", fontSize: "12px", letterSpacing: "0.15em",
+                  textTransform: "uppercase" as const,
+                  fontFamily: "var(--font-display)", cursor: submitting ? "not-allowed" : "pointer",
+                  opacity: submitting ? 0.6 : 1, transition: "opacity 0.2s",
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
       </div>
     );
   }
