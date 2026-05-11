@@ -327,12 +327,12 @@ export default function RsvpPage() {
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>💌</div>
             <h2 style={{ fontSize: "24px", fontWeight: 300, color: "#6D1D3E", margin: "0 0 12px", fontFamily: "Georgia, serif", fontStyle: "italic" }}>Nous comprenons.</h2>
             <p style={{ fontSize: "15px", color: "#7a7370", margin: "0 0 32px", fontFamily: "Georgia, serif", lineHeight: 1.7 }}>Merci de nous avoir répondu. Vous serez avec nous en pensée ce jour-là.</p>
+            {data.registrySlug && (
+              <a href={`/mariage/${data.registrySlug}`} style={{ display: "inline-block", padding: "14px 32px", background: "#6D1D3E", color: "white", textDecoration: "none", fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", fontFamily: "var(--font-display)", borderRadius: "4px" }}>
+                Voir la liste de mariage →
+              </a>
+            )}
           </>
-        )}
-        {data.registrySlug && (
-          <a href={`/mariage/${data.registrySlug}`} style={{ display: "inline-block", padding: "14px 32px", background: "#6D1D3E", color: "white", textDecoration: "none", fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", fontFamily: "var(--font-display)", borderRadius: "4px" }}>
-            Voir la liste de mariage →
-          </a>
         )}
       </div>
       <p style={{ textAlign: "center", fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)", paddingBottom: "24px" }}>
