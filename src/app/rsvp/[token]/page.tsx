@@ -327,7 +327,7 @@ export default function RsvpPage() {
             <>
               <div style={{ fontSize: "44px", marginBottom: "14px" }}>💐</div>
               <h2 style={{ fontSize: "22px", fontWeight: 300, color: "#6D1D3E", margin: "0 0 10px", fontFamily: "Georgia, serif", fontStyle: "italic" }}>Merci, à bientôt !</h2>
-              <p style={{ fontSize: "15px", color: "#7a7370", margin: 0, fontFamily: "Georgia, serif", lineHeight: 1.7 }}>Votre présence est confirmée. Nous avons hâte de vous retrouver pour ce beau jour.</p>
+              <p style={{ fontSize: "15px", color: "#7a7370", margin: "0 0 28px", fontFamily: "Georgia, serif", lineHeight: 1.7 }}>Votre présence est confirmée. Nous avons hâte de vous retrouver pour ce beau jour.</p>
             </>
           ) : (
             <>
@@ -335,36 +335,34 @@ export default function RsvpPage() {
               <h2 style={{ fontSize: "22px", fontWeight: 300, color: "#6D1D3E", margin: "0 0 10px", fontFamily: "Georgia, serif", fontStyle: "italic" }}>Nous comprenons.</h2>
               <p style={{ fontSize: "15px", color: "#7a7370", margin: "0 0 24px", fontFamily: "Georgia, serif", lineHeight: 1.7 }}>Merci de nous avoir répondu. Vous serez avec nous en pensée ce jour-là.</p>
               {data.registrySlug && (
-                <a href={`/mariage/${data.registrySlug}`} style={{ display: "inline-block", padding: "12px 28px", background: "#6D1D3E", color: "white", textDecoration: "none", fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", fontFamily: "var(--font-display)", borderRadius: "4px" }}>
+                <a href={`/mariage/${data.registrySlug}`} style={{ display: "inline-block", padding: "12px 28px", background: "#6D1D3E", color: "white", textDecoration: "none", fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", fontFamily: "var(--font-display)", borderRadius: "4px", marginBottom: "20px" }}>
                   Voir la liste de mariage →
                 </a>
               )}
             </>
           )}
-        </div>
-
-        {/* Revoir l'invitation */}
-        {tpl && palette && cc && (
-          <div style={{ width: "100%", maxWidth: "420px", marginBottom: "20px" }}>
+          {tpl && palette && cc && (
             <button
               onClick={() => setShowCard(v => !v)}
-              style={{ width: "100%", padding: "14px", background: "white", border: "1.5px solid rgba(109,29,62,0.15)", borderRadius: "12px", fontFamily: "var(--font-display)", fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#6D1D3E", cursor: "pointer", boxShadow: "0 2px 12px rgba(109,29,62,0.06)" }}
+              style={{ width: "100%", padding: "13px", background: "none", border: "1.5px solid rgba(109,29,62,0.18)", borderRadius: "8px", fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#6D1D3E", cursor: "pointer" }}
             >
               {showCard ? "Masquer l'invitation ↑" : "Revoir l'invitation ↓"}
             </button>
-            {showCard && (
-              <div style={{ marginTop: "16px", display: "flex", justifyContent: "center", boxShadow: "0 8px 40px rgba(109,29,62,0.15)", borderRadius: "2px", overflow: "hidden" }}>
-                <TemplateRender
-                  id={tpl.id} W={cardW} H={cardH}
-                  palette={palette} user={userData} isStd={true}
-                  fontPreset={cc.fontPreset} label={cc.label}
-                  namesText={cc.namesText} dateText={cc.dateText}
-                  locationText={cc.locationText} footer={cc.footer}
-                  photoUrl={cc.photoUrl || undefined} photoUrls={cc.photoUrls}
-                  elementStyles={cc.styles} customPaperBg={cc.customPaperBg}
-                />
-              </div>
-            )}
+          )}
+        </div>
+
+        {/* Card preview (toggled) */}
+        {showCard && tpl && palette && cc && (
+          <div style={{ width: "100%", maxWidth: "420px", marginBottom: "20px", display: "flex", justifyContent: "center", boxShadow: "0 8px 40px rgba(109,29,62,0.15)", borderRadius: "2px", overflow: "hidden" }}>
+            <TemplateRender
+              id={tpl.id} W={cardW} H={cardH}
+              palette={palette} user={userData} isStd={true}
+              fontPreset={cc.fontPreset} label={cc.label}
+              namesText={cc.namesText} dateText={cc.dateText}
+              locationText={cc.locationText} footer={cc.footer}
+              photoUrl={cc.photoUrl || undefined} photoUrls={cc.photoUrls}
+              elementStyles={cc.styles} customPaperBg={cc.customPaperBg}
+            />
           </div>
         )}
 
