@@ -103,10 +103,14 @@ export default function RsvpPage() {
 
     return (
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+        {/* Marbre au-dessus */}
+        <div style={{ height: "60px", flexShrink: 0 }} />
         {/* Animation */}
-        <div style={{ flex: "1 1 auto", minHeight: 0, position: "relative" }}>
+        <div style={{ flex: "0 0 auto", height: "600px", position: "relative" }}>
           {AnimationCard}
         </div>
+        {/* Marbre en dessous */}
+        <div style={{ height: "48px", flexShrink: 0 }} />
 
         {/* RSVP section */}
         <div style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", padding: "28px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
