@@ -1915,9 +1915,9 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
 
   useEffect(() => {
     if (reducedMotion) return;
-    const t1 = setTimeout(() => setPhase(1), 900);
-    const t2 = setTimeout(() => setPhase(2), 900 + 2200);
-    const t3 = setTimeout(() => setPhase(3), 900 + 2200 + 3000 + 300);
+    const t1 = setTimeout(() => setPhase(1), 2000);
+    const t2 = setTimeout(() => setPhase(2), 2000 + 2200);
+    const t3 = setTimeout(() => setPhase(3), 2000 + 2200 + 3000 + 300);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [reducedMotion, restartKey]);
 
