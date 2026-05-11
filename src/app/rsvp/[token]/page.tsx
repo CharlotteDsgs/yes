@@ -110,11 +110,11 @@ export default function RsvpPage() {
         <div style={{ flex: "0 0 auto", height: "600px", position: "relative" }}>
           {AnimationCard}
         </div>
-        {/* Marbre en dessous */}
-        <div style={{ height: "48px", flexShrink: 0 }} />
+        {/* Fondu marbre → blanc */}
+        <div style={{ height: "80px", flexShrink: 0, background: "linear-gradient(to bottom, transparent, white)" }} />
 
         {/* RSVP section */}
-        <div style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", padding: "28px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+        <div style={{ background: "white", padding: "0 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
           {/* Texte personnalisé */}
           {userData.p1 && userData.p2 && (
             <div style={{ textAlign: "center", marginBottom: "8px" }}>
