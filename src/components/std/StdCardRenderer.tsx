@@ -752,7 +752,7 @@ export function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, 
           </div>
           <div style={{ position: "absolute", left: W, top: 0, width: 0, height: H, transformOrigin: "left center", transformStyle: "preserve-3d", transform: `rotateY(${leftFlapAngle + 180}deg)`, transition: sealTransition, opacity: phase >= 2 ? 0 : 1 }}>
             <div style={{ position: "absolute", left: W / 2, top: "50%", width: Math.round(W * 0.42), height: Math.round(W * 0.42), transform: "translate(-50%, -50%)", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"], pointerEvents: "none" }}>
-              <img src="/papier lettre/Cire/cire-rouge.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              <img src="/papier%20lettre/Cire/cire-rouge.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
           </div>
         </div>

@@ -2093,7 +2093,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
               pointerEvents: "none",
             }}>
               <img
-                src="/papier lettre/Cire/cire-rouge.png"
+                src="/papier%20lettre/Cire/cire-rouge.png"
                 alt=""
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />

@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 
-const EXCLUDED = ["/dashboard", "/mariage/", "/creer", "/connexion", "/inscription"];
+const EXCLUDED = ["/dashboard", "/mariage/", "/creer", "/connexion", "/inscription", "/rsvp/"];
 
 export default function NavbarWrapper() {
   const pathname = usePathname();
