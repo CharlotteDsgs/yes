@@ -148,7 +148,7 @@ export default function RsvpPage() {
             ))}
           </div>
           {cfg?.rsvp_note && (
-            <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "14px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0" }}>
+            <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0" }}>
               {cfg.rsvp_note}
             </p>
           )}
@@ -209,7 +209,7 @@ export default function RsvpPage() {
               </button>
             ))}
             {cfg?.rsvp_note && (
-              <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "14px", color: "#7a7370", lineHeight: 1.7, marginTop: "8px" }}>
+              <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, marginTop: "8px" }}>
                 {cfg.rsvp_note}
               </p>
             )}
