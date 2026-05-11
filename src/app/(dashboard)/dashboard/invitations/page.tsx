@@ -3135,6 +3135,7 @@ export default function SaveTheDatePage() {
   // Send tab state
   const [rsvpEnabled, setRsvpEnabled] = useState(false);
   const [rsvpLabels, setRsvpLabels] = useState(["Je participe", "Je ne participe pas"]);
+  const [rsvpNote, setRsvpNote] = useState("");
   const [rsvpEditingIdx, setRsvpEditingIdx] = useState<number | null>(null);
   const [urlCopied, setUrlCopied] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -3249,6 +3250,7 @@ export default function SaveTheDatePage() {
       animation_type: animationType,
       rsvp_enabled: rsvpEnabled,
       rsvp_labels: rsvpLabels,
+      rsvp_note: rsvpNote,
       template_id: selectedId,
       palette_id: getPalette(selectedId),
       card_custom: cardCustom,
@@ -3541,6 +3543,19 @@ export default function SaveTheDatePage() {
                   >
                     + Ajouter une option
                   </button>
+                </div>
+                <div className="flex flex-col gap-1 pt-2">
+                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
+                    Message pour les invités
+                  </p>
+                  <textarea
+                    value={rsvpNote}
+                    onChange={e => setRsvpNote(e.target.value)}
+                    placeholder="Ex : Merci de nous répondre avant le 15 janvier. Nous avons hâte de vous retrouver !"
+                    rows={3}
+                    className="w-full resize-none rounded-xl px-4 py-3 text-sm focus:outline-none"
+                    style={{ backgroundColor: "#fdfaf8", border: "1.5px solid #f0e6e2", color: "#2c2c2c", fontFamily: "var(--font-display)", lineHeight: 1.6 }}
+                  />
                 </div>
               </div>
             )}

@@ -8,6 +8,7 @@ interface StdConfig {
   animation_type: "ouverture" | "retournement" | "rien";
   rsvp_enabled: boolean;
   rsvp_labels: string[];
+  rsvp_note?: string;
   template_id: string;
   palette_id: string;
   card_custom: CardCustomization;
@@ -146,6 +147,11 @@ export default function RsvpPage() {
               </button>
             ))}
           </div>
+          {cfg?.rsvp_note && (
+            <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "14px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0" }}>
+              {cfg.rsvp_note}
+            </p>
+          )}
         </div>
       </div>
     );
@@ -202,6 +208,11 @@ export default function RsvpPage() {
                 {label}
               </button>
             ))}
+            {cfg?.rsvp_note && (
+              <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "14px", color: "#7a7370", lineHeight: 1.7, marginTop: "8px" }}>
+                {cfg.rsvp_note}
+              </p>
+            )}
           </div>
         )}
 
