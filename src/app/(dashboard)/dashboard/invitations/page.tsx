@@ -3135,7 +3135,6 @@ export default function SaveTheDatePage() {
   // Send tab state
   const [rsvpEnabled, setRsvpEnabled] = useState(false);
   const [rsvpLabels, setRsvpLabels] = useState(["Je participe", "Je ne participe pas"]);
-  const [rsvpNote, setRsvpNote] = useState("");
   const [rsvpEditingIdx, setRsvpEditingIdx] = useState<number | null>(null);
   const [urlCopied, setUrlCopied] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -3250,7 +3249,7 @@ export default function SaveTheDatePage() {
       animation_type: animationType,
       rsvp_enabled: rsvpEnabled,
       rsvp_labels: rsvpLabels,
-      rsvp_note: rsvpNote,
+      rsvp_note: sendMessage,
       template_id: selectedId,
       palette_id: getPalette(selectedId),
       card_custom: cardCustom,
@@ -3269,7 +3268,7 @@ export default function SaveTheDatePage() {
     const res = await fetch("/api/std/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ registryId, guests: list, message: sendMessage }),
+      body: JSON.stringify({ registryId, guests: list }),
     });
     const data = await res.json();
     setSendResult(data);
@@ -3470,17 +3469,20 @@ export default function SaveTheDatePage() {
       {mainTab === "envoi" && (
         <div className="px-8 py-10 max-w-5xl mx-auto flex flex-col gap-5">
 
-          {/* ── 0. Message personnalisé ── */}
+          {/* ── 0. Message pour les invités ── */}
           <div className="rounded-2xl p-6" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
             <p className="text-sm font-semibold mb-1" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>
-              Message personnalisé <span style={{ fontWeight: 400, color: "rgba(44,44,44,0.4)" }}>(optionnel)</span>
+              Message pour les invités <span style={{ fontWeight: 400, color: "rgba(44,44,44,0.4)" }}>(optionnel)</span>
+            </p>
+            <p className="text-xs mt-1 mb-3" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
+              Ce texte s&apos;affiche sur la page web de l&apos;invitation, sous les boutons de réponse. Il ne figure pas dans le mail.
             </p>
             <textarea
               value={sendMessage}
               onChange={e => setSendMessage(e.target.value)}
-              placeholder="Nous sommes heureux de vous annoncer notre mariage…"
+              placeholder="Ex : Merci de nous répondre avant le 15 janvier. Nous avons hâte de vous retrouver !"
               rows={3}
-              className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none mt-3"
+              className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none"
               style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8" }}
             />
           </div>
@@ -3543,19 +3545,6 @@ export default function SaveTheDatePage() {
                   >
                     + Ajouter une option
                   </button>
-                </div>
-                <div className="flex flex-col gap-1 pt-2">
-                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
-                    Message pour les invités
-                  </p>
-                  <textarea
-                    value={rsvpNote}
-                    onChange={e => setRsvpNote(e.target.value)}
-                    placeholder="Ex : Merci de nous répondre avant le 15 janvier. Nous avons hâte de vous retrouver !"
-                    rows={3}
-                    className="w-full resize-none rounded-xl px-4 py-3 text-sm focus:outline-none"
-                    style={{ backgroundColor: "#fdfaf8", border: "1.5px solid #f0e6e2", color: "#2c2c2c", fontFamily: "var(--font-display)", lineHeight: 1.6 }}
-                  />
                 </div>
               </div>
             )}
