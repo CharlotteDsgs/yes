@@ -116,19 +116,15 @@ export default function RsvpPage() {
         <div style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", padding: "28px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
           {/* Texte personnalisé */}
           {userData.p1 && userData.p2 && (
-            <div style={{ textAlign: "center", marginBottom: "4px" }}>
-              <p style={{ fontFamily: "Georgia, serif", fontSize: "15px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 4px" }}>
+            <div style={{ textAlign: "center", marginBottom: "8px" }}>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 6px", lineHeight: 1.2 }}>
                 {userData.p1} &amp; {userData.p2}
               </p>
-              <p style={{ fontFamily: "Georgia, serif", fontSize: "13px", color: "#9e6b5c", margin: 0 }}>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: "18px", color: "#9e6b5c", margin: 0 }}>
                 attendent votre réponse
               </p>
             </div>
           )}
-
-          <p style={{ textAlign: "center", fontFamily: "var(--font-display)", fontSize: "10px", color: "#9e6b5c", letterSpacing: "0.2em", textTransform: "uppercase", margin: "0 0 4px" }}>
-            Votre réponse
-          </p>
           <div style={{ width: "100%", maxWidth: "360px", display: "flex", flexDirection: "column", gap: "10px" }}>
             {rsvpLabels.map((label, idx) => (
               <button
