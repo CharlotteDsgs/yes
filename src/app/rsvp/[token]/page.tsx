@@ -36,7 +36,6 @@ export default function RsvpPage() {
 
   // Modal state
   const [modal, setModal] = useState<{ label: string; rsvpStatus: "confirmed" | "declined" } | null>(null);
-  const [showCard, setShowCard] = useState(false);
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
@@ -341,73 +340,29 @@ export default function RsvpPage() {
               )}
             </>
           )}
-          {tpl && palette && cc && (
-            <button
-              onClick={() => setShowCard(v => !v)}
-              style={{ width: "100%", padding: "13px", background: "none", border: "1.5px solid rgba(109,29,62,0.18)", borderRadius: "8px", fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#6D1D3E", cursor: "pointer" }}
-            >
-              {showCard ? "Masquer l'invitation ↑" : "Revoir l'invitation ↓"}
-            </button>
-          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
+            {tpl && palette && cc && (
+              <button
+                onClick={() => { setReplayKey(k => k + 1); setStep(cfg && cfg.animation_type !== "rien" ? "animation" : "form"); }}
+                style={{ width: "100%", padding: "13px", background: "none", border: "1.5px solid rgba(109,29,62,0.18)", borderRadius: "8px", fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#6D1D3E", cursor: "pointer" }}
+              >
+                Revoir l'invitation ↓
+              </button>
+            )}
+            {cfg?.rsvp_enabled !== false && (
+              <button
+                onClick={() => openModal(
+                  currentRsvpStatus === "confirmed" ? (rsvpLabels[1] ?? rsvpLabels[0]) : rsvpLabels[0],
+                  currentRsvpStatus === "confirmed" ? "declined" : "confirmed"
+                )}
+                style={{ width: "100%", padding: "12px", background: "none", border: "1.5px dashed rgba(109,29,62,0.2)", borderRadius: "8px", fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(109,29,62,0.5)", cursor: "pointer" }}
+              >
+                Modifier ma réponse
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Card preview (toggled) */}
-        {showCard && tpl && palette && cc && (
-          <div style={{ width: "100%", maxWidth: "420px", marginBottom: "20px", display: "flex", justifyContent: "center", boxShadow: "0 8px 40px rgba(109,29,62,0.15)", borderRadius: "2px", overflow: "hidden" }}>
-            <TemplateRender
-              id={tpl.id} W={cardW} H={cardH}
-              palette={palette} user={userData} isStd={true}
-              fontPreset={cc.fontPreset} label={cc.label}
-              namesText={cc.namesText} dateText={cc.dateText}
-              locationText={cc.locationText} footer={cc.footer}
-              photoUrl={cc.photoUrl || undefined} photoUrls={cc.photoUrls}
-              elementStyles={cc.styles} customPaperBg={cc.customPaperBg}
-            />
-          </div>
-        )}
-
-        {/* Votre réponse + Modifier */}
-        {cfg?.rsvp_enabled !== false && (
-          <div style={{ width: "100%", maxWidth: "420px", background: "white", borderRadius: "16px", boxShadow: "0 8px 48px rgba(109,29,62,0.12)", padding: "28px 28px 24px", marginBottom: "20px" }}>
-            <p style={{ fontFamily: "var(--font-display)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#9e6b5c", margin: "0 0 16px", textAlign: "center" }}>
-              Votre réponse enregistrée
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
-              {rsvpLabels.map((label, idx) => {
-                const isSelected = idx === 0 ? currentRsvpStatus === "confirmed" : currentRsvpStatus !== "confirmed";
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      padding: "12px 16px",
-                      borderRadius: "6px",
-                      fontFamily: "var(--font-display)", fontSize: "12px", letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      background: isSelected ? "rgba(109,29,62,0.06)" : "transparent",
-                      border: isSelected ? "1.5px solid rgba(109,29,62,0.2)" : "1.5px solid transparent",
-                      color: isSelected ? "#6D1D3E" : "rgba(44,44,44,0.35)",
-                      textDecoration: isSelected ? "underline" : "none",
-                      textUnderlineOffset: "3px",
-                      display: "flex", alignItems: "center", gap: "10px",
-                    }}
-                  >
-                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", flexShrink: 0, background: isSelected ? "#6D1D3E" : "rgba(44,44,44,0.15)" }} />
-                    {label}
-                  </div>
-                );
-              })}
-            </div>
-            <button
-              onClick={() => openModal(
-                currentRsvpStatus === "confirmed" ? (rsvpLabels[1] ?? rsvpLabels[0]) : rsvpLabels[0],
-                currentRsvpStatus === "confirmed" ? "declined" : "confirmed"
-              )}
-              style={{ width: "100%", padding: "12px", background: "none", border: "1.5px dashed rgba(109,29,62,0.2)", borderRadius: "8px", fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(109,29,62,0.5)", cursor: "pointer" }}
-            >
-              Modifier ma réponse
-            </button>
-          </div>
-        )}
 
         <p style={{ textAlign: "center", fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)", paddingBottom: "8px" }}>
           Wedy · La liste de mariage qui vous ressemble
