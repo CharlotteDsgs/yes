@@ -111,18 +111,14 @@ export default function RsvpPage() {
         {/* RSVP section */}
         <div style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", padding: "28px 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
           {/* Texte personnalisé */}
-          {(cc?.footer || userData.p1) && (
+          {userData.p1 && userData.p2 && (
             <div style={{ textAlign: "center", marginBottom: "4px" }}>
-              {userData.p1 && userData.p2 && (
-                <p style={{ fontFamily: "Georgia, serif", fontSize: "15px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 4px" }}>
-                  {userData.p1} &amp; {userData.p2}
-                </p>
-              )}
-              {cc?.footer && (
-                <p style={{ fontFamily: "Georgia, serif", fontSize: "13px", color: "#9e6b5c", margin: 0 }}>
-                  {cc.footer}
-                </p>
-              )}
+              <p style={{ fontFamily: "Georgia, serif", fontSize: "15px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 4px" }}>
+                {userData.p1} &amp; {userData.p2}
+              </p>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: "13px", color: "#9e6b5c", margin: 0 }}>
+                attendent votre réponse
+              </p>
             </div>
           )}
 
