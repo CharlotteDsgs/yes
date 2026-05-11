@@ -47,7 +47,7 @@ export const TEMPLATES: TemplateConfig[] = [
   {
     id: "dentelle", name: "Epuré", category: "classique",
     description: "Papier texturé, minimalisme élégant",
-    defaultPhotoUrl: "/photo_couple/65EFFCF8-DB1B-4C30-A6A3-534651AD2EEC-labbet-app.JPG",
+    defaultPhotoUrl: "/photo_couple/couple_1.JPG",
     palettes: [
       { id: "papier1", label: "Papier clair", bg: "#F5F3F0", inner: "#F5F3F0", textPrimary: "#1A1A1A", textSecondary: "#606060", accent: "#303030", paperImage: "/papier%20lettre/Fond%20papier/Papier_1.png" },
       { id: "papier2", label: "Papier chaud",  bg: "#EAE0D0", inner: "#EAE0D0", textPrimary: "#2C1E10", textSecondary: "#705040", accent: "#4A3020", paperImage: "/papier%20lettre/Fond%20papier/Papier_2.png" },
@@ -57,10 +57,10 @@ export const TEMPLATES: TemplateConfig[] = [
     id: "photomaton", name: "Photomaton", category: "moderne",
     description: "Bande photos façon photomaton, quatre clichés",
     defaultPhotoUrls: [
-      "/photo_couple/photomaton_1.jpeg",
-      "/photo_couple/Photomaton_2.jpeg",
-      "/photo_couple/Photomaton_3.jpeg",
-      "/photo_couple/Photomaton_4.jpeg",
+      "/photo_couple/couple_1.JPG",
+      "/photo_couple/couple_2.JPG",
+      "/photo_couple/couple_3.JPG",
+      "/photo_couple/couple_1.JPG",
     ],
     palettes: [
       { id: "film",  label: "Film",   bg: "#F4F1EC", inner: "#F4F1EC", textPrimary: "#1A1A1A", textSecondary: "#606060", accent: "#303030" },
@@ -132,7 +132,7 @@ export const TEMPLATES: TemplateConfig[] = [
     description: "Votre photo encadrée sur fond floral",
     paperImage: "/papier%20lettre/lettre_flower_big.png",
     layoutVariant: "photo",
-    defaultPhotoUrl: "/photo_couple/nathan-dumlao-9UDwXxaPxZc-unsplash.jpg",
+    defaultPhotoUrl: "/photo_couple/couple_2.JPG",
     palettes: [
       { id: "encre",    label: "Encre",    bg: "#EDE8E0", inner: "#EDE8E0", textPrimary: "#28201A", textSecondary: "#6A5040", accent: "#8A6040" },
       { id: "bordeaux", label: "Bordeaux", bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#6D1D3E", textSecondary: "#9A4060", accent: "#8A2048" },
