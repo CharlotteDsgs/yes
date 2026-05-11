@@ -26,7 +26,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
 
   const { data: registry } = await supabase
     .from("registries")
-    .select("slug, title, user_id")
+    .select("slug, title, user_id, std_config")
     .eq("id", guest.registry_id)
     .single();
 
@@ -35,6 +35,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
     .select("partner1_name, partner2_name, wedding_date")
     .eq("id", registry?.user_id)
     .single();
+
+  const stdConfig = registry?.std_config ?? null;
 
   return NextResponse.json({
     name: guest.name,
@@ -46,6 +48,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
       : registry?.title ?? "les mariés",
     weddingDate: profile?.wedding_date ?? null,
     registrySlug: registry?.slug ?? null,
+    partner1_name: profile?.partner1_name ?? null,
+    partner2_name: profile?.partner2_name ?? null,
+    location: null,
+    stdConfig,
   });
 }
 

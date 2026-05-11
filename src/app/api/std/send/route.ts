@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { Resend } from "resend";
+import fs from "fs";
+import path from "path";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +50,16 @@ export async function POST(request: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://wedy-app.vercel.app";
 
+    // Load envelope image as base64 data URI for email embedding
+    let envelopeDataUri = "";
+    try {
+      const envImgPath = path.join(process.cwd(), "public", "envelope-email.jpg");
+      const imgBuffer = fs.readFileSync(envImgPath);
+      envelopeDataUri = `data:image/jpeg;base64,${imgBuffer.toString("base64")}`;
+    } catch {
+      envelopeDataUri = `${appUrl}/envelope-email.jpg`;
+    }
+
     const results = await Promise.allSettled(
       guests.map(async (guest: { name: string; email: string }) => {
         // Upsert guest record
@@ -62,7 +74,7 @@ export async function POST(request: Request) {
 
         if (existing) {
           token = existing.token;
-          await supabase.from("std_guests").update({ name: guest.name, sent_at: new Date().toISOString() }).eq("id", existing.id);
+          await supabase.from("std_guests").update({ name: guest.name, sent_at: new Date().toISOString(), rsvp_status: "pending", rsvp_at: null }).eq("id", existing.id);
         } else {
           const { data: inserted } = await supabase
             .from("std_guests")
@@ -76,7 +88,7 @@ export async function POST(request: Request) {
         const guestFirstName = guest.name.split(" ")[0];
 
         await resend.emails.send({
-          from: "Wedy <onboarding@resend.dev>",
+          from: "Wedy <no-reply@weddy.fr>",
           to: guest.email,
           subject: `Save the Date — ${coupleName}`,
           html: `
@@ -94,20 +106,24 @@ export async function POST(request: Request) {
 
               <div style="padding: 40px 40px 32px; background: #fdfaf8;">
                 <p style="font-size: 16px; line-height: 1.7; color: #2c2c2c; margin: 0 0 24px;">
-                  Cher${guest.name ? ` ${guestFirstName}` : ""},
+                  ${profile?.partner1_name && profile?.partner2_name ? `${profile.partner1_name} et ${profile.partner2_name} vous ont envoyé une invitation.` : `Les mariés vous ont envoyé une invitation.`}
                 </p>
-                <p style="font-size: 16px; line-height: 1.7; color: #2c2c2c; margin: 0 0 24px;">
-                  ${message || `Nous sommes heureux de vous annoncer notre mariage et espérons vous compter parmi nous lors de cette belle journée.`}
-                </p>
-                <p style="font-size: 14px; color: #7a7370; margin: 0 0 32px;">
-                  Merci de nous confirmer votre présence en cliquant sur le bouton ci-dessous.
-                </p>
+                ${message ? `<p style="font-size: 15px; line-height: 1.7; color: #4a4a4a; margin: 0 0 24px; font-style: italic;">${message}</p>` : ""}
 
-                <div style="text-align: center; margin: 32px 0;">
+                <div style="text-align: center; margin: 32px 0 40px;">
                   <a href="${rsvpUrl}"
                     style="display: inline-block; padding: 16px 40px; background: #6D1D3E; color: white; text-decoration: none; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; font-family: 'Helvetica Neue', sans-serif; border-radius: 2px;">
-                    Confirmer ma présence →
+                    Ouvrir l'invitation →
                   </a>
+                </div>
+
+                <div style="position: relative; max-width: 460px; margin: 0 auto;">
+                  <img src="${envelopeDataUri}" alt="Enveloppe" style="width: 100%; display: block; border-radius: 6px;" />
+                  <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; padding-top: 10%;">
+                    <p style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 300; color: #8a7e6a; font-style: italic; margin: 0; text-align: center; letter-spacing: 0.04em;">
+                      ${guest.name}
+                    </p>
+                  </div>
                 </div>
               </div>
 

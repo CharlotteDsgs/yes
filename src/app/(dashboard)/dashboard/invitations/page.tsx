@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { X, ArrowLeft, Play, Sparkles, RotateCcw, Trash2, Move } from "lucide-react";
+import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList } from "lucide-react";
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -14,10 +14,16 @@ interface Palette {
   bg: string; inner: string;
   textPrimary: string; textSecondary: string; accent: string;
   stripes?: string[];
+  paperImage?: string;
+  swatchPos?: string;
+  swatchSize?: string;
+  noImageSwatch?: boolean;
 }
 
 interface TemplateConfig {
   id: string; name: string; category: string; description: string; paperImage?: string; layoutVariant?: string; paperFit?: string;
+  defaultPhotoUrl?: string;
+  defaultPhotoUrls?: string[];
   palettes: Palette[];
 }
 
@@ -33,8 +39,9 @@ interface CardCustomization {
   locationText: string;
   footer: string;
   photoUrl: string;
+  photoUrls?: string[]; // per-slot photos for photomaton
   customPaperBg?: string;
-  styles: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  styles: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
 }
 
 const DEFAULT_CARD: CardCustomization = {
@@ -95,17 +102,26 @@ const FONT_PRESETS = [
 
 const TEMPLATES: TemplateConfig[] = [
   {
-    id: "dentelle", name: "Photo", category: "classique",
-    description: "Papier aquarelle & photo, minimalisme élégant",
+    id: "dentelle", name: "Epuré", category: "classique",
+    description: "Papier texturé, minimalisme élégant",
+    defaultPhotoUrl: "/photo_couple/65EFFCF8-DB1B-4C30-A6A3-534651AD2EEC-labbet-app.JPG",
     palettes: [
-      { id: "blanc",      label: "Blanc",       bg: "#F5F3F0", inner: "#F5F3F0", textPrimary: "#1A1A1A", textSecondary: "#606060", accent: "#303030" },
-      { id: "ardoise",    label: "Ardoise",     bg: "#EEEEF0", inner: "#EEEEF0", textPrimary: "#1E2430", textSecondary: "#506080", accent: "#2A3A50" },
-      { id: "ivoire",     label: "Ivoire",      bg: "#F2EBE0", inner: "#F2EBE0", textPrimary: "#28201A", textSecondary: "#7A6A5A", accent: "#5A4A3A" },
-      { id: "poudre",     label: "Poudré",      bg: "#FAE8EE", inner: "#FAE8EE", textPrimary: "#4A1828", textSecondary: "#906070", accent: "#6A2840" },
-      { id: "bleu-pale",  label: "Bleu pâle",   bg: "#E8F0F8", inner: "#E8F0F8", textPrimary: "#1A2840", textSecondary: "#405878", accent: "#2A3A58" },
-      { id: "vert-pale",  label: "Vert pâle",   bg: "#E8F2EC", inner: "#E8F2EC", textPrimary: "#182A20", textSecondary: "#406050", accent: "#284838" },
-      { id: "sable",      label: "Sable",       bg: "#EAE0D0", inner: "#EAE0D0", textPrimary: "#2C1E10", textSecondary: "#705040", accent: "#4A3020" },
-      { id: "rose",       label: "Rose",        bg: "#F4EBE8", inner: "#F4EBE8", textPrimary: "#3A1820", textSecondary: "#805060", accent: "#5A2838" },
+      { id: "papier1", label: "Papier clair", bg: "#F5F3F0", inner: "#F5F3F0", textPrimary: "#1A1A1A", textSecondary: "#606060", accent: "#303030", paperImage: "/papier%20lettre/Fond%20papier/Papier_1.png" },
+      { id: "papier2", label: "Papier chaud",  bg: "#EAE0D0", inner: "#EAE0D0", textPrimary: "#2C1E10", textSecondary: "#705040", accent: "#4A3020", paperImage: "/papier%20lettre/Fond%20papier/Papier_2.png" },
+    ],
+  },
+  {
+    id: "photomaton", name: "Photomaton", category: "moderne",
+    description: "Bande photos façon photomaton, quatre clichés",
+    defaultPhotoUrls: [
+      "/photo_couple/photomaton_1.jpeg",
+      "/photo_couple/Photomaton_2.jpeg",
+      "/photo_couple/Photomaton_3.jpeg",
+      "/photo_couple/Photomaton_4.jpeg",
+    ],
+    palettes: [
+      { id: "film",  label: "Film",   bg: "#F4F1EC", inner: "#F4F1EC", textPrimary: "#1A1A1A", textSecondary: "#606060", accent: "#303030" },
+      { id: "sepia", label: "Sépia",  bg: "#F2EBE0", inner: "#F2EBE0", textPrimary: "#2C1E10", textSecondary: "#705040", accent: "#6A4820" },
     ],
   },
   {
@@ -113,29 +129,29 @@ const TEMPLATES: TemplateConfig[] = [
     description: "Rayures graphiques & typographie audacieuse",
     palettes: [
       { id: "blush",    label: "Blush",    bg: "#F5E8EC", inner: "#F5E8EC", textPrimary: "#6A1028", textSecondary: "#9A4060", accent: "#8A2040", stripes: ["#F5E8EC","#EDD8E0","#E5C8D0","#DDB8C0"] },
-      { id: "nuit",     label: "Nuit",     bg: "#1A1520", inner: "#1A1520", textPrimary: "#E8DFC8", textSecondary: "#C0B898", accent: "#C4A35A", stripes: ["#1A1520","#231C2C","#2C2438","#352C44"] },
+      { id: "nuit",     label: "Nuit",     bg: "#352C44", inner: "#1A1520", textPrimary: "#E8DFC8", textSecondary: "#C0B898", accent: "#C4A35A", stripes: ["#352C44","#2C2438","#231C2C","#1A1520"] },
       { id: "sauge",    label: "Sauge",    bg: "#EBF0E6", inner: "#EBF0E6", textPrimary: "#1E3018", textSecondary: "#456040", accent: "#3A5030", stripes: ["#EBF0E6","#DCE8D6","#CDE0C6","#BED8B6"] },
       { id: "champagne",label: "Champagne",bg: "#F8F2E5", inner: "#F8F2E5", textPrimary: "#3A2A10", textSecondary: "#7A6030", accent: "#B89040", stripes: ["#F8F2E5","#F0E8D0","#E8DEBB","#E0D4A6"] },
     ],
   },
   {
-    id: "lettre-italy", name: "Italie", category: "lettre",
-    description: "Papier aquarellé, accents toscans",
-    paperImage: "/papier%20lettre/lettre_italy.png",
+    id: "lettre-moderne", name: "Rayure", category: "moderne",
+    description: "Rayures festives, encadré festonné doré",
+    paperImage: "/papier%20lettre/Moderne_color%C3%A9_1.png",
     palettes: [
-      { id: "encre",    label: "Encre",    bg: "#EDE8E0", inner: "#EDE8E0", textPrimary: "#28201A", textSecondary: "#6A5040", accent: "#8A6040" },
-      { id: "bordeaux", label: "Bordeaux", bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#6D1D3E", textSecondary: "#9A4060", accent: "#8A2048" },
-      { id: "sepia",    label: "Sépia",    bg: "#EEE4D4", inner: "#EEE4D4", textPrimary: "#4A3020", textSecondary: "#8A6848", accent: "#6A4820" },
+      { id: "rouge",   label: "Rouge",   bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#4A1828", textSecondary: "#904060", accent: "#B87820", paperImage: "/papier%20lettre/Moderne_color%C3%A9_1.png", swatchPos: "5% 5%", swatchSize: "600%" },
+      { id: "variant2",label: "Variante 2", bg: "#F5F0E8", inner: "#F5F0E8", textPrimary: "#1A2A18", textSecondary: "#4A6A38", accent: "#B87820", paperImage: "/papier%20lettre/Moderne_color%C3%A9_2.png", swatchPos: "5% 5%", swatchSize: "600%" },
+      { id: "variant3",label: "Variante 3", bg: "#E8EEF5", inner: "#E8EEF5", textPrimary: "#18202C", textSecondary: "#3A4A5C", accent: "#B87820", paperImage: "/papier%20lettre/Moderne_color%C3%A9_3.png", swatchPos: "5% 5%", swatchSize: "600%" },
     ],
   },
   {
-    id: "lettre-jungle", name: "Jungle", category: "lettre",
-    description: "Feuillage tropical luxuriant",
-    paperImage: "/papier%20lettre/lettre_jungle.png",
+    id: "lettre-italy", name: "Dessins", category: "lettre",
+    description: "Papier illustré, compositions graphiques",
+    paperImage: "/papier%20lettre/lettre_italy.png",
+    layoutVariant: "italy",
     palettes: [
-      { id: "foret",    label: "Forêt",    bg: "#E8EEE4", inner: "#E8EEE4", textPrimary: "#1A2A1A", textSecondary: "#406040", accent: "#3A5030" },
-      { id: "encre",    label: "Encre",    bg: "#EAEAEA", inner: "#EAEAEA", textPrimary: "#1A1A1A", textSecondary: "#505050", accent: "#303030" },
-      { id: "or",       label: "Or",       bg: "#F0EAD8", inner: "#F0EAD8", textPrimary: "#3A2A10", textSecondary: "#806030", accent: "#B89040" },
+      { id: "italy",  label: "Italie", bg: "#EDE8E0", inner: "#EDE8E0", textPrimary: "#28201A", textSecondary: "#6A5040", accent: "#8A6040", paperImage: "/papier%20lettre/lettre_italy.png" },
+      { id: "jungle", label: "Jungle", bg: "#E8EEE4", inner: "#E8EEE4", textPrimary: "#1A2A1A", textSecondary: "#406040", accent: "#3A5030", paperImage: "/papier%20lettre/lettre_jungle.png" },
     ],
   },
   {
@@ -164,9 +180,8 @@ const TEMPLATES: TemplateConfig[] = [
     description: "Branches d'olivier sur papier doux",
     paperImage: "/papier%20lettre/lettre_olivier.png",
     palettes: [
-      { id: "olive",    label: "Olive",    bg: "#EAEEE6", inner: "#EAEEE6", textPrimary: "#2A3A20", textSecondary: "#5A7A4A", accent: "#4A6A3A" },
-      { id: "encre",    label: "Encre",    bg: "#EAEAEA", inner: "#EAEAEA", textPrimary: "#1A1A1A", textSecondary: "#505050", accent: "#303030" },
-      { id: "sepia",    label: "Sépia",    bg: "#EEE4D4", inner: "#EEE4D4", textPrimary: "#4A3020", textSecondary: "#8A6848", accent: "#6A4820" },
+      { id: "olivier", label: "Olivier", bg: "#EAEEE6", inner: "#EAEEE6", textPrimary: "#2A3A20", textSecondary: "#5A7A4A", accent: "#4A6A3A", paperImage: "/papier%20lettre/lettre_olivier.png", swatchPos: "0% 0%", swatchSize: "400%" },
+      { id: "fleur",   label: "Fleur",   bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#4A1828", textSecondary: "#904060", accent: "#6A2840", paperImage: "/papier%20lettre/lettre_flower_1.png", swatchPos: "0% 0%", swatchSize: "400%" },
     ],
   },
   {
@@ -174,20 +189,11 @@ const TEMPLATES: TemplateConfig[] = [
     description: "Votre photo encadrée sur fond floral",
     paperImage: "/papier%20lettre/lettre_flower_big.png",
     layoutVariant: "photo",
+    defaultPhotoUrl: "/photo_couple/nathan-dumlao-9UDwXxaPxZc-unsplash.jpg",
     palettes: [
       { id: "encre",    label: "Encre",    bg: "#EDE8E0", inner: "#EDE8E0", textPrimary: "#28201A", textSecondary: "#6A5040", accent: "#8A6040" },
       { id: "bordeaux", label: "Bordeaux", bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#6D1D3E", textSecondary: "#9A4060", accent: "#8A2048" },
       { id: "ardoise",  label: "Ardoise",  bg: "#E8EEF5", inner: "#E8EEF5", textPrimary: "#1E2430", textSecondary: "#506080", accent: "#2A3A50" },
-    ],
-  },
-  {
-    id: "lettre-flower-1", name: "Fleurs", category: "lettre",
-    description: "Petits bouquets fleuris délicats",
-    paperImage: "/papier%20lettre/lettre_flower_1.png",
-    palettes: [
-      { id: "rose",     label: "Rose",     bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#4A1828", textSecondary: "#904060", accent: "#6A2840" },
-      { id: "bordeaux", label: "Bordeaux", bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#6D1D3E", textSecondary: "#9A4060", accent: "#8A2048" },
-      { id: "encre",    label: "Encre",    bg: "#EAEAEA", inner: "#EAEAEA", textPrimary: "#1A1A1A", textSecondary: "#505050", accent: "#303030" },
     ],
   },
   {
@@ -196,10 +202,8 @@ const TEMPLATES: TemplateConfig[] = [
     paperImage: "/papier%20lettre/arbres_1.png",
     layoutVariant: "arbres",
     palettes: [
-      { id: "creme",   label: "Crème",  bg: "#2E3828", inner: "#2E3828", textPrimary: "#F0EDE4", textSecondary: "#C4C0B0", accent: "#A8A498" },
-      { id: "blanc",   label: "Blanc",  bg: "#1E2420", inner: "#1E2420", textPrimary: "#FFFFFF", textSecondary: "#D8D8D0", accent: "#C0C0B8" },
-      { id: "or",      label: "Or",     bg: "#282610", inner: "#282610", textPrimary: "#F0E8C0", textSecondary: "#C0A850", accent: "#A88C38" },
-      { id: "rose",    label: "Rosé",   bg: "#2A2028", inner: "#2A2028", textPrimary: "#F0DDE8", textSecondary: "#C8A8B8", accent: "#B08898" },
+      { id: "arbres1", label: "Forêt I",  bg: "#2E3828", inner: "#2E3828", textPrimary: "#F0EDE4", textSecondary: "#C4C0B0", accent: "#A8A498", paperImage: "/papier%20lettre/arbres_1.png" },
+      { id: "arbres2", label: "Forêt II", bg: "#1E2420", inner: "#1E2420", textPrimary: "#FFFFFF",  textSecondary: "#D8D8D0", accent: "#C0C0B8", paperImage: "/papier%20lettre/arbres_2.png" },
     ],
   },
   {
@@ -209,10 +213,23 @@ const TEMPLATES: TemplateConfig[] = [
     paperFit: "none",
     layoutVariant: "elegant",
     palettes: [
-      { id: "bordeaux", label: "Bordeaux", bg: "#F4E8EC", inner: "#F4E8EC", textPrimary: "#5A1830", textSecondary: "#8A4858", accent: "#741A3C" },
-      { id: "encre",    label: "Encre",    bg: "#ECEAE6", inner: "#ECEAE6", textPrimary: "#1A1814", textSecondary: "#585450", accent: "#383430" },
-      { id: "or",       label: "Or",       bg: "#F0EAD8", inner: "#F0EAD8", textPrimary: "#2C2008", textSecondary: "#705C28", accent: "#9A7C30" },
-      { id: "ardoise",  label: "Ardoise",  bg: "#E8ECF2", inner: "#E8ECF2", textPrimary: "#18202C", textSecondary: "#404C5C", accent: "#283444" },
+      { id: "rouge",   label: "Rouge", bg: "#741A3C", inner: "#F4E8EC", textPrimary: "#5A1830", textSecondary: "#8A4858", accent: "#741A3C", paperImage: "/papier%20lettre/elegant_base.png", noImageSwatch: true },
+      { id: "vert",    label: "Vert",  bg: "#2A5038", inner: "#E8F0EC", textPrimary: "#1A3020", textSecondary: "#4A7058", accent: "#3A6040", paperImage: "/papier%20lettre/elegant_V2.png",  noImageSwatch: true },
+      { id: "bleu",    label: "Bleu",  bg: "#1E2C48", inner: "#E8ECF2", textPrimary: "#18202C", textSecondary: "#404C5C", accent: "#283444", paperImage: "/papier%20lettre/elegant_V3.png",  noImageSwatch: true },
+    ],
+  },
+  {
+    id: "motifs", name: "Motifs", category: "motifs",
+    description: "Motifs décoratifs, 7 coloris",
+    paperImage: "/papier%20lettre/Motif_1.png",
+    palettes: [
+      { id: "motif1", label: "Motif 1", bg: "#EDE8E0", inner: "#EDE8E0", textPrimary: "#28201A", textSecondary: "#6A5040", accent: "#8A6040", paperImage: "/papier%20lettre/Motif_1.png", swatchPos: "5% 5%", swatchSize: "600%" },
+      { id: "motif2", label: "Motif 2", bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#6D1D3E", textSecondary: "#9A4060", accent: "#8A2048", paperImage: "/papier%20lettre/Motif_2.png", swatchPos: "5% 5%", swatchSize: "600%" },
+      { id: "motif3", label: "Motif 3", bg: "#F0EAD8", inner: "#F0EAD8", textPrimary: "#3A2A10", textSecondary: "#7A6030", accent: "#B89040", paperImage: "/papier%20lettre/Motif_3.png", swatchPos: "5% 5%", swatchSize: "600%" },
+      { id: "motif4", label: "Motif 4", bg: "#E8EEF5", inner: "#E8EEF5", textPrimary: "#18202C", textSecondary: "#404C5C", accent: "#283444", paperImage: "/papier%20lettre/Motif_4.png", swatchPos: "5% 5%", swatchSize: "600%" },
+      { id: "motif5", label: "Motif 5", bg: "#E8F0EC", inner: "#E8F0EC", textPrimary: "#1A3020", textSecondary: "#4A7058", accent: "#3A6040", paperImage: "/papier%20lettre/Motif_5.png", swatchPos: "5% 5%", swatchSize: "600%" },
+      { id: "motif6", label: "Motif 6", bg: "#F5F0E8", inner: "#F5F0E8", textPrimary: "#2C2008", textSecondary: "#705C28", accent: "#9A7C30", paperImage: "/papier%20lettre/Motif_6.png", swatchPos: "5% 5%", swatchSize: "600%" },
+      { id: "motif7", label: "Motif 7", bg: "#F0E8F0", inner: "#F0E8F0", textPrimary: "#3A1848", textSecondary: "#7A4888", accent: "#6A2870", paperImage: "/papier%20lettre/Motif_7.png", swatchPos: "5% 5%", swatchSize: "600%" },
     ],
   },
 ];
@@ -223,6 +240,7 @@ const FILTERS = [
   { id: "floral", label: "Floral" },
   { id: "moderne", label: "Moderne" },
   { id: "lettre", label: "Lettre" },
+  { id: "motifs", label: "Motifs" },
 ];
 
 /* ═══════════════════════════════════════════════
@@ -401,11 +419,12 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   onPhotoClick?: () => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
   customPaperBg?: string;
 }) {
   const fp = FONT_PRESETS.find(f => f.id === fontPreset) ?? FONT_PRESETS[0];
-  const displayLabel = label ?? "save the date";
+  const rawLabel = label ?? "save the date";
+  const displayLabel = rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1);
   const displayFooter = footer ?? "invitation à suivre";
   const displayNames = namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
   const displayDate = dateText || (user.date
@@ -418,10 +437,14 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
   const photoX = (W - photoW) / 2;
   const photoY = H * 0.30;
 
-  const getFont = (id: string, def: string) => elementStyles?.[id]?.font ?? def;
+  const tplDefaults: Record<string, { font?: string; size?: number }> = {
+    label: { font: "var(--font-pinyon)" },
+    names: { size: 1.3 },
+  };
+  const getFont = (id: string, def: string) => elementStyles?.[id]?.font ?? tplDefaults[id]?.font ?? def;
   const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
-  const getSize = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
-  const getCase = (id: string, val: string) => elementStyles?.[id]?.uppercase ? val.toUpperCase() : val;
+  const getSize = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? tplDefaults[id]?.size ?? 1);
+  const getCase = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY = (id: string) => elementStyles?.[id]?.dy ?? 0;
   const hl = (y: number, h: number) => (
@@ -457,14 +480,17 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
         </filter>
       </defs>
 
-      <rect width={W} height={H} fill={customPaperBg ?? p.bg} filter="url(#ptex)"/>
+      {p.paperImage
+        ? <image href={p.paperImage} x="0" y="0" width={W} height={H} preserveAspectRatio="xMidYMid slice"/>
+        : <rect width={W} height={H} fill={customPaperBg ?? p.bg} filter="url(#ptex)"/>
+      }
 
       {/* Label */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "label" && hl(H * 0.065, H * 0.085)}
+        {selectedElement === "label" && hl(H * 0.088, H * 0.085)}
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.13} textAnchor="middle"
             fontFamily={getFont("label", fp.scriptFont)}
@@ -482,7 +508,7 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "names" && hl(H * 0.195, H * 0.068)}
+        {selectedElement === "names" && hl(H * 0.196, H * 0.068)}
         {selectedElement !== "names" && (
           <text x={W / 2} y={H * 0.23} textAnchor="middle"
             fontFamily={getFont("names", fp.bodyFont)}
@@ -519,7 +545,7 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(photoY + photoH + H * 0.055, H * 0.065)}
+        {selectedElement === "date" && hl(photoY + photoH + H * 0.063, H * 0.065)}
         {selectedElement !== "date" && (
           <text x={W / 2} y={photoY + photoH + H * 0.095} textAnchor="middle"
             fontFamily={getFont("date", fp.bodyFont)}
@@ -537,7 +563,7 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(photoY + photoH + H * 0.108, H * 0.062)}
+          {selectedElement === "location" && hl(photoY + photoH + H * 0.114, H * 0.062)}
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={photoY + photoH + H * 0.145} textAnchor="middle"
               fontFamily={getFont("location", fp.bodyFont)}
@@ -555,7 +581,7 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "footer" && hl(H * 0.875, H * 0.075)}
+        {selectedElement === "footer" && hl(H * 0.883, H * 0.075)}
         {selectedElement !== "footer" && (
           <text x={W / 2} y={H * 0.92} textAnchor="middle"
             fontFamily={getFont("footer", fp.scriptFont)}
@@ -571,11 +597,167 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
   );
 }
 
-function TemplateOliviers({ W, H, p, user, isStd }: { W: number; H: number; p: Palette; user: UserData; isStd: boolean }) {
-  const fmtDate = user.date ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "18 octobre 2026";
-  const s = W / 400;
+function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUrls,
+  selectedElement, onElementClick, onPhotoClick, elementStyles }: {
+  W: number; H: number; p: Palette; user: UserData;
+  label?: string; namesText?: string; dateText?: string; photoUrls?: string[];
+  selectedElement?: string | null;
+  onElementClick?: (id: string | null) => void;
+  onPhotoClick?: (index: number) => void;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+}) {
+  const displayLabel = label ?? "save the date";
+  const displayNames = namesText || `${user.p1 || "Emma"} & ${user.p2 || "Charlie"}`;
+  const displayDate = dateText || (user.date
+    ? (() => { const d = new Date(user.date + "T12:00:00"); return `${String(d.getDate()).padStart(2,"0")} . ${String(d.getMonth()+1).padStart(2,"0")} . ${String(d.getFullYear()).slice(-2)}`; })()
+    : "22 . 10 . 26");
+
+  const gap      = H * 0.012;
+  const photoSize = (H * 0.77 - 3 * gap) / 4; // square: width = height
+  const photoW   = photoSize;
+  const photoH   = photoSize;
+  const photoX   = (W - photoW) / 2;
+  const stripY = H * 0.115;
+
+  const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
+  const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
+  const getDX    = (id: string) => elementStyles?.[id]?.dx ?? 0;
+  const getDY    = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const hl = (y: number, h: number) => (
+    <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
+      fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
+      strokeWidth="0.8" strokeDasharray="3,2.5" rx="3"/>
+  );
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block" }}>
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block" }}
+      onClick={onElementClick ? () => onElementClick(null) : undefined}>
+      {onElementClick && <style>{`.eh:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
+      <defs>
+        <filter id="pm_bw" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="saturate" values="0"/>
+          <feComponentTransfer>
+            <feFuncR type="linear" slope="0.96" intercept="0.02"/>
+            <feFuncG type="linear" slope="0.96" intercept="0.02"/>
+            <feFuncB type="linear" slope="0.96" intercept="0.02"/>
+          </feComponentTransfer>
+        </filter>
+      </defs>
+
+      <rect width={W} height={H} fill={p.bg}/>
+
+      {/* Label */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "label" && hl(H * 0.044, H * 0.035)}
+        {selectedElement !== "label" && (
+          <text x={W / 2} y={H * 0.064} textAnchor="middle"
+            fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"}
+            fontSize={getSize("label", W * 0.030)}
+            fill={getColor("label", p.textPrimary)}
+            letterSpacing="4"
+            opacity="0.85">
+            {elementStyles?.label?.uppercase === true ? displayLabel.toUpperCase() : elementStyles?.label?.uppercase === "capitalize" ? displayLabel.charAt(0).toUpperCase() + displayLabel.slice(1).toLowerCase() : displayLabel.toUpperCase()}
+          </text>
+        )}
+      </g>
+
+      {/* Names */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "names" && hl(H * 0.080, H * 0.030)}
+        {selectedElement !== "names" && (
+          <text x={W / 2} y={H * 0.100} textAnchor="middle"
+            fontFamily={elementStyles?.names?.font ?? "var(--font-montserrat)"}
+            fontSize={getSize("names", W * 0.022)}
+            fill={getColor("names", p.textSecondary)}
+            letterSpacing="3">
+            {elementStyles?.names?.uppercase === false ? displayNames : elementStyles?.names?.uppercase === "capitalize" ? displayNames.charAt(0).toUpperCase() + displayNames.slice(1).toLowerCase() : elementStyles?.names?.uppercase === true ? displayNames.toUpperCase() : displayNames}
+          </text>
+        )}
+      </g>
+
+      {/* 4 photo slots */}
+      {[0, 1, 2, 3].map(i => {
+        const py = stripY + i * (photoH + gap);
+        const src = photoUrls?.[i];
+        return (
+          <g key={i} onClick={onPhotoClick ? e => { e.stopPropagation(); onPhotoClick(i); } : undefined}
+            style={{ cursor: onPhotoClick ? "pointer" : "default" }}>
+            {src ? (
+              <image href={src} x={photoX} y={py} width={photoW} height={photoH}
+                preserveAspectRatio="xMidYMid slice" filter="url(#pm_bw)"/>
+            ) : (
+              <>
+                <rect x={photoX} y={py} width={photoW} height={photoH} fill={p.textPrimary} opacity="0.04"/>
+                <rect x={photoX} y={py} width={photoW} height={photoH} fill="none" stroke={p.textSecondary} strokeWidth="0.6" strokeDasharray="4,3" opacity="0.20"/>
+                {i === 1 && (
+                  <text x={W / 2} y={py + photoH * 0.58} textAnchor="middle"
+                    fontFamily="var(--font-serif)" fontSize={W * 0.022} fill={p.textSecondary} opacity="0.35" fontStyle="italic">
+                    {onPhotoClick ? "cliquez pour ajouter" : "votre photo"}
+                  </text>
+                )}
+              </>
+            )}
+          </g>
+        );
+      })}
+
+      {/* Date — handwriting */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "date" && hl(H * 0.906, H * 0.044)}
+        {selectedElement !== "date" && (
+          <text x={W / 2} y={H * 0.940} textAnchor="middle"
+            fontFamily={elementStyles?.date?.font ?? "var(--font-script)"}
+            fontSize={getSize("date", W * 0.046)}
+            fill={getColor("date", p.textPrimary)}
+            opacity="0.9">
+            {displayDate}
+          </text>
+        )}
+      </g>
+    </svg>
+  );
+}
+
+function TemplateOliviers({ W, H, p, user, isStd, namesText, dateText, locationText,
+  selectedElement, onElementClick, elementStyles }: {
+  W: number; H: number; p: Palette; user: UserData; isStd: boolean;
+  namesText?: string; dateText?: string; locationText?: string;
+  selectedElement?: string | null;
+  onElementClick?: (id: string | null) => void;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+}) {
+  const rawNames = namesText || `${user.p1 || "Jennifer"} & ${user.p2 || "Nikos"}`;
+  const parts = rawNames.split(/\s*[&]\s*/);
+  const name1Raw = (parts[0] ?? rawNames).trim();
+  const name2Raw = (parts[1] ?? "").trim();
+  const fmtDate = user.date ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "18 octobre 2026";
+  const displayDate = dateText || fmtDate;
+  const displayLocation = locationText ?? user.location;
+  const s = W / 400;
+
+  const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
+  const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
+  const getDX    = (id: string) => elementStyles?.[id]?.dx ?? 0;
+  const getDY    = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const hl = (y: number, h: number) => (
+    <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
+      fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
+      strokeWidth="0.8" strokeDasharray="3,2.5" rx="3"/>
+  );
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block" }}
+      onClick={onElementClick ? () => onElementClick(null) : undefined}>
+      {onElementClick && <style>{`.eh:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
       <rect width={W} height={H} fill={p.bg}/>
       <OliveBranch x={W*0.05} y={H*0.04} rotate={0}   scale={s*1.4} accentColor={p.accent}/>
       <OliveBranch x={W*0.32} y={H*0.02} rotate={10}  scale={s*1.2} accentColor={p.accent}/>
@@ -593,36 +775,222 @@ function TemplateOliviers({ W, H, p, user, isStd }: { W: number; H: number; p: P
       <OliveBranch x={W*0.04} y={H*0.55} rotate={280} scale={s*1.2} accentColor={p.accent}/>
       <OliveBranch x={W*0.05} y={H*0.32} rotate={265} scale={s*1.1} accentColor={p.accent}/>
       <OliveBranch x={W*0.06} y={H*0.10} rotate={270} scale={s}     accentColor={p.accent}/>
-      <text x={W/2} y={H*0.22} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.032} fill={p.textSecondary} fontStyle="italic">{isStd ? "Kindly Save the Date" : "vous invitent à célébrer leur mariage"}</text>
-      <text x={W/2} y={isStd ? H*0.38 : H*0.36} textAnchor="middle" fontFamily="var(--font-script)" fontSize={W*0.105} fill={p.textPrimary}>{user.p1 || "Jennifer"}</text>
-      <text x={W/2} y={isStd ? H*0.47 : H*0.45} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.04} fill={p.textSecondary} fontStyle="italic">and</text>
-      <text x={W/2} y={isStd ? H*0.57 : H*0.55} textAnchor="middle" fontFamily="var(--font-script)" fontSize={W*0.105} fill={p.textPrimary}>{user.p2 || "Nikos"}</text>
-      <text x={W/2} y={isStd ? H*0.67 : H*0.65} textAnchor="middle" fontFamily="var(--font-montserrat)" fontSize={W*0.025} fill={p.textSecondary} letterSpacing="3" style={{ textTransform:"uppercase" }}>{"sont heureux de vous annoncer leur mariage"}</text>
-      <line x1={W*0.25} y1={isStd ? H*0.72 : H*0.695} x2={W*0.75} y2={isStd ? H*0.72 : H*0.695} stroke={p.accent} strokeWidth="0.6" opacity="0.5"/>
-      <text x={W/2} y={isStd ? H*0.79 : H*0.755} textAnchor="middle" fontFamily="var(--font-montserrat)" fontSize={W*0.028} fill={p.textPrimary} letterSpacing="2" style={{ textTransform:"uppercase" }}>{fmtDate}</text>
-      {user.location && <text x={W/2} y={isStd ? H*0.86 : H*0.82} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.03} fill={p.textSecondary} fontStyle="italic">{user.location}</text>}
+
+      {/* Header label */}
+      <text x={W/2} y={H*0.22} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.032}
+        fill={p.textSecondary} fontStyle="italic">
+        {isStd ? "Kindly Save the Date" : "vous invitent à célébrer leur mariage"}
+      </text>
+
+      {/* Names */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "names" && hl(H * (isStd ? 0.295 : 0.275), H * 0.295)}
+        {selectedElement !== "names" && (<g>
+          <text x={W/2} y={isStd ? H*0.38 : H*0.36} textAnchor="middle"
+            fontFamily={elementStyles?.names?.font ?? "var(--font-script)"}
+            fontSize={getSize("names", W * 0.105)} fill={getColor("names", p.textPrimary)}>
+            {name1Raw}
+          </text>
+          <text x={W/2} y={isStd ? H*0.47 : H*0.45} textAnchor="middle"
+            fontFamily="var(--font-serif)" fontSize={W*0.04} fill={p.textSecondary} fontStyle="italic">
+            and
+          </text>
+          {name2Raw && (
+            <text x={W/2} y={isStd ? H*0.57 : H*0.55} textAnchor="middle"
+              fontFamily={elementStyles?.names?.font ?? "var(--font-script)"}
+              fontSize={getSize("names", W * 0.105)} fill={getColor("names", p.textPrimary)}>
+              {name2Raw}
+            </text>
+          )}
+        </g>)}
+      </g>
+
+      <text x={W/2} y={isStd ? H*0.67 : H*0.65} textAnchor="middle" fontFamily="var(--font-montserrat)"
+        fontSize={W*0.025} fill={p.textSecondary} letterSpacing="3" style={{ textTransform:"uppercase" }}>
+        sont heureux de vous annoncer leur mariage
+      </text>
+      <line x1={W*0.25} y1={isStd ? H*0.72 : H*0.695} x2={W*0.75} y2={isStd ? H*0.72 : H*0.695}
+        stroke={p.accent} strokeWidth="0.6" opacity="0.5"/>
+
+      {/* Date */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "date" && hl(H * (isStd ? 0.772 : 0.737), H * 0.040)}
+        {selectedElement !== "date" && (
+          <text x={W/2} y={isStd ? H*0.79 : H*0.755} textAnchor="middle"
+            fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"}
+            fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)}
+            letterSpacing="2" style={{ textTransform:"uppercase" }}>
+            {displayDate}
+          </text>
+        )}
+      </g>
+
+      {/* Location */}
+      {(displayLocation || onElementClick) && (
+        <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("location"); } : undefined}
+          className={onElementClick ? "eh" : undefined}
+          transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
+          style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
+          {selectedElement === "location" && hl(H * (isStd ? 0.842 : 0.802), H * 0.038)}
+          {selectedElement !== "location" && displayLocation && (
+            <text x={W/2} y={isStd ? H*0.86 : H*0.82} textAnchor="middle"
+              fontFamily={elementStyles?.location?.font ?? "var(--font-serif)"}
+              fontSize={getSize("location", W * 0.030)} fill={getColor("location", p.textSecondary)}
+              fontStyle="italic">
+              {displayLocation}
+            </text>
+          )}
+        </g>
+      )}
     </svg>
   );
 }
 
-function TemplateRayures({ W, H, p, user, isStd }: { W: number; H: number; p: Palette; user: UserData; isStd: boolean }) {
-  const stripes = p.stripes ?? [p.bg, p.bg + "CC", p.bg + "99", p.bg + "66"];
+function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, dateText, locationText,
+  selectedElement, onElementClick, elementStyles }: {
+  W: number; H: number; p: Palette; user: UserData; isStd: boolean; customPaperBg?: string;
+  label?: string; namesText?: string; dateText?: string; locationText?: string;
+  selectedElement?: string | null;
+  onElementClick?: (id: string | null) => void;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+}) {
+  let stripes: string[];
+  if (customPaperBg && /^#[0-9A-Fa-f]{6}$/.test(customPaperBg)) {
+    const r = parseInt(customPaperBg.slice(1, 3), 16);
+    const g = parseInt(customPaperBg.slice(3, 5), 16);
+    const b = parseInt(customPaperBg.slice(5, 7), 16);
+    const mix = (w: number) => {
+      const toHex = (v: number) => Math.round(v + (255 - v) * w).toString(16).padStart(2, "0");
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    };
+    stripes = [mix(0.65), mix(0.42), mix(0.20), customPaperBg];
+  } else {
+    stripes = p.stripes ?? [p.bg, p.bg + "CC", p.bg + "99", p.bg + "66"];
+  }
   const sw = W / stripes.length;
+
+  const rawNames = namesText || `${user.p1 || "SOPHIA"} & ${user.p2 || "BENNETT"}`;
+  const parts = rawNames.split(/\s*[&]\s*/);
+  const name1Raw = (parts[0] ?? rawNames).trim();
+  const name2Raw = (parts[1] ?? "").trim();
+  const i1 = name1Raw[0]?.toUpperCase() ?? "S";
+  const i2 = name2Raw[0]?.toUpperCase() ?? "T";
+
+  const displayLabel = label || (isStd ? "Save the Date" : "Mariage");
   const fmtDate = user.date ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "Samedi 18 octobre 2026";
-  const i1 = (user.p1 || "S")[0].toUpperCase(); const i2 = (user.p2 || "T")[0].toUpperCase();
+  const displayDate = dateText || fmtDate;
+  const displayLocation = locationText ?? user.location;
+
+  const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
+  const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
+  const getDX    = (id: string) => elementStyles?.[id]?.dx ?? 0;
+  const getDY    = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const hl = (y: number, h: number) => (
+    <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
+      fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.6)"
+      strokeWidth="0.8" strokeDasharray="3,2.5" rx="3"/>
+  );
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block" }}>
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block" }}
+      onClick={onElementClick ? () => onElementClick(null) : undefined}>
+      {onElementClick && <style>{`.eh:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
       {stripes.map((c, i) => <rect key={i} x={i * sw} y={0} width={sw} height={H} fill={c}/>)}
+
+      {/* Monogram */}
       <circle cx={W/2} cy={H*0.10} r={W*0.065} fill="none" stroke={p.textPrimary} strokeWidth="1" opacity="0.5"/>
-      <text x={W/2} y={H*0.115} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.05} fill={p.textPrimary} fontStyle="italic">{i1}{i2}</text>
-      <text x={W/2} y={H*0.225} textAnchor="middle" fontFamily="var(--font-montserrat)" fontSize={W*0.028} fill={p.textPrimary} letterSpacing="4" style={{ textTransform:"uppercase" }} opacity="0.7">{isStd ? "Save the Date" : "Mariage"}</text>
-      <text x={W/2} y={H*(isStd?0.385:0.375)} textAnchor="middle" fontFamily="var(--font-playfair)" fontSize={W*0.13} fontWeight="700" fill={p.textPrimary} style={{ textTransform:"uppercase" }}>{user.p1 || "SOPHIA"}</text>
-      <text x={W/2} y={H*(isStd?0.48:0.46)} textAnchor="middle" fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>and</text>
-      <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle" fontFamily="var(--font-playfair)" fontSize={W*0.13} fontWeight="700" fill={p.textPrimary} style={{ textTransform:"uppercase" }}>{user.p2 || "BENNETT"}</text>
-      <line x1={W*0.35} y1={H*(isStd?0.65:0.63)} x2={W*0.65} y2={H*(isStd?0.65:0.63)} stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
-      <text x={W/2} y={H*(isStd?0.735:0.715)} textAnchor="middle" fontFamily="var(--font-montserrat)" fontSize={W*0.027} fill={p.textPrimary} letterSpacing="2.5" style={{ textTransform:"uppercase" }} opacity="0.65">sont heureux de vous inviter</text>
-      <text x={W/2} y={H*(isStd?0.815:0.79)} textAnchor="middle" fontFamily="var(--font-montserrat)" fontSize={W*0.028} fill={p.textPrimary} letterSpacing="1.5" style={{ textTransform:"uppercase" }}>{fmtDate}</text>
-      {user.location && <text x={W/2} y={H*(isStd?0.88:0.855)} textAnchor="middle" fontFamily="var(--font-montserrat)" fontSize={W*0.025} fill={p.textSecondary} letterSpacing="1">{user.location}</text>}
+      <text x={W/2} y={H*0.115} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.05}
+        fill={p.textPrimary} fontStyle="italic">{i1}{i2}</text>
+
+      {/* Label */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "label" && hl(H * 0.207, H * 0.036)}
+        {selectedElement !== "label" && (
+          <text x={W/2} y={H*0.225} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"}
+            fontSize={getSize("label", W * 0.028)} fill={getColor("label", p.textPrimary)}
+            letterSpacing="4" style={{ textTransform:"uppercase" }} opacity="0.7">
+            {displayLabel}
+          </text>
+        )}
+      </g>
+
+      {/* Names */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "names" && hl(H * (isStd ? 0.295 : 0.285), H * 0.315)}
+        {selectedElement !== "names" && (<g>
+          <text x={W/2} y={H*(isStd?0.385:0.375)} textAnchor="middle"
+            fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
+            fontSize={getSize("names", W * 0.13)} fontWeight="700"
+            fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
+            {name1Raw.toUpperCase()}
+          </text>
+          <text x={W/2} y={H*(isStd?0.48:0.46)} textAnchor="middle"
+            fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>
+            and
+          </text>
+          {name2Raw && (
+            <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle"
+              fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
+              fontSize={getSize("names", W * 0.13)} fontWeight="700"
+              fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
+              {name2Raw.toUpperCase()}
+            </text>
+          )}
+        </g>)}
+      </g>
+
+      <line x1={W*0.35} y1={H*(isStd?0.65:0.63)} x2={W*0.65} y2={H*(isStd?0.65:0.63)}
+        stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
+      <text x={W/2} y={H*(isStd?0.735:0.715)} textAnchor="middle" fontFamily="var(--font-montserrat)"
+        fontSize={W*0.027} fill={p.textPrimary} letterSpacing="2.5" style={{ textTransform:"uppercase" }} opacity="0.65">
+        sont heureux de vous inviter
+      </text>
+
+      {/* Date */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "date" && hl(H * (isStd ? 0.797 : 0.772), H * 0.038)}
+        {selectedElement !== "date" && (
+          <text x={W/2} y={H*(isStd?0.815:0.79)} textAnchor="middle"
+            fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"}
+            fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)}
+            letterSpacing="1.5" style={{ textTransform:"uppercase" }}>
+            {displayDate}
+          </text>
+        )}
+      </g>
+
+      {/* Location */}
+      {(displayLocation || onElementClick) && (
+        <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("location"); } : undefined}
+          className={onElementClick ? "eh" : undefined}
+          transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
+          style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
+          {selectedElement === "location" && hl(H * (isStd ? 0.862 : 0.837), H * 0.036)}
+          {selectedElement !== "location" && displayLocation && (
+            <text x={W/2} y={H*(isStd?0.88:0.855)} textAnchor="middle"
+              fontFamily={elementStyles?.location?.font ?? "var(--font-montserrat)"}
+              fontSize={getSize("location", W * 0.025)} fill={getColor("location", p.textSecondary)}
+              letterSpacing="1">
+              {displayLocation}
+            </text>
+          )}
+        </g>
+      )}
     </svg>
   );
 }
@@ -634,7 +1002,7 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
   label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
   paperFit?: string;
 }) {
   const fp = FONT_PRESETS.find(f => f.id === fontPreset) ?? FONT_PRESETS[0];
@@ -649,7 +1017,7 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
   const getFont = (id: string, def: string) => elementStyles?.[id]?.font ?? def;
   const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
   const getSize = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
-  const getCase = (id: string, val: string) => elementStyles?.[id]?.uppercase ? val.toUpperCase() : val;
+  const getCase = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY = (id: string) => elementStyles?.[id]?.dy ?? 0;
   const hl = (y: number, h: number) => (
@@ -663,14 +1031,14 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
       onClick={onElementClick ? () => onElementClick(null) : undefined}>
       {onElementClick && <style>{`.eh:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
       <rect width={W} height={H} fill={p.bg}/>
-      <image href={paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio={paperFit}/>
+      <image href={p.paperImage ?? paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio={paperFit}/>
 
       {/* Label */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "label" && hl(H * 0.155, H * 0.085)}
+        {selectedElement === "label" && hl(H * 0.178, H * 0.085)}
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.22} textAnchor="middle"
             fontFamily={getFont("label", fp.scriptFont)}
@@ -690,7 +1058,7 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "names" && hl(H * 0.305, H * 0.090)}
+        {selectedElement === "names" && hl(H * 0.335, H * 0.090)}
         {selectedElement !== "names" && (
           <text x={W / 2} y={H * 0.38} textAnchor="middle"
             fontFamily={getFont("names", fp.scriptFont)}
@@ -709,7 +1077,7 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(H * 0.465, H * 0.075)}
+        {selectedElement === "date" && hl(H * 0.483, H * 0.075)}
         {selectedElement !== "date" && (
           <text x={W / 2} y={H * 0.52} textAnchor="middle"
             fontFamily={getFont("date", fp.bodyFont)}
@@ -727,7 +1095,7 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(H * 0.528, H * 0.068)}
+          {selectedElement === "location" && hl(H * 0.543, H * 0.068)}
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={H * 0.577} textAnchor="middle"
               fontFamily={getFont("location", fp.bodyFont)}
@@ -745,7 +1113,7 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "footer" && hl(H * 0.785, H * 0.068)}
+        {selectedElement === "footer" && hl(H * 0.801, H * 0.068)}
         {selectedElement !== "footer" && (
           <text x={W / 2} y={H * 0.835} textAnchor="middle"
             fontFamily={getFont("footer", fp.scriptFont)}
@@ -767,7 +1135,7 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
   label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
 }) {
   const displayLabel    = label ?? "save the date";
   const displayFooter   = footer ?? "invitation à suivre";
@@ -782,7 +1150,7 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
 
   const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
   const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
-  const getCase  = (id: string, val: string) => elementStyles?.[id]?.uppercase ? val.toUpperCase() : val;
+  const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
 
@@ -792,14 +1160,18 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
       strokeWidth="0.8" strokeDasharray="3,2.5" rx="3"/>
   );
 
-  const nameCase = (id: string, val: string) =>
-    elementStyles?.[id]?.uppercase === false ? val : val.toUpperCase();
+  const nameCase = (id: string, val: string) => {
+    const u = elementStyles?.[id]?.uppercase;
+    if (u === false) return val;
+    if (u === "capitalize") return val.replace(/\\b\\w/g, c => c.toUpperCase());
+    return val.toUpperCase();
+  };
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block", outline: "none" }}
       onClick={onElementClick ? () => onElementClick(null) : undefined}>
       {onElementClick && <style>{`.eh:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
-      <image href={paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio="none"/>
+      <image href={p.paperImage ?? paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio="none"/>
 
       {/* Outer decorative dotted border */}
       <rect x={W * 0.052} y={H * 0.032} width={W * 0.896} height={H * 0.936}
@@ -813,7 +1185,7 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "label" && hl(H * 0.368, H * 0.055)}
+        {selectedElement === "label" && hl(H * 0.381, H * 0.055)}
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.408} textAnchor="middle"
             fontFamily={elementStyles?.label?.font ?? "var(--font-playfair)"}
@@ -831,36 +1203,34 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
         {selectedElement === "names" && hl(H * 0.460, H * 0.205)}
-        {selectedElement !== "names" && (
-          <g>
-            <text x={W / 2} y={H * 0.500} textAnchor="middle"
+        {selectedElement !== "names" && (<g>
+          <text x={W / 2} y={H * 0.500} textAnchor="middle"
+            fontFamily={elementStyles?.names?.font ?? "'Times New Roman', Georgia, serif"}
+            fontWeight="400"
+            fontSize={getSize("names", W * 0.080)}
+            fill={getColor("names", p.accent)}
+            letterSpacing="3">
+            {nameCase("names", name1Raw)}
+          </text>
+          <text x={W / 2} y={H * 0.560} textAnchor="middle"
+            fontFamily="var(--font-script)"
+            fontStyle="italic"
+            fontSize={W * 0.054}
+            fill={getColor("names", p.textSecondary)}
+            opacity="0.75">
+            et
+          </text>
+          {name2Raw && (
+            <text x={W / 2} y={H * 0.648} textAnchor="middle"
               fontFamily={elementStyles?.names?.font ?? "'Times New Roman', Georgia, serif"}
               fontWeight="400"
               fontSize={getSize("names", W * 0.080)}
               fill={getColor("names", p.accent)}
               letterSpacing="3">
-              {nameCase("names", name1Raw)}
+              {nameCase("names", name2Raw)}
             </text>
-            <text x={W / 2} y={H * 0.560} textAnchor="middle"
-              fontFamily="var(--font-script)"
-              fontStyle="italic"
-              fontSize={W * 0.054}
-              fill={getColor("names", p.textSecondary)}
-              opacity="0.75">
-              et
-            </text>
-            {name2Raw && (
-              <text x={W / 2} y={H * 0.648} textAnchor="middle"
-                fontFamily={elementStyles?.names?.font ?? "'Times New Roman', Georgia, serif"}
-                fontWeight="400"
-                fontSize={getSize("names", W * 0.080)}
-                fill={getColor("names", p.accent)}
-                letterSpacing="3">
-                {nameCase("names", name2Raw)}
-              </text>
-            )}
-          </g>
-        )}
+          )}
+        </g>)}
       </g>
 
       {/* Date */}
@@ -868,7 +1238,7 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(H * 0.710, H * 0.055)}
+        {selectedElement === "date" && hl(H * 0.725, H * 0.055)}
         {selectedElement !== "date" && (
           <text x={W / 2} y={H * 0.752} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"}
@@ -887,7 +1257,7 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(H * 0.798, H * 0.055)}
+          {selectedElement === "location" && hl(H * 0.813, H * 0.055)}
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={H * 0.840} textAnchor="middle"
               fontFamily={elementStyles?.location?.font ?? "var(--font-serif)"}
@@ -905,7 +1275,7 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "footer" && hl(H * 0.890, H * 0.060)}
+        {selectedElement === "footer" && hl(H * 0.905, H * 0.060)}
         {selectedElement !== "footer" && (
           <text x={W / 2} y={H * 0.935} textAnchor="middle"
             fontFamily={elementStyles?.footer?.font ?? "var(--font-script)"}
@@ -927,7 +1297,7 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
   label?: string; namesText?: string; dateText?: string; locationText?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
 }) {
   const displayLabel    = label ?? "save the date";
   const displayNames    = namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
@@ -938,7 +1308,7 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
 
   const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
   const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
-  const getCase  = (id: string, val: string) => elementStyles?.[id]?.uppercase ? val.toUpperCase() : val;
+  const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
   const hl = (y: number, h: number) => (
@@ -951,14 +1321,14 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
     <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block", outline: "none" }}
       onClick={onElementClick ? () => onElementClick(null) : undefined}>
       {onElementClick && <style>{`.eh:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
-      <image href={paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio="none"/>
+      <image href={p.paperImage ?? paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio="none"/>
 
       {/* SAVE THE DATE */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "label" && hl(H * 0.242, H * 0.052)}
+        {selectedElement === "label" && hl(H * 0.249, H * 0.052)}
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.275} textAnchor="middle"
             fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"}
@@ -977,7 +1347,7 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "names" && hl(H * 0.308, H * 0.108)}
+        {selectedElement === "names" && hl(H * 0.336, H * 0.108)}
         {selectedElement !== "names" && (
           <text x={W / 2} y={H * 0.390} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-script)"}
@@ -1005,7 +1375,7 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(H * 0.542, H * 0.102)}
+        {selectedElement === "date" && hl(H * 0.569, H * 0.102)}
         {selectedElement !== "date" && (
           <text x={W / 2} y={H * 0.620} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-script)"}
@@ -1023,7 +1393,7 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(H * 0.718, H * 0.050)}
+          {selectedElement === "location" && hl(H * 0.727, H * 0.050)}
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={H * 0.752} textAnchor="middle"
               fontFamily={elementStyles?.location?.font ?? "var(--font-montserrat)"}
@@ -1041,13 +1411,157 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
   );
 }
 
+function TemplateItalySTD({ W, H, paperImage, p, user, label, namesText, dateText, locationText, footer,
+  selectedElement, onElementClick, elementStyles }: {
+  W: number; H: number; paperImage: string; p: Palette; user: UserData;
+  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
+  selectedElement?: string | null;
+  onElementClick?: (id: string | null) => void;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+}) {
+  const displayLabel    = label ?? "for";
+  const displayFooter   = footer ?? "invitation à suivre";
+  const displayNames    = namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
+  const displayDate     = dateText || (user.date
+    ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+    : "18 octobre 2026");
+  const displayLocation = locationText ?? user.location;
+
+  const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
+  const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
+  const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
+  const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
+  const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const hl = (y: number, h: number) => (
+    <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
+      fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
+      strokeWidth="0.8" strokeDasharray="3,2.5" rx="3"/>
+  );
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block", outline: "none" }}
+      onClick={onElementClick ? () => onElementClick(null) : undefined}>
+      {onElementClick && <style>{`.eh:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
+      <rect width={W} height={H} fill={p.bg}/>
+      <image href={p.paperImage ?? paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio="xMidYMid slice"/>
+
+      {/* Static: SAVE */}
+      <text x={W / 2} y={H * 0.270} textAnchor="middle"
+        fontFamily="var(--font-serif)"
+        fontWeight="400"
+        fontSize={W * 0.145}
+        fill={p.textPrimary}
+        letterSpacing="10"
+        opacity="0.92">
+        SAVE
+      </text>
+
+      {/* Static: "the" — script italic, sits between SAVE and DATE */}
+      <text x={W / 2} y={H * 0.350} textAnchor="middle"
+        fontFamily="var(--font-script)"
+        fontStyle="italic"
+        fontSize={W * 0.092}
+        fill={p.accent}
+        opacity="0.85">
+        the
+      </text>
+
+      {/* Static: DATE */}
+      <text x={W / 2} y={H * 0.440} textAnchor="middle"
+        fontFamily="var(--font-serif)"
+        fontWeight="400"
+        fontSize={W * 0.145}
+        fill={p.textPrimary}
+        letterSpacing="10"
+        opacity="0.92">
+        DATE
+      </text>
+
+
+
+      {/* Names — editable */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "names" && hl(H * 0.522, H * 0.072)}
+        {selectedElement !== "names" && (
+          <text x={W / 2} y={H * 0.569} textAnchor="middle"
+            fontFamily={elementStyles?.names?.font ?? "var(--font-serif)"}
+            fontWeight="500"
+            fontSize={getSize("names", W * 0.044)}
+            fill={getColor("names", p.textPrimary)}
+            letterSpacing="4">
+            {getCase("names", displayNames.toUpperCase())}
+          </text>
+        )}
+      </g>
+
+      {/* Date — editable */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "date" && hl(H * 0.627, H * 0.060)}
+        {selectedElement !== "date" && (
+          <text x={W / 2} y={H * 0.660} textAnchor="middle"
+            fontFamily={elementStyles?.date?.font ?? "var(--font-serif)"}
+            fontSize={getSize("date", W * 0.034)}
+            fill={getColor("date", p.textPrimary)}
+            letterSpacing="1">
+            {getCase("date", displayDate)}
+          </text>
+        )}
+      </g>
+
+      {/* Location — editable */}
+      {(displayLocation || onElementClick) && (
+        <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("location"); } : undefined}
+          className={onElementClick ? "eh" : undefined}
+          transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
+          style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
+          {selectedElement === "location" && hl(H * 0.702, H * 0.055)}
+          {selectedElement !== "location" && displayLocation && (
+            <text x={W / 2} y={H * 0.735} textAnchor="middle"
+              fontFamily={elementStyles?.location?.font ?? "var(--font-serif)"}
+              fontStyle="italic"
+              fontSize={getSize("location", W * 0.028)}
+              fill={getColor("location", p.textSecondary)}
+              letterSpacing="1">
+              {getCase("location", displayLocation)}
+            </text>
+          )}
+        </g>
+      )}
+
+      {/* Footer — script italic */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("footer"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "footer" && hl(H * 0.840, H * 0.060)}
+        {selectedElement !== "footer" && (
+          <text x={W / 2} y={H * 0.872} textAnchor="middle"
+            fontFamily={elementStyles?.footer?.font ?? "var(--font-script)"}
+            fontStyle="italic"
+            fontSize={getSize("footer", W * 0.042)}
+            fill={getColor("footer", p.textSecondary)}
+            opacity="0.75">
+            {getCase("footer", displayFooter)}
+          </text>
+        )}
+      </g>
+    </svg>
+  );
+}
+
 function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, locationText, footer,
   selectedElement, onElementClick, elementStyles }: {
   W: number; H: number; paperImage: string; p: Palette; user: UserData;
   namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
 }) {
   const rawNames = namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
   const parts = rawNames.split(/\s*[&]\s*/);
@@ -1065,7 +1579,7 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
 
   const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
   const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
-  const getCase  = (id: string, val: string) => elementStyles?.[id]?.uppercase ? val.toUpperCase() : val;
+  const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
   const hl = (y: number, h: number) => (
@@ -1081,21 +1595,21 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
       <image href={paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio="xMidYMid slice"/>
 
       {/* SAVE */}
-      <text x={W / 2} y={H * 0.150} textAnchor="middle"
+      <text x={W / 2} y={H * 0.210} textAnchor="middle"
         fontFamily="var(--font-playfair)" fontWeight="700"
         fontSize={W * 0.148} fill={p.textPrimary} letterSpacing="-0.5">
         SAVE
       </text>
 
       {/* the */}
-      <text x={W / 2} y={H * 0.212} textAnchor="middle"
+      <text x={W / 2} y={H * 0.272} textAnchor="middle"
         fontFamily="var(--font-script)" fontStyle="italic"
         fontSize={W * 0.062} fill={p.textSecondary} opacity="0.85">
         the
       </text>
 
       {/* DATE */}
-      <text x={W / 2} y={H * 0.310} textAnchor="middle"
+      <text x={W / 2} y={H * 0.370} textAnchor="middle"
         fontFamily="var(--font-playfair)" fontWeight="700"
         fontSize={W * 0.148} fill={p.textPrimary} letterSpacing="-0.5">
         DATE
@@ -1106,9 +1620,9 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(H * 0.338, H * 0.058)}
+        {selectedElement === "date" && hl(H * 0.409, H * 0.058)}
         {selectedElement !== "date" && (
-          <text x={W / 2} y={H * 0.378} textAnchor="middle"
+          <text x={W / 2} y={H * 0.438} textAnchor="middle"
             fontFamily="var(--font-serif)" fontWeight="500"
             fontSize={getSize("date", W * 0.050)} fill={getColor("date", p.textPrimary)}
             letterSpacing="3">
@@ -1118,46 +1632,44 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
       </g>
 
       {/* "pour le mariage de" */}
-      <text x={W / 2} y={H * 0.430} textAnchor="middle"
+      <text x={W / 2} y={H * 0.490} textAnchor="middle"
         fontFamily="var(--font-serif)" fontStyle="italic"
         fontSize={W * 0.026} fill={p.textSecondary} opacity="0.7">
         pour le mariage de
       </text>
 
-      <line x1={W * 0.30} y1={H * 0.452} x2={W * 0.70} y2={H * 0.452} stroke={p.accent} strokeWidth="0.6" opacity="0.35"/>
+      <line x1={W * 0.30} y1={H * 0.512} x2={W * 0.70} y2={H * 0.512} stroke={p.accent} strokeWidth="0.6" opacity="0.35"/>
 
       {/* Names block */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "names" && hl(H * 0.468, H * 0.252)}
-        {selectedElement !== "names" && (
-          <g>
-            <text x={W / 2} y={H * 0.530} textAnchor="middle"
+        {selectedElement === "names" && hl(H * 0.528, H * 0.252)}
+        {selectedElement !== "names" && (<g>
+          <text x={W / 2} y={H * 0.590} textAnchor="middle"
+            fontFamily="var(--font-playfair)" fontWeight="700"
+            fontSize={getSize("names", W * 0.088)} fill={getColor("names", p.textPrimary)}
+            letterSpacing="2">
+            {elementStyles?.["names"]?.uppercase === false ? name1Raw : elementStyles?.["names"]?.uppercase === "capitalize" ? name1Raw.charAt(0).toUpperCase() + name1Raw.slice(1).toLowerCase() : name1Raw.toUpperCase()}
+          </text>
+          <text x={W / 2} y={H * 0.652} textAnchor="middle"
+            fontFamily="var(--font-serif)" fontStyle="italic"
+            fontSize={W * 0.026} fill={p.textSecondary} opacity="0.65">
+            et
+          </text>
+          {name2Raw && (
+            <text x={W / 2} y={H * 0.720} textAnchor="middle"
               fontFamily="var(--font-playfair)" fontWeight="700"
               fontSize={getSize("names", W * 0.088)} fill={getColor("names", p.textPrimary)}
               letterSpacing="2">
-              {elementStyles?.["names"]?.uppercase === false ? name1Raw : name1Raw.toUpperCase()}
+              {elementStyles?.["names"]?.uppercase === false ? name2Raw : elementStyles?.["names"]?.uppercase === "capitalize" ? name2Raw.charAt(0).toUpperCase() + name2Raw.slice(1).toLowerCase() : name2Raw.toUpperCase()}
             </text>
-            <text x={W / 2} y={H * 0.592} textAnchor="middle"
-              fontFamily="var(--font-serif)" fontStyle="italic"
-              fontSize={W * 0.026} fill={p.textSecondary} opacity="0.65">
-              et
-            </text>
-            {name2Raw && (
-              <text x={W / 2} y={H * 0.660} textAnchor="middle"
-                fontFamily="var(--font-playfair)" fontWeight="700"
-                fontSize={getSize("names", W * 0.088)} fill={getColor("names", p.textPrimary)}
-                letterSpacing="2">
-                {elementStyles?.["names"]?.uppercase === false ? name2Raw : name2Raw.toUpperCase()}
-              </text>
-            )}
-          </g>
-        )}
+          )}
+        </g>)}
       </g>
 
-      <line x1={W * 0.30} y1={H * 0.700} x2={W * 0.70} y2={H * 0.700} stroke={p.accent} strokeWidth="0.6" opacity="0.35"/>
+      <line x1={W * 0.30} y1={H * 0.760} x2={W * 0.70} y2={H * 0.760} stroke={p.accent} strokeWidth="0.6" opacity="0.35"/>
 
       {/* Location */}
       {(displayLocation || onElementClick) && (
@@ -1165,9 +1677,9 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(H * 0.725, H * 0.052)}
+          {selectedElement === "location" && hl(H * 0.796, H * 0.052)}
           {selectedElement !== "location" && displayLocation && (
-            <text x={W / 2} y={H * 0.762} textAnchor="middle"
+            <text x={W / 2} y={H * 0.822} textAnchor="middle"
               fontFamily="var(--font-montserrat)"
               fontSize={getSize("location", W * 0.025)} fill={getColor("location", p.textPrimary)}
               letterSpacing="3.5" style={{ textTransform: "uppercase" as const }}>
@@ -1182,9 +1694,9 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "footer" && hl(H * 0.795, H * 0.052)}
+        {selectedElement === "footer" && hl(H * 0.866, H * 0.052)}
         {selectedElement !== "footer" && (
-          <text x={W / 2} y={H * 0.832} textAnchor="middle"
+          <text x={W / 2} y={H * 0.892} textAnchor="middle"
             fontFamily="var(--font-serif)" fontStyle="italic"
             fontSize={getSize("footer", W * 0.024)} fill={getColor("footer", p.textSecondary)}
             opacity="0.65">
@@ -1204,7 +1716,7 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   onPhotoClick?: () => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
 }) {
   const displayLabel = label ?? "save the date";
   const displayDate = dateText || (user.date
@@ -1212,14 +1724,14 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
     : "18 octobre 2026");
   const displayNames = namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
 
-  const fX = W * 0.225; const fY = H * 0.145;
-  const fW = W * 0.550; const fH = H * 0.620;
+  const fX = W * 0.225; const fY = H * 0.21;
+  const fW = W * 0.550; const fH = H * 0.48;
   const pX = fX + W * 0.016; const pY = fY + H * 0.013;
   const pW = fW - W * 0.032; const pH = fH - H * 0.050;
 
   const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
   const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
-  const getCase  = (id: string, val: string) => elementStyles?.[id]?.uppercase ? val.toUpperCase() : val;
+  const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
   const hl = (y: number, h: number) => (
@@ -1239,7 +1751,7 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "label" && hl(H * 0.090, H * 0.058)}
+        {selectedElement === "label" && hl(H * 0.093, H * 0.058)}
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.122} textAnchor="middle"
             fontFamily={elementStyles?.label?.font ?? "var(--font-script)"}
@@ -1293,7 +1805,7 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(fY + fH + H * 0.048, H * 0.050)}
+        {selectedElement === "date" && hl(fY + fH + H * 0.057, H * 0.050)}
         {selectedElement !== "date" && (
           <text x={W / 2} y={fY + fH + H * 0.082} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-script)"}
@@ -1309,24 +1821,40 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
   );
 }
 
-function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, fontPreset, label, namesText, dateText, locationText, footer,
-  selectedElement, onElementClick, onPhotoClick, elementStyles, customPaperBg }: {
+function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, fontPreset, label, namesText, dateText, locationText, footer,
+  selectedElement, onElementClick, onPhotoClick, onPhotoSlotClick, elementStyles, customPaperBg }: {
   id: string; W: number; H: number; palette: Palette; user: UserData; isStd: boolean;
-  photoUrl?: string; fontPreset?: string;
+  photoUrl?: string; photoUrls?: string[]; fontPreset?: string;
   label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   onPhotoClick?: () => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  onPhotoSlotClick?: (index: number) => void;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
   customPaperBg?: string;
 }) {
-  if (id === "dentelle") return <TemplateDentelle W={W} H={H} p={palette} user={user} photoUrl={photoUrl}
+  const tplCfg = TEMPLATES.find(t => t.id === id);
+  const effectivePhotoUrl = photoUrl || tplCfg?.defaultPhotoUrl;
+  if (id === "photomaton") {
+    const defaultUrls = tplCfg?.defaultPhotoUrls ?? [];
+    const urls = (photoUrls && photoUrls.length > 0)
+      ? defaultUrls.map((def, i) => photoUrls[i] || def)
+      : defaultUrls;
+    return <TemplatePhotomaton W={W} H={H} p={palette} user={user}
+      label={label} namesText={namesText} dateText={dateText} photoUrls={urls}
+      selectedElement={selectedElement} onElementClick={onElementClick}
+      onPhotoClick={onPhotoSlotClick} elementStyles={elementStyles}/>;
+  }
+  if (id === "dentelle") return <TemplateDentelle W={W} H={H} p={palette} user={user} photoUrl={effectivePhotoUrl}
     fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
     selectedElement={selectedElement} onElementClick={onElementClick} onPhotoClick={onPhotoClick} elementStyles={elementStyles}
     customPaperBg={customPaperBg}/>;
-  if (id === "oliviers") return <TemplateOliviers W={W} H={H} p={palette} user={user} isStd={isStd}/>;
-  if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd}/>;
-  const tplCfg = TEMPLATES.find(t => t.id === id);
+  if (id === "oliviers") return <TemplateOliviers W={W} H={H} p={palette} user={user} isStd={isStd}
+    namesText={namesText} dateText={dateText} locationText={locationText}
+    selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
+  if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd} customPaperBg={customPaperBg}
+    label={label} namesText={namesText} dateText={dateText} locationText={locationText}
+    selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
   if (tplCfg?.paperImage) {
     if (tplCfg.layoutVariant === "elegant")
       return <TemplateElegant W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
@@ -1335,6 +1863,10 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, fontPreset, 
     if (tplCfg.layoutVariant === "arbres")
       return <TemplateArbre W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
         label={label} namesText={namesText} dateText={dateText} locationText={locationText}
+        selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
+    if (tplCfg.layoutVariant === "italy")
+      return <TemplateItalySTD W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
+        label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
         selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
     if (tplCfg.layoutVariant === "bold")
       return <TemplateLettreBold W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
@@ -1362,13 +1894,14 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, fontPreset, 
      3 → page droite seule (template design)
 ═══════════════════════════════════════════════ */
 
-function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, photoUrl, elementStyles, customPaperBg, onClose }: {
+function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, photoUrl, photoUrls, elementStyles, customPaperBg, onClose, inline }: {
   tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
   fontPreset?: string;
-  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string; photoUrl?: string;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }>;
+  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string; photoUrl?: string; photoUrls?: string[];
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
   customPaperBg?: string;
   onClose: () => void;
+  inline?: boolean;
 }) {
   const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
 
@@ -1378,17 +1911,23 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
 
   // 0: cover seule  1: livre ouvert  2: rabattement  3: page droite seule
   const [phase, setPhase] = useState<0 | 1 | 2 | 3>(reducedMotion ? 3 : 0);
+  const [restartKey, setRestartKey] = useState(0);
 
   useEffect(() => {
     if (reducedMotion) return;
-    const t1 = setTimeout(() => setPhase(1), 900);   // ouverture du livre
-    const t2 = setTimeout(() => setPhase(2), 900 + 2200 + 80);   // rabattement (pause courte)
-    const t3 = setTimeout(() => setPhase(3), 900 + 2200 + 80 + 2400 + 300);  // fini
+    const t1 = setTimeout(() => setPhase(1), 900);
+    const t2 = setTimeout(() => setPhase(2), 900 + 2200);
+    const t3 = setTimeout(() => setPhase(3), 900 + 2200 + 3000 + 300);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [reducedMotion]);
+  }, [reducedMotion, restartKey]);
 
-  const W = 260;
-  const H = Math.round(W * 1.4); // 364
+  function handleReplay() {
+    setPhase(0);
+    setRestartKey(k => k + 1);
+  }
+
+  const W = inline ? 400 : 460;
+  const H = Math.round(W * 1.4);
 
   const displayNames = namesText || (user.p1 && user.p2 ? `${user.p1} & ${user.p2}` : "Emma & Louis");
   const displayDate  = user.date
@@ -1396,186 +1935,269 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
     : "12 juillet 2026";
   const displayLabel = label || "Save the Date";
 
-  /* ── Géométrie ───────────────────────────────────
-   Le "livre" fait toujours 2W de large.
-   Page gauche [0,W] = couverture (rotate autour du bord droit = reliure).
-   Page droite [W,2W] = template (fixe).
+  /* ── Géométrie — double porte (miroir du volet unique original) ─────
+   z' = -x_rel · sin(θ)  (formule CSS rotateY)
 
-   Panneau gauche — transform-origin: right center (reliure à x=W)
-     phase 0 : rotateY(180°)  → panneau à [W,2W], face arrière (couverture) visible
-     phase 1 : rotateY(0°)    → panneau à [0,W], face avant (intérieur) ; passe par 90° z=+W → couvre panneau droit
-     phase 2-3: rotateY(-180°) → panneau à [W,2W] mais DERRIÈRE panneau droit ; passe par -90° z=-W → sous panneau droit
+   Volet gauche : left=W/2, width=W/2, pivot=right center → spine x=W
+     x_rel bord gauche = -W/2  →  z' = (W/2)·sin(θ)
+     phase 0 : rotateY(+180°) → covers [W,1.5W], face arrière visible ✓
+     phase 1 : rotateY(0°)    → passe par 90° z'=+W/2 vers spectateur ✓
+     phase 2 : rotateY(-180°) → passe par -90° z'=-W/2 → derrière ✓
 
-   Double rotation back face (180° panneau + 180° face) = 360° net → contenu non-miroir ✓
-
-   Décalage du livre :
-     phase 0 : translateX(-W/2) → centre sur la page droite [W,2W] = couverture
-     phase 1 : translateX(0)    → livre entier centré, deux pages visibles
-     phase 2-3: translateX(-W/2) → recentre sur page droite
+   Volet droit : left=2W, width=W/2, pivot=left center → spine x=2W
+     x_rel bord droit = +W/2  →  z' = -(W/2)·sin(θ)
+     phase 0 : rotateY(-180°) → covers [1.5W,2W], face arrière visible ✓
+     phase 1 : rotateY(0°)    → passe par -90° z'=+W/2 vers spectateur ✓
+     phase 2 : rotateY(+180°) → passe par +90° z'=-W/2 → derrière ✓
    ─────────────────────────────────────────────── */
 
-  const bookTX    = phase === 1 ? 0 : -(W / 2);
-  // Counter-translateX : annule exactement le déplacement du book container
-  // pour que le panneau droit reste fixe à l'écran (même timing = annulation parfaite).
-  const rightTX   = phase === 1 ? 0 : W / 2;
-  // 180→0° : passe par 90° où z=+W (vers le spectateur) → couvre le panneau droit ✓
-  // 0→-180° : passe par -90° où z=-W (derrière) → se rabat derrière le panneau droit ✓
-  const leftAngle = phase === 0 ? 180 : phase === 1 ? 0 : -180;
-
   const OPEN_EASE = "2.2s linear";
-  const FOLD_EASE = "2.4s cubic-bezier(0.42, 0, 0.12, 1)";
+  const FOLD_EASE = "3.0s cubic-bezier(0.2, 0, 0.15, 1)";
 
-  // Toujours définir une transition (jamais "none") pour éviter le snap navigateur
-  // quand React change transition + valeur en même render.
-  const bookTransition = phase === 0
-    ? "transform 0.001s linear"
-    : `transform ${phase === 1 ? OPEN_EASE : FOLD_EASE}`;
+  // Volet gauche : même logique que l'ancien volet unique
+  const leftFlapAngle  = phase === 0 ?  180 : phase === 1 ? 0 : -180;
+  // Volet droit : miroir exact
+  const rightFlapAngle = phase === 0 ? -180 : phase === 1 ? 0 :  180;
 
-  const leftTransition = phase === 0
+  // Volets : s'effacent en fin de rabattement
+  const flapTransition = phase === 0
     ? "transform 0.001s linear"
     : phase === 1 ? `transform ${OPEN_EASE}`
-    : phase === 2 ? `transform ${FOLD_EASE}`
-    : "opacity 0.35s ease";
+    : phase === 2 ? `transform ${FOLD_EASE}, opacity 0.8s ease 2.2s`
+    : "none";
 
-  // Même timing que le book container pour que la compensation soit exacte à chaque frame.
-  const rightXTransition = phase === 0
+  // Sceau : disparition naturelle via backfaceVisibility en phase 1.
+  // En phase 2, snap opacity:0 immédiat (sceau déjà invisible à ce moment) → ne peut plus réapparaître.
+  const sealTransition = phase === 0
     ? "transform 0.001s linear"
-    : `transform ${phase === 1 ? OPEN_EASE : phase === 2 ? FOLD_EASE : "0.001s linear"}`;
+    : phase === 1 ? `transform ${OPEN_EASE}`
+    : phase === 2 ? `transform ${FOLD_EASE}, opacity 0s`
+    : "none";
+
+  const flapPaperImage = palette.paperImage ?? "/papier%20lettre/Fond%20papier/Papier_1.png";
+  const paperFace = (position: "left" | "right", back?: boolean): React.CSSProperties => ({
+    position: "absolute", inset: 0,
+    backfaceVisibility: "hidden",
+    WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
+    ...(back ? { transform: "rotateY(180deg)" } : {}),
+    backgroundImage: `url('${flapPaperImage}')`,
+    backgroundSize: `${W}px ${H}px`,
+    backgroundPosition: position === "left" ? "left center" : "right center",
+  });
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-8"
-      style={{ backgroundColor: "rgba(8,6,14,0.92)" }}
+      className={inline ? "w-full h-full flex flex-col items-center justify-center gap-6 overflow-hidden" : "fixed inset-0 z-50 flex flex-col items-center justify-center gap-8"}
+      style={inline ? {} : {
+        backgroundImage: "url('/fond/marbre.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
-      <button
-        onClick={onClose}
-        className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white" }}
-      >
-        <X size={18}/>
-      </button>
+      {!inline && (
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: "rgba(109,29,62,0.12)", color: "#6D1D3E" }}
+        >
+          <X size={18}/>
+        </button>
+      )}
 
-      {/* ── 3D scene ──
-           IMPORTANT: filter ne peut PAS être sur le conteneur preserve-3d
-           (ça aplatirait le contexte 3D et casserait backfaceVisibility).
-           L'ombre est gérée séparément via box-shadow sur chaque panneau. */}
-      <div style={{ perspective: "1400px", perspectiveOrigin: "50% 50%" }}>
+      {/* ── 3D scene — position:relative pour ancrer les boutons absolus ── */}
+      <div style={{ position: "relative", perspective: "1800px", perspectiveOrigin: "50% 50%", overflow: "visible" }}>
 
-        {/* Book container — 2W wide, shifts to keep visible page centred */}
+        {/* Book container — 2W, centré sur le template [W,2W] via translateX(-W/2) constant */}
         <div style={{
           position: "relative",
           width: 2 * W,
           height: H,
           transformStyle: "preserve-3d",
-          transform: `translateX(${bookTX}px)`,
-          transition: bookTransition,
+          transform: `translateX(${-W / 2}px)`,
         }}>
 
-          {/* ── Right panel: template design — caché en phase 0 (couverture devant) ── */}
-          {/* Couche externe : translateX counter pour garder le panneau fixe à l'écran.
-               transformStyle preserve-3d pour que la couche interne (translateZ) reste
-               dans le même contexte 3D que le volet gauche. */}
+          {/* ── Template ── */}
           <div style={{
             position: "absolute", left: W, top: 0, width: W, height: H,
-            transform: `translateX(${rightTX}px)`,
-            transition: rightXTransition,
-            transformStyle: "preserve-3d",
+            opacity: phase === 0 ? 0 : 1,
+            transition: phase === 1 ? "opacity 0.5s ease 0s" : "none",
           }}>
-            {/* Couche interne : translateZ seul, sans transition
-                 (snape au passage phase 1→2 quand les panneaux ne se chevauchent pas). */}
-            <div style={{
-              position: "absolute", inset: 0,
-              overflow: "hidden",
-              transform: `translateZ(${phase <= 1 ? -2 : 2}px)`,
-              boxShadow: "8px 32px 64px rgba(0,0,0,0.45)",
-              opacity: phase === 0 ? 0 : 1,
-              transition: phase === 1 ? "opacity 0.5s ease 0s" : "none",
-            }}>
-              <TemplateRender
-                id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
-                fontPreset={fontPreset} label={label} namesText={namesText}
-                dateText={dateText} locationText={locationText} footer={footer}
-                photoUrl={photoUrl} elementStyles={elementStyles} customPaperBg={customPaperBg}
-              />
-            </div>
+            <TemplateRender
+              id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
+              fontPreset={fontPreset} label={label} namesText={namesText}
+              dateText={dateText} locationText={locationText} footer={footer}
+              photoUrl={photoUrl} photoUrls={photoUrls} elementStyles={elementStyles} customPaperBg={customPaperBg}
+            />
           </div>
 
-
-          {/* ── Left panel wrapper: même counter-translateX que le panneau droit
-               pour que l'axe de rotation (bord droit du volet) reste collé
-               au bord gauche du panneau droit, quelle que soit la phase. ── */}
+          {/* ── Volet gauche : left=W/2, pivot=right(x=W), +180°→0°→-180° ── */}
           <div style={{
-            position: "absolute", left: 0, top: 0, width: W, height: H,
-            transform: `translateX(${rightTX}px)`,
-            transition: rightXTransition,
-            transformStyle: "preserve-3d",
-          }}>
-          {/* ── Left panel: rotateY uniquement — l'axe est à right center de CE div ── */}
-          <div style={{
-            position: "absolute", left: 0, top: 0, width: W, height: H,
+            position: "absolute", left: W / 2, top: 0, width: W / 2, height: H,
             transformOrigin: "right center",
             transformStyle: "preserve-3d",
-            transform: `rotateY(${leftAngle}deg)`,
-            transition: leftTransition,
-            opacity: phase >= 3 ? 0 : 1,
+            transform: `rotateY(${leftFlapAngle}deg)`,
+            transition: flapTransition,
+            opacity: phase >= 2 ? 0 : 1,
+            boxShadow: "0 0 20px rgba(0,0,0,0.13)",
           }}>
+            {/* face avant — ombre vers le pli (bord droit) */}
+            <div style={paperFace("left")} />
+            <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"], background: "linear-gradient(to left, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.02) 35%, transparent 60%)", pointerEvents: "none" }} />
+            {/* face arrière — ombre vers le pli (bord gauche visuel = bord droit CSS après flip) */}
+            <div style={paperFace("left", true)} />
+            <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"], transform: "rotateY(180deg)", background: "linear-gradient(to right, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.02) 35%, transparent 60%)", pointerEvents: "none" }} />
+          </div>
 
-            {/* Face avant : intérieur du volet — papier texturé */}
+          {/* ── Volet droit : left=2W, pivot=left(x=2W), -180°→0°→+180° ── */}
+          <div style={{
+            position: "absolute", left: 2 * W, top: 0, width: W / 2, height: H,
+            transformOrigin: "left center",
+            transformStyle: "preserve-3d",
+            transform: `rotateY(${rightFlapAngle}deg)`,
+            transition: flapTransition,
+            opacity: phase >= 2 ? 0 : 1,
+            boxShadow: "0 0 20px rgba(0,0,0,0.13)",
+          }}>
+            {/* face avant — ombre vers le pli (bord gauche) */}
+            <div style={paperFace("right")} />
+            <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"], background: "linear-gradient(to right, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.02) 35%, transparent 60%)", pointerEvents: "none" }} />
+            {/* face arrière — ombre vers le pli (bord droit visuel = bord gauche CSS après flip) */}
+            <div style={paperFace("right", true)} />
+            <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"], transform: "rotateY(180deg)", background: "linear-gradient(to left, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.02) 35%, transparent 60%)", pointerEvents: "none" }} />
+          </div>
+
+          {/* ── Sceau en cire ──────────────────────────────────────────────────
+               Élément indépendant dans le book container.
+               Wrapper à left=W (= pivot du volet gauche, x=W dans le book).
+               Le sceau est placé à W/2 à droite du pivot = joint entre les volets (x=1.5W).
+               Rotation = leftFlapAngle+180° : visible quand la face arrière du volet est vers nous,
+               invisible (backfaceVisibility:hidden) quand la face avant est vers nous.
+               Pas de débordement possible car le sceau est libre dans le contexte 3D. ── */}
+          <div style={{
+            position: "absolute", left: W, top: 0, width: 0, height: H,
+            transformOrigin: "left center",
+            transformStyle: "preserve-3d",
+            transform: `rotateY(${leftFlapAngle + 180}deg)`,
+            transition: sealTransition,
+            opacity: phase >= 2 ? 0 : 1,
+          }}>
             <div style={{
-              position: "absolute", inset: 0,
+              position: "absolute",
+              left: W / 2,
+              top: "50%",
+              width: Math.round(W * 0.42),
+              height: Math.round(W * 0.42),
+              transform: "translate(-50%, -50%)",
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
-              backgroundImage: "url('/papier lettre/Papier_1.png')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}/>
-
-            {/* Face arrière : couverture (phase 0) — papier texturé + sceau en cire */}
-            <div style={{
-              position: "absolute", inset: 0,
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden" as React.CSSProperties["WebkitBackfaceVisibility"],
-              transform: "rotateY(180deg)",
-              backgroundImage: "url('/papier lettre/Papier_1.png')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              pointerEvents: "none",
             }}>
               <img
                 src="/papier lettre/Cire/cire-rouge.png"
                 alt=""
-                style={{ width: Math.round(W * 0.42), height: Math.round(W * 0.42), objectFit: "contain", pointerEvents: "none" }}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>
-
           </div>
-          </div>{/* end left panel wrapper */}
+
         </div>
-      </div>
 
-      {/* Status text */}
-      {phase < 3 && (
-        <p style={{ fontSize: "13px", fontFamily: "var(--font-serif)", fontStyle: "italic", color: "rgba(255,255,255,0.3)" }}>
-          {phase === 0 && "Votre invitation…"}
-          {phase === 1 && "La carte s'ouvre…"}
-          {phase === 2 && "La page se rabat…"}
-        </p>
-      )}
-
-      {/* Buttons once done */}
-      {phase === 3 && (
-        <div className="flex gap-3" style={{ animation: "invitation-appear 0.45s ease forwards" }}>
+      {/* Buttons — à droite de la carte (modal) ou dessous (inline) */}
+      {phase === 3 && !inline && (
+        <div style={{
+          position: "absolute",
+          left: Math.round(W * 1.5) + 32,
+          top: "50%",
+          transform: "translateY(-50%)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          animation: "invitation-appear 0.45s ease forwards",
+        }}>
+          <button onClick={handleReplay} className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold"
+            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", whiteSpace: "nowrap" }}>
+            <RotateCcw size={14}/> Revoir l'animation
+          </button>
           <button onClick={onClose} className="px-5 py-2.5 rounded-full text-sm font-semibold"
-            style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "white", fontFamily: "var(--font-display)" }}>
+            style={{ backgroundColor: "rgba(109,29,62,0.08)", color: "#6D1D3E", fontFamily: "var(--font-display)", whiteSpace: "nowrap" }}>
             Retour
           </button>
-          <button onClick={onClose} className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold"
-            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}>
-            <Sparkles size={14}/> Personnaliser
-          </button>
         </div>
+      )}
+
+      </div>{/* fin 3D scene */}
+
+      {/* Bouton rejouer en mode inline — absolu bas gauche */}
+      {inline && phase === 3 && (
+        <button onClick={handleReplay}
+          className="absolute flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold"
+          style={{ left: 28, top: "50%", transform: "translateY(-50%)", backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", boxShadow: "0 4px 16px rgba(109,29,62,0.3)", animation: "invitation-appear 0.45s ease forwards" }}>
+          <RotateCcw size={14}/> Revoir
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   CARD FLIP ANIMATION (inline)
+═══════════════════════════════════════════════ */
+
+function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, photoUrl, photoUrls, elementStyles, customPaperBg }: {
+  tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
+  fontPreset?: string; label?: string; namesText?: string; dateText?: string;
+  locationText?: string; footer?: string; photoUrl?: string; photoUrls?: string[];
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  customPaperBg?: string;
+}) {
+  const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
+  const W = 400; const H = Math.round(W * 1.4);
+  const [flipped, setFlipped] = useState(true);
+  const [done, setDone]       = useState(false);
+  const [key, setKey]         = useState(0);
+
+  useEffect(() => {
+    setFlipped(true); setDone(false);
+    const t1 = setTimeout(() => setFlipped(false), 700);
+    const t2 = setTimeout(() => setDone(true), 700 + 3000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [key]);
+
+  const backImage = palette.paperImage ?? "/papier%20lettre/Fond%20papier/Papier_1.png";
+
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ position: "relative", perspective: "1400px" }}>
+      <div style={{
+        width: W, height: H,
+        transformStyle: "preserve-3d",
+        transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+        transition: flipped ? "none" : "transform 3s cubic-bezier(0.4, 0, 0.15, 1)",
+        boxShadow: "0 12px 44px rgba(0,0,0,0.28)",
+      }}>
+        {/* Front */}
+        <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", overflow: "hidden" }}>
+          <TemplateRender id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
+            fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText}
+            locationText={locationText} footer={footer} photoUrl={photoUrl} photoUrls={photoUrls}
+            elementStyles={elementStyles} customPaperBg={customPaperBg}/>
+        </div>
+        {/* Back */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backfaceVisibility: "hidden",
+          transform: "rotateY(180deg)",
+          backgroundImage: `url('${backImage}')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}/>
+      </div>
+
+      {done && (
+        <button onClick={() => setKey(k => k + 1)}
+          className="absolute flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold"
+          style={{ left: 28, top: "50%", transform: "translateY(-50%)", backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", boxShadow: "0 4px 16px rgba(109,29,62,0.3)", animation: "invitation-appear 0.45s ease forwards" }}>
+          <RotateCcw size={14}/> Revoir
+        </button>
       )}
     </div>
   );
@@ -1598,7 +2220,8 @@ function CardCustomizerPanel({ tpl, paletteId, onPaletteChange, cardCustom, onCa
     color: "rgba(109,29,62,0.5)", fontFamily: "var(--font-display)", marginBottom: 10,
   };
 
-  const isCustomActive = !!cardCustom.customPaperBg;
+  const hasPaperImages = tpl.palettes.every(p => p.paperImage);
+  const isCustomActive = !hasPaperImages && !!cardCustom.customPaperBg;
   const activeLabel = isCustomActive ? "Personnalisé" : tpl.palettes.find(p => p.id === paletteId)?.label;
 
   return (
@@ -1606,7 +2229,7 @@ function CardCustomizerPanel({ tpl, paletteId, onPaletteChange, cardCustom, onCa
 
       {/* Couleur du papier */}
       <div>
-        <p style={sec}>Couleur du papier</p>
+        <p style={sec}>Fond du papier</p>
         <div className="flex gap-2.5 flex-wrap">
           {tpl.palettes.map(p => {
             const active = !isCustomActive && paletteId === p.id;
@@ -1615,6 +2238,9 @@ function CardCustomizerPanel({ tpl, paletteId, onPaletteChange, cardCustom, onCa
                 style={{
                   width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
                   backgroundColor: p.bg,
+                  backgroundImage: (!p.noImageSwatch && p.paperImage) ? `url(${p.paperImage})` : undefined,
+                  backgroundSize: p.swatchSize ?? "cover",
+                  backgroundPosition: p.swatchPos ?? "center",
                   border: `1.5px solid rgba(0,0,0,0.08)`,
                   boxShadow: active ? `0 0 0 2.5px white, 0 0 0 4.5px #6D1D3E` : "0 1px 4px rgba(0,0,0,0.14)",
                   transform: active ? "scale(1.15)" : "scale(1)",
@@ -1624,26 +2250,30 @@ function CardCustomizerPanel({ tpl, paletteId, onPaletteChange, cardCustom, onCa
               />
             );
           })}
-          {/* Custom color swatch */}
-          <button
-            onClick={() => customColorRef.current?.click()}
-            title="Couleur personnalisée"
-            style={{
-              width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
-              background: isCustomActive ? cardCustom.customPaperBg : "repeating-linear-gradient(45deg, #F5C0D0 0px, #F5C0D0 5px, #B8D4F0 5px, #B8D4F0 10px, #B8DEC8 10px, #B8DEC8 15px, #F0E8C0 15px, #F0E8C0 20px)",
-              border: `1.5px solid rgba(0,0,0,0.08)`,
-              boxShadow: isCustomActive ? `0 0 0 2.5px white, 0 0 0 4.5px #6D1D3E` : "0 1px 4px rgba(0,0,0,0.14)",
-              transform: isCustomActive ? "scale(1.15)" : "scale(1)",
-              transition: "all 130ms",
-              padding: 0,
-              cursor: "pointer",
-            }}
-          />
-          <input ref={customColorRef} type="color"
-            value={cardCustom.customPaperBg ?? "#F5F3F0"}
-            onChange={e => onCardCustomChange({ ...cardCustom, customPaperBg: e.target.value })}
-            style={{ position: "absolute", opacity: 0, pointerEvents: "none", width: 0, height: 0 }}
-          />
+          {/* Custom color swatch — hidden for paper-image templates */}
+          {!hasPaperImages && (
+            <>
+              <button
+                onClick={() => customColorRef.current?.click()}
+                title="Couleur personnalisée"
+                style={{
+                  width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
+                  background: isCustomActive ? cardCustom.customPaperBg : "repeating-linear-gradient(45deg, #F5C0D0 0px, #F5C0D0 5px, #B8D4F0 5px, #B8D4F0 10px, #B8DEC8 10px, #B8DEC8 15px, #F0E8C0 15px, #F0E8C0 20px)",
+                  border: `1.5px solid rgba(0,0,0,0.08)`,
+                  boxShadow: isCustomActive ? `0 0 0 2.5px white, 0 0 0 4.5px #6D1D3E` : "0 1px 4px rgba(0,0,0,0.14)",
+                  transform: isCustomActive ? "scale(1.15)" : "scale(1)",
+                  transition: "all 130ms",
+                  padding: 0,
+                  cursor: "pointer",
+                }}
+              />
+              <input ref={customColorRef} type="color"
+                value={cardCustom.customPaperBg ?? "#F5F3F0"}
+                onChange={e => onCardCustomChange({ ...cardCustom, customPaperBg: e.target.value })}
+                style={{ position: "absolute", opacity: 0, pointerEvents: "none", width: 0, height: 0 }}
+              />
+            </>
+          )}
         </div>
         <p className="text-xs mt-2" style={{ color: "rgba(44,44,44,0.38)", fontFamily: "var(--font-display)" }}>
           {activeLabel}
@@ -1659,13 +2289,16 @@ function CardCustomizerPanel({ tpl, paletteId, onPaletteChange, cardCustom, onCa
    ELEMENT STYLE PANEL
 ═══════════════════════════════════════════════ */
 
-function ElementStylePanel({ elementId, cardCustom, onCardCustomChange, palette, onClose }: {
+function ElementStylePanel({ elementId, cardCustom, onCardCustomChange, palette, user, onClose }: {
   elementId: string;
   cardCustom: CardCustomization;
   onCardCustomChange: (next: CardCustomization) => void;
   palette: Palette;
+  user: UserData;
   onClose: () => void;
 }) {
+  // Backup au montage — "Annuler" restaure cet état
+  const [backup] = useState<CardCustomization>(() => cardCustom);
   const style = cardCustom.styles[elementId] ?? {};
 
   const sec: React.CSSProperties = {
@@ -1676,22 +2309,31 @@ function ElementStylePanel({ elementId, cardCustom, onCardCustomChange, palette,
     fontSize: "0.65rem", color: "rgba(44,44,44,0.42)", fontFamily: "var(--font-display)",
     fontWeight: 500, marginBottom: 6, display: "block",
   };
-  function updateStyle(updates: { font?: string; color?: string; size?: number; uppercase?: boolean; dx?: number; dy?: number; hidden?: boolean }) {
+  function updateStyle(updates: { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }) {
     onCardCustomChange({
       ...cardCustom,
       styles: { ...cardCustom.styles, [elementId]: { ...style, ...updates } },
     });
   }
+  function handleCancel() { onCardCustomChange(backup); onClose(); }
+  function handleConfirm() { onClose(); }
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <p style={sec}>{ELEMENT_LABELS[elementId] ?? elementId}</p>
-        <button onClick={onClose}
-          className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
-          style={{ backgroundColor: "rgba(44,44,44,0.08)", color: "rgba(44,44,44,0.5)" }}>
-          ✕
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleCancel}
+            className="px-3 py-1 rounded-full text-xs font-semibold"
+            style={{ backgroundColor: "rgba(44,44,44,0.07)", color: "rgba(44,44,44,0.55)", fontFamily: "var(--font-display)" }}>
+            Annuler
+          </button>
+          <button onClick={handleConfirm}
+            className="w-7 h-7 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: "#6D1D3E", color: "white" }}>
+            <Check size={13} strokeWidth={2.5}/>
+          </button>
+        </div>
       </div>
 
       {/* Font picker */}
@@ -1776,25 +2418,81 @@ function ElementStylePanel({ elementId, cardCustom, onCardCustomChange, palette,
 
       {/* Capitalization */}
       <div>
-        <span style={sub}>Casse</span>
+        <span style={sub}>Majuscule</span>
         <div className="flex gap-2">
-          {([false, true] as const).map(isUpper => (
-            <button key={String(isUpper)}
-              onClick={() => updateStyle({ uppercase: isUpper })}
-              className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all"
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "0.88rem",
-                textTransform: isUpper ? "uppercase" : "none",
-                backgroundColor: (style.uppercase ?? false) === isUpper ? "rgba(109,29,62,0.08)" : "rgba(255,255,255,0.7)",
-                border: `1.5px solid ${(style.uppercase ?? false) === isUpper ? "rgba(109,29,62,0.25)" : "transparent"}`,
-                color: (style.uppercase ?? false) === isUpper ? "#6D1D3E" : "#2c2c2c",
-              }}>
-              {isUpper ? "AA" : "Aa"}
-            </button>
-          ))}
+          {(["capitalize", true] as const).map(variant => {
+            const isActive = style.uppercase === variant;
+            return (
+              <button key={String(variant)}
+                onClick={() => updateStyle({ uppercase: isActive ? undefined : variant })}
+                className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all"
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "0.88rem",
+                  textTransform: variant === true ? "uppercase" : "none",
+                  backgroundColor: isActive ? "rgba(109,29,62,0.08)" : "rgba(255,255,255,0.7)",
+                  border: `1.5px solid ${isActive ? "rgba(109,29,62,0.25)" : "transparent"}`,
+                  color: isActive ? "#6D1D3E" : "#2c2c2c",
+                }}>
+                {variant === true ? "AA" : "Aa"}
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {/* Date format — shown only when editing the date element */}
+      {elementId === "date" && (() => {
+        const d = user.date ? new Date(user.date + "T12:00:00") : null;
+        const pad = (n: number) => String(n).padStart(2, "0");
+        const formats = d ? [
+          {
+            label: `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${String(d.getFullYear()).slice(-2)}`,
+            value: `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${String(d.getFullYear()).slice(-2)}`,
+          },
+          {
+            label: `${pad(d.getDate())} | ${pad(d.getMonth() + 1)} | ${d.getFullYear()}`,
+            value: `${pad(d.getDate())} | ${pad(d.getMonth() + 1)} | ${d.getFullYear()}`,
+          },
+          {
+            label: d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }),
+            value: d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }),
+          },
+          {
+            label: d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+            value: d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+          },
+        ] : [
+          { label: "26.07.27", value: "26.07.27" },
+          { label: "01 | 01 | 2026", value: "01 | 01 | 2026" },
+          { label: "1 janvier 2026", value: "1 janvier 2026" },
+          { label: "Jeudi 1er janvier 2026", value: "Jeudi 1er janvier 2026" },
+        ];
+        return (
+          <div>
+            <span style={sub}>Format de date</span>
+            <div className="flex flex-col gap-1.5">
+              {formats.map(f => {
+                const isActive = (cardCustom.dateText || "") === f.value;
+                return (
+                  <button key={f.value}
+                    onClick={() => onCardCustomChange({ ...cardCustom, dateText: f.value })}
+                    className="px-3 py-2 rounded-xl text-left transition-all"
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontSize: "0.78rem",
+                      backgroundColor: isActive ? "rgba(109,29,62,0.08)" : "rgba(255,255,255,0.7)",
+                      border: `1.5px solid ${isActive ? "rgba(109,29,62,0.25)" : "transparent"}`,
+                      color: isActive ? "#6D1D3E" : "#2c2c2c",
+                    }}>
+                    {f.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -1817,6 +2515,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
   const cardW = 360;
   const cardH = Math.round(cardW * 1.4); // 504
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const currentPhotoSlot = useRef<number | null>(null);
 
   function handleDelete() {
     if (!selectedElement) return;
@@ -1864,7 +2563,19 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
 
   function handlePhotoFile(file: File) {
     const reader = new FileReader();
-    reader.onload = e => onCardCustomChange({ ...cardCustom, photoUrl: e.target?.result as string ?? "" });
+    reader.onload = e => {
+      const url = e.target?.result as string ?? "";
+      const slot = currentPhotoSlot.current;
+      if (slot !== null) {
+        const tplCfg = TEMPLATES.find(t => t.id === tpl.id);
+        const base = cardCustom.photoUrls?.length ? [...cardCustom.photoUrls] : (tplCfg?.defaultPhotoUrls ? [...tplCfg.defaultPhotoUrls] : ["", "", "", ""]);
+        while (base.length < 4) base.push("");
+        base[slot] = url;
+        onCardCustomChange({ ...cardCustom, photoUrls: base });
+      } else {
+        onCardCustomChange({ ...cardCustom, photoUrl: url });
+      }
+    };
     reader.readAsDataURL(file);
   }
 
@@ -1933,6 +2644,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 }}>
                   <TemplateRender id={tpl.id} W={insideW} H={insideH} palette={palette} user={user} isStd={isStd}
                     photoUrl={cardCustom.photoUrl || undefined}
+                    photoUrls={cardCustom.photoUrls}
                     fontPreset={cardCustom.fontPreset} label={cardCustom.label}
                     namesText={cardCustom.namesText} dateText={cardCustom.dateText}
                     locationText={cardCustom.locationText} footer={cardCustom.footer}
@@ -1952,11 +2664,13 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
               <div style={{ position: "absolute", inset: 0, overflow: "hidden", boxShadow: "0 12px 44px rgba(109,29,62,0.15)" }}>
                 <TemplateRender id={tpl.id} W={cardW} H={cardH} palette={palette} user={user} isStd={isStd}
                   photoUrl={cardCustom.photoUrl || undefined}
+                  photoUrls={cardCustom.photoUrls}
                   fontPreset={cardCustom.fontPreset} label={cardCustom.label}
                   namesText={cardCustom.namesText} dateText={cardCustom.dateText} locationText={cardCustom.locationText}
                   footer={cardCustom.footer}
                   selectedElement={selectedElement} onElementClick={setSelectedElement}
-                  onPhotoClick={() => photoInputRef.current?.click()}
+                  onPhotoClick={() => { currentPhotoSlot.current = null; photoInputRef.current?.click(); }}
+                  onPhotoSlotClick={i => { currentPhotoSlot.current = i; photoInputRef.current?.click(); }}
                   elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}/>
               </div>
               {/* Inline text input overlay */}
@@ -1965,13 +2679,30 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 const photoY = cardH * 0.30;
                 const photoH_ = cardH * 0.37;
                 type ElemCfg = { y: number; fs: number; fontType: "script" | "body"; opacity: number };
+                const isPhotomaton    = tpl.id === "photomaton";
+                const isRayures       = tpl.id === "rayures";
+                const isOliviers      = tpl.id === "oliviers";
                 const isLettrePhoto   = !!tpl.paperImage && tpl.layoutVariant === "photo";
                 const isLettreArbres  = !!tpl.paperImage && tpl.layoutVariant === "arbres";
                 const isLettreBold    = !!tpl.paperImage && tpl.layoutVariant === "bold";
                 const isLettreElegant = !!tpl.paperImage && tpl.layoutVariant === "elegant";
+                const isLettreItaly   = !!tpl.paperImage && tpl.layoutVariant === "italy";
                 const isLettre = !!tpl.paperImage;
-                const fY_photo = cardH * 0.145; const fH_photo = cardH * 0.620;
-                const elems: Record<string, ElemCfg> = isLettreElegant ? {
+                const fY_photo = cardH * 0.21; const fH_photo = cardH * 0.48;
+                const elems: Record<string, ElemCfg> = isPhotomaton ? {
+                  label: { y: cardH * 0.064, fs: cardW * 0.030, fontType: "body",   opacity: 0.85 },
+                  names: { y: cardH * 0.100, fs: cardW * 0.022, fontType: "body",   opacity: 1 },
+                  date:  { y: cardH * 0.940, fs: cardW * 0.046, fontType: "script", opacity: 0.9 },
+                } : isRayures ? {
+                  label:    { y: cardH * 0.225, fs: cardW * 0.028, fontType: "body",   opacity: 0.7 },
+                  names:    { y: cardH * 0.490, fs: cardW * 0.060, fontType: "body",   opacity: 1 },
+                  date:     { y: cardH * 0.815, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
+                  location: { y: cardH * 0.880, fs: cardW * 0.025, fontType: "body",   opacity: 1 },
+                } : isOliviers ? {
+                  names:    { y: cardH * 0.470, fs: cardW * 0.065, fontType: "script", opacity: 1 },
+                  date:     { y: cardH * 0.790, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
+                  location: { y: cardH * 0.860, fs: cardW * 0.030, fontType: "body",   opacity: 1 },
+                } : isLettreElegant ? {
                   label:    { y: cardH * 0.408, fs: cardW * 0.046, fontType: "body",   opacity: 1 },
                   names:    { y: cardH * 0.560, fs: cardW * 0.054, fontType: "script", opacity: 1 },
                   date:     { y: cardH * 0.752, fs: cardW * 0.026, fontType: "body",   opacity: 1 },
@@ -1987,10 +2718,16 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   names:    { y: fY_photo + fH_photo + cardH * 0.030, fs: cardW * 0.026, fontType: "body",   opacity: 1 },
                   date:     { y: fY_photo + fH_photo + cardH * 0.082, fs: cardW * 0.040, fontType: "script", opacity: 0.82 },
                 } : isLettreBold ? {
-                  names:    { y: cardH * 0.592, fs: cardW * 0.088, fontType: "script", opacity: 1 },
-                  date:     { y: cardH * 0.378, fs: cardW * 0.050, fontType: "body",   opacity: 1 },
-                  location: { y: cardH * 0.762, fs: cardW * 0.025, fontType: "body",   opacity: 1 },
-                  footer:   { y: cardH * 0.832, fs: cardW * 0.024, fontType: "script", opacity: 0.65 },
+                  names:    { y: cardH * 0.652, fs: cardW * 0.088, fontType: "script", opacity: 1 },
+                  date:     { y: cardH * 0.438, fs: cardW * 0.050, fontType: "body",   opacity: 1 },
+                  location: { y: cardH * 0.822, fs: cardW * 0.025, fontType: "body",   opacity: 1 },
+                  footer:   { y: cardH * 0.892, fs: cardW * 0.024, fontType: "script", opacity: 0.65 },
+                } : isLettreItaly ? {
+                  label:    { y: cardH * 0.497, fs: cardW * 0.030, fontType: "body",   opacity: 0.75 },
+                  names:    { y: cardH * 0.569, fs: cardW * 0.044, fontType: "body",   opacity: 1 },
+                  date:     { y: cardH * 0.660, fs: cardW * 0.034, fontType: "body",   opacity: 1 },
+                  location: { y: cardH * 0.735, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
+                  footer:   { y: cardH * 0.872, fs: cardW * 0.042, fontType: "script", opacity: 0.75 },
                 } : isLettre ? {
                   label:    { y: cardH * 0.22,  fs: cardW * 0.062, fontType: "script", opacity: 0.9 },
                   names:    { y: cardH * 0.38,  fs: cardW * 0.072, fontType: "script", opacity: 1 },
@@ -2008,18 +2745,154 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 if (!cfg) return null;
                 const isScript = cfg.fontType === "script";
                 const elStyle = cardCustom.styles[selectedElement] ?? {};
-                const elementFont = elStyle.font ?? (isScript ? fp.scriptFont : fp.bodyFont);
+                const isDentelle = !isLettre && !isRayures && !isOliviers;
+                const tplSizeDef: Record<string, number> = isDentelle ? { names: 1.3 } : {};
+                const fs = cfg.fs * (elStyle.size ?? tplSizeDef[selectedElement] ?? 1);
+
+                // Per-template default font/style/weight — must match what the SVG renders
+                type TplFontDef = { font: string; style: string; weight: string };
+                const tplFontMap: Record<string, TplFontDef> = isPhotomaton ? {
+                  label: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                  names: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                  date:  { font: "var(--font-script)",     style: "normal", weight: "400" },
+                } : isRayures ? {
+                  label:    { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                  names:    { font: "var(--font-playfair)",   style: "normal", weight: "700" },
+                  date:     { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                  location: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                } : isLettreElegant ? {
+                  label:    { font: "var(--font-playfair)",               style: "italic", weight: "400" },
+                  names:    { font: "'Times New Roman', Georgia, serif",  style: "normal", weight: "400" },
+                  date:     { font: "var(--font-montserrat)",             style: "normal", weight: "400" },
+                  location: { font: "var(--font-serif)",                  style: "italic", weight: "400" },
+                  footer:   { font: "var(--font-script)",                 style: "italic", weight: "400" },
+                } : isLettreArbres ? {
+                  label:    { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                  names:    { font: "var(--font-script)",     style: "italic", weight: "400" },
+                  date:     { font: "var(--font-script)",     style: "italic", weight: "400" },
+                  location: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                } : isLettreBold ? {
+                  names:    { font: "var(--font-playfair)",   style: "normal", weight: "700" },
+                  date:     { font: "var(--font-serif)",      style: "normal", weight: "500" },
+                  location: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                  footer:   { font: "var(--font-serif)",      style: "italic", weight: "400" },
+                } : isLettreItaly ? {
+                  label:    { font: "var(--font-serif)",  style: "italic", weight: "400" },
+                  names:    { font: "var(--font-serif)",  style: "normal", weight: "500" },
+                  date:     { font: "var(--font-serif)",  style: "normal", weight: "400" },
+                  location: { font: "var(--font-serif)",  style: "italic", weight: "400" },
+                  footer:   { font: "var(--font-script)", style: "italic", weight: "400" },
+                } : isLettrePhoto ? {
+                  label:    { font: "var(--font-script)",     style: "italic", weight: "400" },
+                  names:    { font: "var(--font-montserrat)", style: "normal", weight: "400" },
+                  date:     { font: "var(--font-script)",     style: "italic", weight: "400" },
+                } : isDentelle ? {
+                  label:    { font: "var(--font-pinyon)",  style: "normal", weight: "400" },
+                  names:    { font: fp.bodyFont,           style: "normal", weight: "400" },
+                  date:     { font: fp.bodyFont,           style: "normal", weight: "400" },
+                  location: { font: fp.bodyFont,           style: "normal", weight: "400" },
+                  footer:   { font: fp.scriptFont,         style: fp.scriptItalic ? "italic" : "normal", weight: "400" },
+                } : {
+                  // TemplateLettre — uses fontPreset
+                  label:    { font: fp.scriptFont, style: fp.scriptItalic ? "italic" : "normal", weight: "400" },
+                  names:    { font: fp.scriptFont, style: fp.scriptItalic ? "italic" : "normal", weight: "400" },
+                  date:     { font: fp.bodyFont,   style: "normal", weight: "500" },
+                  location: { font: fp.bodyFont,   style: "italic", weight: "400" },
+                  footer:   { font: fp.scriptFont, style: fp.scriptItalic ? "italic" : "normal", weight: "400" },
+                };
+                const tplDef = tplFontMap[selectedElement];
+                const hasUserFont = !!elStyle.font;
+                const elementFont  = elStyle.font ?? tplDef?.font ?? (isScript ? fp.scriptFont : fp.bodyFont);
+                const fontStyle    = hasUserFont ? (isScript && fp.scriptItalic ? "italic" : "normal") : (tplDef?.style ?? "normal");
+                const fontWeight   = hasUserFont ? "400" : (tplDef?.weight ?? "400");
                 const elementColor = elStyle.color ?? palette.textPrimary;
-                const fontStyle = isScript && fp.scriptItalic ? "italic" : "normal";
-                const fs = cfg.fs * (elStyle.size ?? 1);
+
+                // Per-template default visual style (textTransform + letterSpacing) — must match SVG
+                type TplVisualDef = { textTransform: string; letterSpacing: number };
+                const tplVisualMap: Record<string, TplVisualDef> = isPhotomaton ? {
+                  label: { textTransform: "uppercase", letterSpacing: 4 },
+                  names: { textTransform: "none",      letterSpacing: 3 },
+                  date:  { textTransform: "none",      letterSpacing: 0 },
+                } : isRayures ? {
+                  label:    { textTransform: "uppercase", letterSpacing: 4 },
+                  names:    { textTransform: "uppercase", letterSpacing: 0 },
+                  date:     { textTransform: "uppercase", letterSpacing: 1.5 },
+                  location: { textTransform: "none",      letterSpacing: 1 },
+                } : isOliviers ? {
+                  names:    { textTransform: "none",      letterSpacing: 0 },
+                  date:     { textTransform: "uppercase", letterSpacing: 2 },
+                  location: { textTransform: "none",      letterSpacing: 0 },
+                } : isLettreElegant ? {
+                  label:    { textTransform: "none",      letterSpacing: 0 },
+                  names:    { textTransform: "uppercase", letterSpacing: 3 },
+                  date:     { textTransform: "uppercase", letterSpacing: 3.5 },
+                  location: { textTransform: "none",      letterSpacing: 0 },
+                  footer:   { textTransform: "none",      letterSpacing: 0 },
+                } : isLettreArbres ? {
+                  label:    { textTransform: "uppercase", letterSpacing: 5 },
+                  names:    { textTransform: "none",      letterSpacing: 0 },
+                  date:     { textTransform: "none",      letterSpacing: 0 },
+                  location: { textTransform: "uppercase", letterSpacing: 4 },
+                } : isLettreItaly ? {
+                  label:    { textTransform: "none",      letterSpacing: 0 },
+                  names:    { textTransform: "uppercase", letterSpacing: 4 },
+                  date:     { textTransform: "none",      letterSpacing: 1 },
+                  location: { textTransform: "none",      letterSpacing: 1 },
+                  footer:   { textTransform: "none",      letterSpacing: 0 },
+                } : isLettreBold ? {
+                  names:    { textTransform: "uppercase", letterSpacing: 2 },
+                  date:     { textTransform: "none",      letterSpacing: 3 },
+                  location: { textTransform: "uppercase", letterSpacing: 3.5 },
+                  footer:   { textTransform: "none",      letterSpacing: 0 },
+                } : isLettrePhoto ? {
+                  label:    { textTransform: "none",      letterSpacing: 0 },
+                  names:    { textTransform: "uppercase", letterSpacing: 3 },
+                  date:     { textTransform: "none",      letterSpacing: 0 },
+                } : isDentelle ? {
+                  label:    { textTransform: "none",      letterSpacing: 0 },
+                  names:    { textTransform: "none",      letterSpacing: 3 },
+                  date:     { textTransform: "none",      letterSpacing: 2.5 },
+                  location: { textTransform: "none",      letterSpacing: 2.5 },
+                  footer:   { textTransform: "none",      letterSpacing: 0 },
+                } : {
+                  // TemplateLettre
+                  label:    { textTransform: "none", letterSpacing: 0 },
+                  names:    { textTransform: "none", letterSpacing: 0 },
+                  date:     { textTransform: "none", letterSpacing: 2 },
+                  location: { textTransform: "none", letterSpacing: 1.5 },
+                  footer:   { textTransform: "none", letterSpacing: 0 },
+                };
+                const tplVisualDef = tplVisualMap[selectedElement] ?? { textTransform: "none", letterSpacing: 0 };
+                const effectiveTextTransform = elStyle.uppercase === true ? "uppercase"
+                  : elStyle.uppercase === "capitalize" ? "capitalize"
+                  : elStyle.uppercase === false ? "none"
+                  : tplVisualDef.textTransform;
                 const dyOffset = (elStyle.dy ?? 0) * cardH;
-                const fmtDateFallback = user.date
-                  ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+                const _d = user.date ? new Date(user.date + "T12:00:00") : null;
+                const pad2 = (n: number) => String(n).padStart(2, "0");
+                const fmtDateFallback = _d
+                  ? _d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
                   : "Samedi 18 octobre 2026";
+                const fmtDateShort = _d
+                  ? _d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+                  : "18 octobre 2026";
+                const fmtDateBold = _d
+                  ? `${pad2(_d.getDate())} | ${pad2(_d.getMonth()+1)} | ${String(_d.getFullYear()).slice(-2)}`
+                  : "18 | 10 | 26";
+                const fmtDatePhotomaton = _d
+                  ? `${pad2(_d.getDate())} . ${pad2(_d.getMonth()+1)} . ${String(_d.getFullYear()).slice(-2)}`
+                  : "22 . 10 . 26";
+                const defaultDate = cardCustom.dateText || (
+                  isPhotomaton   ? fmtDatePhotomaton :
+                  isLettreBold   ? fmtDateBold :
+                  (isRayures || isOliviers || isLettreItaly || isLettrePhoto) ? fmtDateShort :
+                  fmtDateFallback
+                );
+                const rawLabelText = cardCustom.label || "save the date";
                 const textMap: Record<string, string> = {
-                  label:    cardCustom.label    || "save the date",
+                  label:    isDentelle ? rawLabelText.charAt(0).toUpperCase() + rawLabelText.slice(1) : rawLabelText,
                   names:    cardCustom.namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`,
-                  date:     cardCustom.dateText  || fmtDateFallback,
+                  date:     defaultDate,
                   location: cardCustom.locationText,
                   footer:   cardCustom.footer,
                 };
@@ -2033,7 +2906,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   else if (selectedElement === "footer") next.footer = value;
                   onCardCustomChange(next);
                 }
-                const inputTop = cfg.y + dyOffset - fs * 0.88;
+                const inputTop = cfg.y + dyOffset - fs * 1.5;
                 return (
                   <>
                     {/* Toolbar: move + trash */}
@@ -2093,7 +2966,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         left: 0,
                         top: inputTop,
                         width: "100%",
-                        height: fs * 1.75,
+                        height: fs * 3,
                         background: "transparent",
                         WebkitBoxShadow: "0 0 0px 1000px transparent inset",
                         border: "none",
@@ -2101,14 +2974,17 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         textAlign: "center",
                         fontFamily: elementFont,
                         fontStyle,
+                        fontWeight,
                         fontSize: fs,
                         color: elementColor,
                         WebkitTextFillColor: elementColor,
                         opacity: cfg.opacity,
                         padding: 0,
-                        lineHeight: 1,
+                        lineHeight: "normal",
                         boxSizing: "border-box",
                         caretColor: elementColor,
+                        textTransform: effectiveTextTransform as React.CSSProperties["textTransform"],
+                        letterSpacing: tplVisualDef.letterSpacing,
                       }}
                     />
                   </>
@@ -2132,6 +3008,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 cardCustom={cardCustom}
                 onCardCustomChange={onCardCustomChange}
                 palette={palette}
+                user={user}
                 onClose={() => setSelectedElement(null)}
               />
             ) : (
@@ -2147,16 +3024,12 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
             <EnvelopeCustomizerPanel cfg={envCfg} onChange={onEnvelopeChange}/>
           )}
 
-          <div className="border-t border-[#f0e6e2] pt-1 flex flex-col gap-3">
+          <div className="border-t border-[#f0e6e2] pt-1">
             <button onClick={onAnimate}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-colors"
-              style={{ backgroundColor: "rgba(109,29,62,0.08)", color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
-              <Play size={14} fill="currentColor"/> Voir l'animation
-            </button>
-            <button
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold"
+              className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold transition-all"
               style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}>
-              <Sparkles size={14}/> Envoyer
+              <span>Choisir l&apos;animation</span>
+              <ArrowRight size={16}/>
             </button>
           </div>
 
@@ -2173,10 +3046,10 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 styles: {},
                 customPaperBg: undefined,
               })}
-              className="flex items-center gap-1.5 text-xs transition-colors hover:opacity-80"
+              className="flex items-center gap-1.5 text-sm transition-colors hover:opacity-80"
               style={{ color: "rgba(44,44,44,0.38)", fontFamily: "var(--font-display)" }}
               title="Revenir au design initial">
-              <RotateCcw size={12}/> Design initial
+              <RotateCcw size={14}/> Design initial
             </button>
           </div>
         </div>
@@ -2225,7 +3098,13 @@ function GalleryCard({ tpl, paletteId, user, isStd, onClick }: {
         </div>
         <div className="flex gap-1">
           {tpl.palettes.slice(0, 4).map(p => (
-            <div key={p.id} className="w-3 h-3 rounded-full" style={{ background: `linear-gradient(135deg, ${p.textPrimary} 50%, ${p.accent} 50%)` }}/>
+            <div key={p.id} className="w-3 h-3 rounded-full" style={{
+              backgroundColor: p.bg,
+              backgroundImage: (!p.noImageSwatch && p.paperImage) ? `url(${p.paperImage})` : undefined,
+              backgroundSize: p.swatchSize ?? "cover",
+              backgroundPosition: p.swatchPos ?? "center",
+              border: "1px solid rgba(0,0,0,0.12)",
+            }}/>
           ))}
         </div>
       </div>
@@ -2244,8 +3123,9 @@ export default function SaveTheDatePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [registryId, setRegistryId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
-  const [mainTab, setMainTab] = useState<"accueil" | "design" | "personnalisation" | "envoi" | "reponses">("accueil");
+  const [mainTab, setMainTab] = useState<"accueil" | "design" | "personnalisation" | "animation" | "envoi" | "reponses">("accueil");
   const [mode, setMode] = useState<"gallery" | "detail" | "animate">("gallery");
+  const [animationType, setAnimationType] = useState<"ouverture" | "retournement" | "rien">("ouverture");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [paletteIds, setPaletteIds] = useState<Record<string, string>>({});
   const [envCfg, setEnvCfg] = useState<EnvelopeConfig>(DEFAULT_ENVELOPE);
@@ -2253,11 +3133,30 @@ export default function SaveTheDatePage() {
   const [user, setUser] = useState<UserData>({ p1: "", p2: "", date: "", location: "" });
 
   // Send tab state
+  const [rsvpEnabled, setRsvpEnabled] = useState(false);
+  const [rsvpLabels, setRsvpLabels] = useState(["Je participe", "Je ne participe pas"]);
+  const [rsvpEditingIdx, setRsvpEditingIdx] = useState<number | null>(null);
+  const [urlCopied, setUrlCopied] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addMode, setAddMode] = useState<null | "new" | "csv" | "paste">(null);
+  const [newContactName, setNewContactName] = useState("");
+  const [newContactEmail, setNewContactEmail] = useState("");
+  const [csvError, setCsvError] = useState<string | null>(null);
   const [guestInput, setGuestInput] = useState("");
-  const [guestList, setGuestList] = useState<{ name: string; email: string }[]>([]);
+  const [guestList, setGuestList] = useState<{ name: string; email: string; plus1: boolean; sent?: boolean }[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(localStorage.getItem("wedy_guest_list") ?? "[]"); } catch { return []; }
+  });
+  const [contactsSaved, setContactsSaved] = useState(false);
   const [sendMessage, setSendMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
+
+  function saveContacts() {
+    localStorage.setItem("wedy_guest_list", JSON.stringify(guestList));
+    setContactsSaved(true);
+    setTimeout(() => setContactsSaved(false), 2500);
+  }
 
   // Responses tab state
   const [guests, setGuests] = useState<any[]>([]);
@@ -2336,24 +3235,46 @@ export default function SaveTheDatePage() {
     const parsed = parseGuestInput(guestInput);
     const existing = new Set(guestList.map(g => g.email.toLowerCase()));
     const newOnes = parsed.filter(g => !existing.has(g.email.toLowerCase()));
-    setGuestList(prev => [...prev, ...newOnes]);
+    setGuestList(prev => [...prev, ...newOnes.map(g => ({ ...g, plus1: false }))]);
     setGuestInput("");
   }
 
-  async function handleSend() {
-    if (!registryId || guestList.length === 0) return;
+  const [publishing, setPublishing] = useState(false);
+  const [published, setPublished] = useState(false);
+
+  async function publishStdConfig() {
+    if (!registryId || !selectedId) return;
+    setPublishing(true);
+    const stdConfig = {
+      animation_type: animationType,
+      rsvp_enabled: rsvpEnabled,
+      rsvp_labels: rsvpLabels,
+      template_id: selectedId,
+      palette_id: getPalette(selectedId),
+      card_custom: cardCustom,
+    };
+    await createClient().from("registries").update({ std_config: stdConfig }).eq("id", registryId);
+    setPublishing(false);
+    setPublished(true);
+    setTimeout(() => setPublished(false), 2500);
+  }
+
+  async function handleSend(targets?: { name: string; email: string }[]) {
+    const list = targets ?? guestList;
+    if (!registryId || list.length === 0) return;
     setSending(true);
     setSendResult(null);
     const res = await fetch("/api/std/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ registryId, guests: guestList, message: sendMessage }),
+      body: JSON.stringify({ registryId, guests: list, message: sendMessage }),
     });
     const data = await res.json();
     setSendResult(data);
     setSending(false);
-    setGuestList([]);
-    setSendMessage("");
+    const sentEmails = new Set((targets ?? guestList).map(g => g.email.toLowerCase()));
+    setGuestList(prev => prev.map(g => sentEmails.has(g.email.toLowerCase()) ? { ...g, sent: true } : g));
+    if (!targets) setSendMessage("");
     if (mainTab === "reponses") loadGuests();
   }
 
@@ -2367,7 +3288,8 @@ export default function SaveTheDatePage() {
             { id: "accueil",         label: "Accueil" },
             { id: "design",          label: "Design" },
             { id: "personnalisation",label: "Personnalisation" },
-            { id: "envoi",           label: "Envoi" },
+            { id: "animation",       label: "Animation" },
+            { id: "envoi",           label: "Détails de l'envoi" },
             { id: "reponses",        label: "Gestion des réponses" },
           ] as const).map((tab) => (
             <button
@@ -2544,81 +3466,402 @@ export default function SaveTheDatePage() {
 
       {/* ── Envoi ── */}
       {mainTab === "envoi" && (
-        <div className="px-8 py-8 max-w-2xl mx-auto">
+        <div className="px-8 py-10 max-w-5xl mx-auto flex flex-col gap-5">
 
-          {sendResult && (
-            <div className="rounded-2xl px-5 py-4 mb-6 text-sm" style={{ backgroundColor: sendResult.failed === 0 ? "#d4edda" : "#fff3cd", color: sendResult.failed === 0 ? "#155724" : "#856404", fontFamily: "var(--font-display)" }}>
-              {sendResult.failed === 0
-                ? `✓ ${sendResult.sent} email${sendResult.sent > 1 ? "s" : ""} envoyé${sendResult.sent > 1 ? "s" : ""} avec succès.`
-                : `${sendResult.sent} envoyé(s), ${sendResult.failed} échec(s).`}
-            </div>
-          )}
-
-          {/* Add guests */}
-          <div className="rounded-2xl p-6 mb-5" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
-            <p className="text-sm font-semibold mb-3" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>Ajouter des invités</p>
-            <p className="text-xs mb-3" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>
-              Un par ligne : <em>Prénom email@exemple.fr</em> — ou collez une liste
+          {/* ── 0. Message personnalisé ── */}
+          <div className="rounded-2xl p-6" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
+            <p className="text-sm font-semibold mb-1" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>
+              Message personnalisé <span style={{ fontWeight: 400, color: "rgba(44,44,44,0.4)" }}>(optionnel)</span>
             </p>
-            <textarea
-              value={guestInput}
-              onChange={e => setGuestInput(e.target.value)}
-              placeholder={"Marie marie@exemple.fr\nPierre pierre@exemple.fr"}
-              rows={4}
-              className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none"
-              style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8" }}
-            />
-            <button
-              onClick={addGuests}
-              disabled={!guestInput.trim()}
-              className="mt-3 px-5 py-2.5 rounded-xl text-sm font-semibold transition-opacity"
-              style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", opacity: !guestInput.trim() ? 0.5 : 1 }}
-            >
-              Ajouter à la liste
-            </button>
-          </div>
-
-          {/* Guest list */}
-          {guestList.length > 0 && (
-            <div className="rounded-2xl p-6 mb-5" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
-              <p className="text-sm font-semibold mb-3" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
-                {guestList.length} invité{guestList.length > 1 ? "s" : ""} à envoyer
-              </p>
-              <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
-                {guestList.map((g, i) => (
-                  <div key={i} className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg" style={{ backgroundColor: "#fdfaf8", border: "1px solid #f0e6e2" }}>
-                    <span className="text-sm" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>
-                      {g.name && <span className="font-medium">{g.name} · </span>}{g.email}
-                    </span>
-                    <button onClick={() => setGuestList(prev => prev.filter((_, j) => j !== i))} className="text-xs" style={{ color: "rgba(109,29,62,0.4)" }}>✕</button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Message */}
-          <div className="rounded-2xl p-6 mb-5" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
-            <p className="text-sm font-semibold mb-3" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>Message personnalisé <span style={{ fontWeight: 400, color: "rgba(44,44,44,0.4)" }}>(optionnel)</span></p>
             <textarea
               value={sendMessage}
               onChange={e => setSendMessage(e.target.value)}
               placeholder="Nous sommes heureux de vous annoncer notre mariage…"
               rows={3}
-              className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none"
+              className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none mt-3"
               style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8" }}
             />
           </div>
 
-          {/* Send button */}
-          <button
-            onClick={handleSend}
-            disabled={sending || guestList.length === 0}
-            className="w-full py-4 rounded-2xl text-sm font-semibold transition-opacity"
-            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", opacity: (sending || guestList.length === 0) ? 0.5 : 1 }}
-          >
-            {sending ? "Envoi en cours…" : `Envoyer ${guestList.length > 0 ? `à ${guestList.length} invité${guestList.length > 1 ? "s" : ""}` : ""}`}
-          </button>
+          {/* ── 1. RSVP ── */}
+          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
+            {/* Toggle row */}
+            <div className="flex items-center justify-between gap-4 p-6">
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Inclure un formulaire RSVP</p>
+                <p className="text-xs mt-1" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
+                  {rsvpEnabled ? "Les invités pourront confirmer ou décliner leur présence." : "Le Save the Date sera envoyé sans demande de réponse."}
+                </p>
+              </div>
+              <button
+                onClick={() => setRsvpEnabled(v => !v)}
+                className="flex-shrink-0 relative rounded-full transition-colors"
+                style={{ width: 44, height: 24, backgroundColor: rsvpEnabled ? "#6D1D3E" : "rgba(44,44,44,0.15)" }}
+              >
+                <span className="absolute top-0.5 rounded-full bg-white transition-all"
+                  style={{ width: 20, height: 20, left: rsvpEnabled ? 22 : 2 }}
+                />
+              </button>
+            </div>
+
+            {/* Options RSVP — s'ouvre si activé */}
+            {rsvpEnabled && (
+              <div className="px-6 pb-6 pt-2 flex flex-col gap-3" style={{ borderTop: "1px solid #f0e6e2" }}>
+                <p className="text-xs font-bold uppercase tracking-widest pt-2" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
+                  Options proposées aux invités
+                </p>
+                <div className="flex flex-col gap-2">
+                  {rsvpLabels.map((opt, idx) => (
+                    <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "#fdfaf8", border: "1.5px solid #f0e6e2" }}>
+                      <span className="w-4 h-4 rounded-full border-2 flex-shrink-0" style={{ borderColor: "rgba(109,29,62,0.3)" }} />
+                      {rsvpEditingIdx === idx ? (
+                        <input
+                          autoFocus
+                          value={opt}
+                          onChange={e => setRsvpLabels(prev => prev.map((l, i) => i === idx ? e.target.value : l))}
+                          onBlur={() => setRsvpEditingIdx(null)}
+                          onKeyDown={e => e.key === "Enter" && setRsvpEditingIdx(null)}
+                          className="flex-1 bg-transparent text-sm focus:outline-none"
+                          style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}
+                        />
+                      ) : (
+                        <>
+                          <span className="flex-1 text-sm" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{opt}</span>
+                          <button onClick={() => setRsvpEditingIdx(idx)} className="flex-shrink-0 p-1 rounded-lg transition-colors hover:bg-[rgba(109,29,62,0.06)]">
+                            <Pencil size={13} style={{ color: "rgba(109,29,62,0.35)" }} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => { setRsvpLabels(prev => [...prev, ""]); setRsvpEditingIdx(rsvpLabels.length); }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs transition-colors hover:bg-[rgba(109,29,62,0.04)]"
+                    style={{ color: "rgba(109,29,62,0.35)", fontFamily: "var(--font-display)", border: "1.5px dashed rgba(109,29,62,0.15)" }}
+                  >
+                    + Ajouter une option
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── Publier ── */}
+          <div className="rounded-2xl p-6 flex flex-col gap-3" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
+            <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Publier l&apos;invitation</p>
+            <p className="text-xs" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
+              Sauvegarde le design, l&apos;animation et les options RSVP pour que les invités voient la bonne version.
+            </p>
+            <button
+              onClick={publishStdConfig}
+              disabled={publishing || !selectedId}
+              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
+              style={{
+                backgroundColor: published ? "#2d6a4f" : "#6D1D3E",
+                color: "white",
+                fontFamily: "var(--font-display)",
+                opacity: !selectedId ? 0.4 : 1,
+                transition: "background-color 0.3s",
+              }}
+            >
+              {publishing ? "Publication…" : published ? "✓ Publié !" : "Publier l'invitation"}
+            </button>
+          </div>
+
+          {/* ── 2. Partage du lien ── */}
+          {(() => {
+            const publicUrl = registryId
+              ? `${process.env.NEXT_PUBLIC_APP_URL ?? "https://yes-omega-drab.vercel.app"}/rsvp/open/${registryId}`
+              : null;
+            return (
+              <div className="rounded-2xl p-6 flex flex-col gap-3" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Link2 size={14} style={{ color: "#6D1D3E" }} />
+                  <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Partage du lien</p>
+                </div>
+                <p className="text-xs" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
+                  Partagez ce lien par WhatsApp, SMS ou réseaux sociaux.
+                </p>
+                {publicUrl ? (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "#fdfaf8", border: "1.5px solid #f0e6e2" }}>
+                    <span className="flex-1 text-sm truncate" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>{publicUrl}</span>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(publicUrl); setUrlCopied(true); setTimeout(() => setUrlCopied(false), 2000); }}
+                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                      style={{ backgroundColor: urlCopied ? "#d4edda" : "#6D1D3E", color: urlCopied ? "#155724" : "white", fontFamily: "var(--font-display)" }}>
+                      {urlCopied ? <><Check size={13}/> Copié</> : <><Copy size={13}/> Copier</>}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-xs" style={{ color: "rgba(44,44,44,0.4)", fontFamily: "var(--font-display)" }}>Chargement du lien…</p>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* ── 3. Envoyer par email ── */}
+          <div className="rounded-2xl p-6 flex flex-col gap-4" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Mail size={14} style={{ color: "#6D1D3E" }} />
+                <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Envoyer par email</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={saveContacts}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
+                  style={{ backgroundColor: contactsSaved ? "rgba(45,106,79,0.1)" : "rgba(109,29,62,0.07)", color: contactsSaved ? "#2d6a4f" : "#6D1D3E", fontFamily: "var(--font-display)", border: "1.5px solid", borderColor: contactsSaved ? "rgba(45,106,79,0.2)" : "rgba(109,29,62,0.15)" }}
+                >
+                  {contactsSaved ? <><Check size={12}/> Enregistré</> : "Enregistrer"}
+                </button>
+                <button
+                  onClick={() => { setAddModalOpen(true); setAddMode(null); }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold"
+                  style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+                >
+                  + Ajouter des contacts
+                </button>
+              </div>
+            </div>
+
+            {sendResult && (
+              <div className="rounded-xl px-4 py-3 text-sm" style={{ backgroundColor: sendResult.failed === 0 ? "#d4edda" : "#fff3cd", color: sendResult.failed === 0 ? "#155724" : "#856404", fontFamily: "var(--font-display)" }}>
+                {sendResult.failed === 0
+                  ? `✓ ${sendResult.sent} email${sendResult.sent > 1 ? "s" : ""} envoyé${sendResult.sent > 1 ? "s" : ""} avec succès.`
+                  : `${sendResult.sent} envoyé(s), ${sendResult.failed} échec(s).`}
+              </div>
+            )}
+
+            {/* Table */}
+            <div className="rounded-xl overflow-hidden" style={{ border: "1.5px solid #f0e6e2" }}>
+              <div className="grid text-xs font-bold uppercase tracking-wider px-4 py-2.5" style={{
+                gridTemplateColumns: "1fr 2fr 110px 140px",
+                backgroundColor: "#fdfaf8",
+                color: "rgba(109,29,62,0.4)",
+                fontFamily: "var(--font-display)",
+                borderBottom: "1px solid #f0e6e2",
+              }}>
+                <span>Nom</span>
+                <span>Email</span>
+                <span className="text-center">Statut</span>
+                <span className="text-center">Actions</span>
+              </div>
+              {guestList.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-xs" style={{ color: "rgba(44,44,44,0.3)", fontFamily: "var(--font-display)" }}>Aucun contact ajouté</p>
+                </div>
+              ) : (
+                <div className="max-h-64 overflow-y-auto">
+                  {guestList.map((g, i) => (
+                    <div key={i} className="grid items-center px-4 py-3" style={{
+                      gridTemplateColumns: "1fr 2fr 110px 140px",
+                      borderBottom: i < guestList.length - 1 ? "1px solid #f0e6e2" : "none",
+                      backgroundColor: "white",
+                    }}>
+                      <span className="text-sm font-medium truncate" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{g.name || "—"}</span>
+                      <span className="text-sm truncate" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>{g.email}</span>
+                      <span className="flex justify-center items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: g.sent ? "#2d6a4f" : "rgba(44,44,44,0.2)" }}/>
+                        <span className="text-xs" style={{ color: g.sent ? "#2d6a4f" : "rgba(44,44,44,0.4)", fontFamily: "var(--font-display)", fontWeight: g.sent ? 600 : 400 }}>
+                          {g.sent ? "Envoyé" : "Non envoyé"}
+                        </span>
+                      </span>
+                      <span className="flex justify-center items-center gap-2">
+                        {!g.sent && (
+                          <button
+                            onClick={() => handleSend([{ name: g.name, email: g.email }])}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors hover:opacity-80"
+                            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+                          >
+                            <Mail size={11}/> Envoyer
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setGuestList(prev => prev.filter((_, j) => j !== i))}
+                          className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(180,40,40,0.07)]"
+                        >
+                          <Trash2 size={14} style={{ color: "rgba(180,40,40,0.45)" }}/>
+                        </button>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button onClick={() => handleSend()} disabled={sending || guestList.length === 0}
+              className="w-full py-4 rounded-2xl text-sm font-semibold transition-opacity"
+              style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", opacity: (sending || guestList.length === 0) ? 0.5 : 1 }}>
+              {sending ? "Envoi en cours…" : `Envoyer ${guestList.length > 0 ? `à ${guestList.length} invité${guestList.length > 1 ? "s" : ""}` : ""}`}
+            </button>
+          </div>
+
+        </div>
+      )}
+
+      {/* ── Modal Ajouter des contacts ── */}
+      {addModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          style={{ backgroundColor: "rgba(10,10,10,0.5)", backdropFilter: "blur(4px)" }}
+          onClick={e => { if (e.target === e.currentTarget) { setAddModalOpen(false); setAddMode(null); setGuestInput(""); setNewContactName(""); setNewContactEmail(""); } }}>
+          <div className="relative w-full sm:max-w-sm mx-0 sm:mx-4 rounded-t-3xl sm:rounded-3xl"
+            style={{ backgroundColor: "white", boxShadow: "0 32px 80px rgba(0,0,0,0.25)" }}>
+
+            {/* Barre de glissement mobile */}
+            <div className="flex justify-center pt-3 pb-1 sm:hidden">
+              <div className="w-10 h-1 rounded-full" style={{ backgroundColor: "rgba(0,0,0,0.12)" }}/>
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-4">
+              <div className="flex items-center gap-3">
+                {addMode !== null && (
+                  <button onClick={() => setAddMode(null)} className="rounded-full p-1.5 transition-colors hover:bg-[rgba(109,29,62,0.06)]">
+                    <ArrowLeft size={16} style={{ color: "#6D1D3E" }}/>
+                  </button>
+                )}
+                <h2 style={{ fontSize: "1.1rem", fontWeight: 600, fontFamily: "var(--font-display)", color: "#1a1a1a" }}>
+                  {addMode === "new" ? "Nouveau contact" : addMode === "csv" ? "Importer un fichier" : addMode === "paste" ? "Coller des emails" : "Ajouter des contacts"}
+                </h2>
+              </div>
+              <button onClick={() => { setAddModalOpen(false); setAddMode(null); setGuestInput(""); setNewContactName(""); setNewContactEmail(""); }}
+                className="rounded-full p-1.5 transition-colors hover:bg-[rgba(0,0,0,0.06)]">
+                <X size={16} style={{ color: "#9a9a9a" }}/>
+              </button>
+            </div>
+
+            <div className="px-6 pb-7">
+
+              {/* Menu principal */}
+              {addMode === null && (
+                <div className="flex flex-col gap-2">
+                  {([
+                    { id: "new"   as const, label: "Créer un contact",       desc: "Ajouter manuellement nom et email",     Icon: UserPlus },
+                    { id: "csv"   as const, label: "Importer un CSV ou Excel", desc: "Importer une liste depuis un fichier", Icon: FileSpreadsheet },
+                    { id: "paste" as const, label: "Coller des emails",        desc: "Coller une liste depuis vos contacts", Icon: ClipboardList },
+                  ] as { id: "new" | "csv" | "paste"; label: string; desc: string; Icon: React.ElementType }[]).map(opt => (
+                    <button key={opt.id} onClick={() => setAddMode(opt.id)}
+                      className="flex items-center gap-4 px-4 py-4 rounded-2xl text-left transition-all hover:bg-[rgba(109,29,62,0.04)]"
+                      style={{ border: "1.5px solid #f0e6e2" }}>
+                      <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(109,29,62,0.07)" }}>
+                        <opt.Icon size={18} style={{ color: "#6D1D3E" }}/>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: "#1a1a1a", fontFamily: "var(--font-display)" }}>{opt.label}</p>
+                        <p className="text-xs mt-0.5" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>{opt.desc}</p>
+                      </div>
+                      <ArrowRight size={14} className="ml-auto flex-shrink-0" style={{ color: "rgba(44,44,44,0.25)" }}/>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Créer un contact */}
+              {addMode === "new" && (
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(109,29,62,0.5)", fontFamily: "var(--font-display)" }}>Prénom & Nom</label>
+                    <input value={newContactName} onChange={e => setNewContactName(e.target.value)}
+                      placeholder="Marie Dupont" autoFocus
+                      className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
+                      style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8" }}/>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(109,29,62,0.5)", fontFamily: "var(--font-display)" }}>Email</label>
+                    <input value={newContactEmail} onChange={e => setNewContactEmail(e.target.value)}
+                      placeholder="marie@exemple.fr" type="email"
+                      className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none"
+                      style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8" }}/>
+                  </div>
+                  <button onClick={() => {
+                    if (newContactEmail.includes("@")) {
+                      setGuestList(prev => [...prev, { name: newContactName.trim(), email: newContactEmail.trim(), plus1: false }]);
+                      setNewContactName(""); setNewContactEmail("");
+                      setAddModalOpen(false); setAddMode(null);
+                    }
+                  }} disabled={!newContactEmail.includes("@")}
+                    className="w-full mt-1 py-3 rounded-xl text-sm font-semibold transition-opacity"
+                    style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", opacity: !newContactEmail.includes("@") ? 0.45 : 1 }}>
+                    Ajouter le contact
+                  </button>
+                </div>
+              )}
+
+              {/* Importer CSV */}
+              {addMode === "csv" && (
+                <div className="flex flex-col gap-4">
+                  <label className="flex flex-col items-center justify-center gap-3 py-10 rounded-2xl cursor-pointer transition-colors hover:bg-[rgba(109,29,62,0.03)]"
+                    style={{ border: `2px dashed ${csvError ? "rgba(180,40,40,0.35)" : "rgba(109,29,62,0.2)"}` }}
+                    onClick={() => setCsvError(null)}>
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: "rgba(109,29,62,0.07)" }}>
+                      <FileSpreadsheet size={22} style={{ color: "#6D1D3E" }}/>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-semibold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>Choisir un fichier CSV</p>
+                      <p className="text-xs mt-1" style={{ color: "rgba(44,44,44,0.4)", fontFamily: "var(--font-display)" }}>Format : nom, email (une ligne par invité)</p>
+                    </div>
+                    <input type="file" accept=".csv" className="hidden" onChange={e => {
+                      setCsvError(null);
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (!file.name.toLowerCase().endsWith(".csv")) {
+                        setCsvError("Format non supporté. Exportez votre fichier Excel en CSV (Fichier → Exporter → CSV).");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = ev => {
+                        const text = ev.target?.result as string ?? "";
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        const lines = text.split(/\r?\n/).filter(Boolean).slice(1);
+                        const parsed = lines.map(line => {
+                          const cols = line.split(/[,;	]/).map(c => c.replace(/^["']|["']$/g, "").trim());
+                          const email = cols.find(c => emailRegex.test(c)) ?? "";
+                          const name = cols.filter(c => !emailRegex.test(c) && c.length > 0).join(" ").trim();
+                          return { name, email, plus1: false as const };
+                        }).filter(g => emailRegex.test(g.email));
+                        if (parsed.length === 0) {
+                          setCsvError("Aucun email valide trouvé. Vérifiez que votre fichier contient bien une colonne email.");
+                          return;
+                        }
+                        const existing = new Set(guestList.map(g => g.email.toLowerCase()));
+                        setGuestList(prev => [...prev, ...parsed.filter(g => !existing.has(g.email.toLowerCase()))]);
+                        setAddModalOpen(false); setAddMode(null); setCsvError(null);
+                      };
+                      reader.readAsText(file, "UTF-8");
+                    }}/>
+                  </label>
+                  {csvError && (
+                    <div className="rounded-xl px-4 py-3 text-xs" style={{ backgroundColor: "#fff0f0", border: "1px solid rgba(180,40,40,0.2)", color: "#b42828", fontFamily: "var(--font-display)", lineHeight: 1.6 }}>
+                      {csvError}
+                    </div>
+                  )}
+                  <p className="text-xs text-center" style={{ color: "rgba(44,44,44,0.35)", fontFamily: "var(--font-display)" }}>
+                    Excel non supporté directement — exportez en CSV depuis Excel ou Google Sheets.
+                  </p>
+                </div>
+              )}
+
+              {/* Coller des emails */}
+              {addMode === "paste" && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-xs" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>
+                    Un par ligne : <em>Prénom email@exemple.fr</em>
+                  </p>
+                  <textarea value={guestInput} onChange={e => setGuestInput(e.target.value)}
+                    placeholder={"Marie marie@exemple.fr\nPierre pierre@exemple.fr"}
+                    rows={5} autoFocus
+                    className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none"
+                    style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8" }}/>
+                  <button onClick={() => { addGuests(); setAddModalOpen(false); setAddMode(null); }} disabled={!guestInput.trim()}
+                    className="w-full py-3 rounded-xl text-sm font-semibold transition-opacity"
+                    style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", opacity: !guestInput.trim() ? 0.45 : 1 }}>
+                    Ajouter
+                  </button>
+                </div>
+              )}
+
+            </div>
+          </div>
         </div>
       )}
 
@@ -2676,6 +3919,126 @@ export default function SaveTheDatePage() {
         </div>
       )}
 
+      {/* ── Animation ── */}
+      {mainTab === "animation" && (() => {
+        const animTpl = activeTpl;
+        const animPalette = animTpl ? (animTpl.palettes.find(p => p.id === getPalette(animTpl.id)) ?? animTpl.palettes[0]) : null;
+        const cardW = 400;
+        const cardH = Math.round(cardW * 1.4);
+        return (
+          <div className="flex items-stretch" style={{ minHeight: "calc(100vh - 57px)" }}>
+            {/* Left 2/3 — marble preview */}
+            <div className="relative flex flex-col items-center justify-center" style={{ width: "66.666%", backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+              {animTpl && animPalette ? (
+                mode === "animate" && animationType === "ouverture" ? (
+                  <CardFoldModal
+                    tpl={animTpl}
+                    paletteId={getPalette(animTpl.id)}
+                    user={user} isStd={true}
+                    fontPreset={cardCustom.fontPreset} label={cardCustom.label}
+                    namesText={cardCustom.namesText} dateText={cardCustom.dateText}
+                    locationText={cardCustom.locationText} footer={cardCustom.footer}
+                    photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
+                    elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
+                    onClose={() => setMode("detail")}
+                    inline
+                  />
+                ) : mode === "animate" && animationType === "retournement" ? (
+                  <CardFlipScene
+                    tpl={animTpl}
+                    paletteId={getPalette(animTpl.id)}
+                    user={user} isStd={true}
+                    fontPreset={cardCustom.fontPreset} label={cardCustom.label}
+                    namesText={cardCustom.namesText} dateText={cardCustom.dateText}
+                    locationText={cardCustom.locationText} footer={cardCustom.footer}
+                    photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
+                    elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
+                  />
+                ) : (
+                  <>
+                    <div style={{ boxShadow: "0 12px 44px rgba(0,0,0,0.30)", borderRadius: 2, overflow: "hidden" }}>
+                      <TemplateRender
+                        id={animTpl.id} W={cardW} H={cardH}
+                        palette={animPalette} user={user} isStd={true}
+                        fontPreset={cardCustom.fontPreset} label={cardCustom.label}
+                        namesText={cardCustom.namesText} dateText={cardCustom.dateText}
+                        locationText={cardCustom.locationText} footer={cardCustom.footer}
+                        photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
+                        elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
+                      />
+                    </div>
+                    {(animationType === "ouverture" || animationType === "retournement") && (
+                      <button
+                        onClick={() => setMode("animate")}
+                        className="absolute flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold"
+                        style={{ left: 28, top: "50%", transform: "translateY(-50%)", backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", boxShadow: "0 4px 16px rgba(109,29,62,0.3)" }}
+                      >
+                        <Play size={14} fill="currentColor" /> Voir l&apos;animation
+                      </button>
+                    )}
+                  </>
+                )
+              ) : (
+                <div className="text-center px-8">
+                  <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-display)" }}>
+                    Choisissez d&apos;abord un design dans l&apos;onglet <strong>Personnalisation</strong>.
+                  </p>
+                  <button onClick={() => setMainTab("personnalisation")}
+                    className="px-5 py-2.5 rounded-xl text-sm font-semibold"
+                    style={{ backgroundColor: "#FF4D7D", color: "white", fontFamily: "var(--font-display)" }}>
+                    Personnaliser →
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Right 1/3 — light pink picker */}
+            <div className="flex flex-col px-8 py-10 gap-4" style={{ width: "33.333%", backgroundColor: "#FFF0F4" }}>
+              <div className="flex flex-col gap-4">
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
+                  Type d&apos;animation
+                </p>
+                {([
+                  { id: "ouverture"     as const, label: "Ouverture" },
+                  { id: "retournement"  as const, label: "Retournement" },
+                  { id: "rien"          as const, label: "Pas d'animation" },
+                ]).map(opt => (
+                  <button
+                    key={opt.id}
+                    onClick={() => { setAnimationType(opt.id); setMode("detail"); }}
+                    className="flex items-center gap-4 px-5 py-4 rounded-2xl text-left transition-all"
+                    style={{
+                      backgroundColor: animationType === opt.id ? "rgba(109,29,62,0.07)" : "white",
+                      border: animationType === opt.id ? "2px solid rgba(109,29,62,0.3)" : "2px solid rgba(109,29,62,0.08)",
+                      boxShadow: animationType === opt.id ? "none" : "0 2px 8px rgba(0,0,0,0.04)",
+                    }}
+                  >
+                    {/* Radio circle */}
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center" style={{ borderColor: animationType === opt.id ? "#6D1D3E" : "rgba(109,29,62,0.25)" }}>
+                      {animationType === opt.id && <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "#6D1D3E" }}/>}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-sm" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>
+                        {opt.label}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setMainTab("envoi")}
+                className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold"
+                style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+              >
+                <span>Envoyer la carte</span>
+                <ArrowRight size={16}/>
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ── Design (galerie) ── */}
       {mainTab === "design" && (
         <>
@@ -2730,7 +4093,7 @@ export default function SaveTheDatePage() {
           onEnvelopeChange={setEnvCfg}
           cardCustom={cardCustom}
           onCardCustomChange={setCardCustom}
-          onAnimate={() => setMode("animate")}
+          onAnimate={() => setMainTab("animation")}
           onBack={goBack}
         />
       )}
@@ -2748,6 +4111,7 @@ export default function SaveTheDatePage() {
           locationText={cardCustom.locationText}
           footer={cardCustom.footer}
           photoUrl={cardCustom.photoUrl || undefined}
+          photoUrls={cardCustom.photoUrls}
           elementStyles={cardCustom.styles}
           customPaperBg={cardCustom.customPaperBg}
           onClose={() => setMode("detail")}
