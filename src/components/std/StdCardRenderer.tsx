@@ -735,7 +735,7 @@ export function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, 
   });
 
   return (
-    <div className={inline ? "w-full h-full flex flex-col items-center justify-center gap-6 overflow-hidden" : "fixed inset-0 z-50 flex flex-col items-center justify-center gap-8"}
+    <div className={inline ? "w-full h-full flex flex-col items-center justify-center gap-6" : "fixed inset-0 z-50 flex flex-col items-center justify-center gap-8"}
       style={inline ? {} : { backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
       <div style={{ position: "relative", perspective: "1800px", perspectiveOrigin: "50% 50%", overflow: "visible" }}>
         <div style={{ position: "relative", width: 2 * W, height: H, transformStyle: "preserve-3d", transform: `translateX(${-W / 2}px)` }}>
@@ -797,7 +797,7 @@ export function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, 
   const backImage = palette.paperImage ?? "/papier%20lettre/Fond%20papier/Papier_1.png";
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ position: "relative", perspective: "1400px" }}>
+    <div className="w-full h-full flex flex-col items-center justify-center" style={{ position: "relative", perspective: "1400px" }}>
       <div style={{ width: W, height: H, transformStyle: "preserve-3d", transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)", transition: flipped ? "none" : "transform 3s cubic-bezier(0.4, 0, 0.15, 1)", boxShadow: "0 12px 44px rgba(0,0,0,0.28)" }}>
         <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", overflow: "hidden" }}>
           <TemplateRender id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd} fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer} photoUrl={photoUrl} photoUrls={photoUrls} elementStyles={elementStyles} customPaperBg={customPaperBg}/>
