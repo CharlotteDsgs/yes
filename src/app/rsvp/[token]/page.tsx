@@ -14,6 +14,17 @@ interface StdConfig {
   card_custom: CardCustomization;
 }
 
+const inputStyle: React.CSSProperties = {
+  width: "100%", padding: "12px 14px", borderRadius: "8px",
+  border: "1.5px solid #f0e6e2", fontSize: "15px", fontFamily: "Georgia, serif",
+  color: "#2c2c2c", background: "#fdfaf8", outline: "none", boxSizing: "border-box",
+};
+const labelStyle: React.CSSProperties = {
+  display: "block", fontFamily: "var(--font-display)", fontSize: "11px",
+  letterSpacing: "0.15em", textTransform: "uppercase", color: "#9e6b5c",
+  marginBottom: "6px",
+};
+
 export default function RsvpPage() {
   const { token } = useParams<{ token: string }>();
   const [data, setData] = useState<any>(null);
@@ -22,6 +33,13 @@ export default function RsvpPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
+
+  // Modal state
+  const [modal, setModal] = useState<{ label: string; rsvpStatus: "confirmed" | "declined" } | null>(null);
+  const [prenom, setPrenom] = useState("");
+  const [nom, setNom] = useState("");
+  const [email, setEmail] = useState("");
+  const [guestMessage, setGuestMessage] = useState("");
 
   useEffect(() => {
     fetch(`/api/rsvp/${token}`)
@@ -34,21 +52,38 @@ export default function RsvpPage() {
         } else if (!cfg || cfg.animation_type === "rien") {
           setStep("form");
         }
-        // else: stays on "animation" step
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [token]);
 
-  async function handleSubmit(chosenLabel: string, chosenStatus: "confirmed" | "declined") {
-    setStatus(chosenLabel);
+  function openModal(label: string, rsvpStatus: "confirmed" | "declined") {
+    if (data?.name) {
+      const parts = data.name.trim().split(" ");
+      setPrenom(parts[0] ?? "");
+      setNom(parts.slice(1).join(" ") ?? "");
+    }
+    setModal({ label, rsvpStatus });
+  }
+
+  async function submitModal(e: React.FormEvent) {
+    e.preventDefault();
+    if (!modal) return;
+    setStatus(modal.label);
     setSubmitting(true);
     await fetch(`/api/rsvp/${token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: chosenStatus, name: data?.name, guestCount: null, message: null }),
+      body: JSON.stringify({
+        status: modal.rsvpStatus,
+        name: `${prenom} ${nom}`.trim(),
+        email: email.trim(),
+        guestCount: null,
+        message: guestMessage || null,
+      }),
     });
     setSubmitting(false);
+    setModal(null);
     setStep("done");
   }
 
@@ -78,6 +113,107 @@ export default function RsvpPage() {
   const cardW = Math.min(380, typeof window !== "undefined" ? window.innerWidth - 48 : 380);
   const cardH = Math.round(cardW * 1.4);
 
+  // ── Shared RSVP buttons renderer ─────────────────────────────
+  const RsvpButtons = (
+    <div style={{ width: "100%", maxWidth: "360px", display: "flex", flexDirection: "column", gap: "10px" }}>
+      {rsvpLabels.map((label, idx) => (
+        <button
+          key={idx}
+          onClick={() => openModal(label, idx === 0 ? "confirmed" : "declined")}
+          style={{
+            padding: "16px 24px",
+            background: idx === 0 ? "#6D1D3E" : "white",
+            color: idx === 0 ? "white" : "#6D1D3E",
+            border: idx === 0 ? "none" : "1.5px solid rgba(109,29,62,0.25)",
+            borderRadius: "4px", fontSize: "12px", letterSpacing: "0.15em",
+            textTransform: "uppercase", fontFamily: "var(--font-display)",
+            cursor: "pointer", transition: "opacity 0.2s",
+          }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
+  // ── Modal ─────────────────────────────────────────────────────
+  const Modal = modal && (
+    <div style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+      <div
+        style={{ position: "absolute", inset: 0, background: "rgba(44,28,20,0.45)", backdropFilter: "blur(6px)" }}
+        onClick={() => setModal(null)}
+      />
+      <div style={{ position: "relative", width: "100%", maxWidth: "440px", background: "white", borderRadius: "20px", padding: "36px 28px 32px", boxShadow: "0 24px 64px rgba(109,29,62,0.22)", maxHeight: "90vh", overflowY: "auto" }}>
+        <h2 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 300, fontSize: "22px", color: "#6D1D3E", margin: "0 0 6px", textAlign: "center" }}>
+          Confirmer votre réponse
+        </h2>
+
+        {/* Réponse pré-remplie */}
+        <div style={{ textAlign: "center", margin: "12px 0 24px" }}>
+          <span style={{
+            display: "inline-block", padding: "8px 20px",
+            background: modal.rsvpStatus === "confirmed" ? "#6D1D3E" : "white",
+            color: modal.rsvpStatus === "confirmed" ? "white" : "#6D1D3E",
+            border: modal.rsvpStatus === "confirmed" ? "none" : "1.5px solid rgba(109,29,62,0.3)",
+            borderRadius: "4px", fontSize: "11px", letterSpacing: "0.2em",
+            textTransform: "uppercase", fontFamily: "var(--font-display)",
+          }}>
+            {modal.label}
+          </span>
+          <button
+            onClick={() => setModal(null)}
+            style={{ display: "block", margin: "8px auto 0", background: "none", border: "none", color: "rgba(109,29,62,0.4)", fontSize: "12px", fontFamily: "var(--font-display)", cursor: "pointer", letterSpacing: "0.1em" }}
+          >
+            Modifier →
+          </button>
+        </div>
+
+        <form onSubmit={submitModal} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ display: "flex", gap: "12px" }}>
+            <div style={{ flex: 1 }}>
+              <label style={labelStyle}>Prénom *</label>
+              <input style={inputStyle} value={prenom} onChange={e => setPrenom(e.target.value)} required autoComplete="given-name" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={labelStyle}>Nom *</label>
+              <input style={inputStyle} value={nom} onChange={e => setNom(e.target.value)} required autoComplete="family-name" />
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Adresse e-mail *</label>
+            <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" placeholder="votre@email.com" />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Un mot pour les mariés <span style={{ textTransform: "none", letterSpacing: 0, color: "rgba(158,107,92,0.6)" }}>(optionnel)</span></label>
+            <textarea
+              style={{ ...inputStyle, resize: "none", lineHeight: 1.6 }}
+              rows={3}
+              value={guestMessage}
+              onChange={e => setGuestMessage(e.target.value)}
+              placeholder="Avec joie et impatience…"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              padding: "16px", background: "#6D1D3E", color: "white", border: "none",
+              borderRadius: "8px", fontSize: "12px", letterSpacing: "0.2em",
+              textTransform: "uppercase", fontFamily: "var(--font-display)",
+              cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1,
+              transition: "opacity 0.2s", marginTop: "4px",
+            }}
+          >
+            {submitting ? "Envoi…" : "Confirmer ma réponse"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
   // ── Animation step ──────────────────────────────────────────
   if (step === "animation" && cfg && tpl && palette) {
     const AnimationCard = cfg.animation_type === "ouverture" ? (
@@ -103,123 +239,76 @@ export default function RsvpPage() {
     );
 
     return (
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
-        {/* Marbre au-dessus */}
-        <div style={{ height: "60px", flexShrink: 0 }} />
-        {/* Animation */}
-        <div style={{ flex: "0 0 auto", height: "600px", position: "relative" }}>
-          {AnimationCard}
-        </div>
-        {/* Fondu marbre → blanc */}
-        <div style={{ height: "80px", flexShrink: 0, background: "linear-gradient(to bottom, transparent, white)" }} />
-
-        {/* RSVP section */}
-        <div style={{ background: "white", padding: "0 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-          {/* Texte personnalisé */}
-          {userData.p1 && userData.p2 && (
-            <div style={{ textAlign: "center", marginBottom: "8px" }}>
-              <p style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 6px", lineHeight: 1.2 }}>
-                {userData.p1} &amp; {userData.p2}
-              </p>
-              <p style={{ fontFamily: "Georgia, serif", fontSize: "18px", color: "#9e6b5c", margin: 0 }}>
-                attendent votre réponse
-              </p>
-            </div>
-          )}
-          <div style={{ width: "100%", maxWidth: "360px", display: "flex", flexDirection: "column", gap: "10px" }}>
-            {rsvpLabels.map((label, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSubmit(label, idx === 0 ? "confirmed" : "declined")}
-                disabled={submitting}
-                style={{
-                  padding: "16px 24px",
-                  background: idx === 0 ? "#6D1D3E" : "white",
-                  color: idx === 0 ? "white" : "#6D1D3E",
-                  border: idx === 0 ? "none" : "1.5px solid rgba(109,29,62,0.25)",
-                  borderRadius: "4px", fontSize: "12px", letterSpacing: "0.15em",
-                  textTransform: "uppercase" as const,
-                  fontFamily: "var(--font-display)", cursor: submitting ? "not-allowed" : "pointer",
-                  opacity: submitting ? 0.6 : 1, transition: "opacity 0.2s",
-                }}
-              >
-                {label}
-              </button>
-            ))}
+      <>
+        {Modal}
+        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+          <div style={{ height: "60px", flexShrink: 0 }} />
+          <div style={{ flex: "0 0 auto", height: "600px", position: "relative" }}>
+            {AnimationCard}
           </div>
-          {cfg?.rsvp_note && (
-            <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0" }}>
-              {cfg.rsvp_note}
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // ── RSVP form ──────────────────────────────────────────────
-  if (step === "form") {
-    return (
-      <div className="min-h-screen flex flex-col items-center" style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
-
-        {/* Card preview */}
-        {tpl && palette && cc && (
-          <div style={{ paddingTop: "40px", paddingBottom: "24px" }}>
-            <div style={{ boxShadow: "0 8px 40px rgba(109,29,62,0.18)", borderRadius: 2, overflow: "hidden" }}>
-              <TemplateRender
-                id={tpl.id} W={cardW} H={cardH}
-                palette={palette} user={userData} isStd={true}
-                fontPreset={cc.fontPreset} label={cc.label}
-                namesText={cc.namesText} dateText={cc.dateText}
-                locationText={cc.locationText} footer={cc.footer}
-                photoUrl={cc.photoUrl || undefined} photoUrls={cc.photoUrls}
-                elementStyles={cc.styles} customPaperBg={cc.customPaperBg}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* RSVP buttons */}
-        {cfg?.rsvp_enabled !== false && (
-          <div style={{ width: "100%", maxWidth: "400px", padding: "0 24px 48px", display: "flex", flexDirection: "column", gap: "12px" }}>
-            <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "13px", color: "#9e6b5c", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "8px" }}>
-              Votre réponse
-            </p>
-            {rsvpLabels.map((label, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSubmit(label, idx === 0 ? "confirmed" : "declined")}
-                disabled={submitting}
-                style={{
-                  padding: "18px 24px",
-                  background: idx === 0 ? "#6D1D3E" : "white",
-                  color: idx === 0 ? "white" : "#6D1D3E",
-                  border: idx === 0 ? "none" : "1.5px solid rgba(109,29,62,0.25)",
-                  borderRadius: "4px",
-                  fontSize: "13px",
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase" as const,
-                  fontFamily: "var(--font-display)",
-                  cursor: submitting ? "not-allowed" : "pointer",
-                  opacity: submitting ? 0.6 : 1,
-                  transition: "opacity 0.2s",
-                }}
-              >
-                {label}
-              </button>
-            ))}
+          <div style={{ height: "80px", flexShrink: 0, background: "linear-gradient(to bottom, transparent, white)" }} />
+          <div style={{ background: "white", padding: "0 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+            {userData.p1 && userData.p2 && (
+              <div style={{ textAlign: "center", marginBottom: "8px" }}>
+                <p style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 6px", lineHeight: 1.2 }}>
+                  {userData.p1} &amp; {userData.p2}
+                </p>
+                <p style={{ fontFamily: "Georgia, serif", fontSize: "18px", color: "#9e6b5c", margin: 0 }}>
+                  attendent votre réponse
+                </p>
+              </div>
+            )}
+            {RsvpButtons}
             {cfg?.rsvp_note && (
-              <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, marginTop: "8px" }}>
+              <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0" }}>
                 {cfg.rsvp_note}
               </p>
             )}
           </div>
-        )}
+        </div>
+      </>
+    );
+  }
 
-        <p style={{ textAlign: "center", fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)", paddingBottom: "24px" }}>
-          Wedy · La liste de mariage qui vous ressemble
-        </p>
-      </div>
+  // ── RSVP form (no animation) ────────────────────────────────
+  if (step === "form") {
+    return (
+      <>
+        {Modal}
+        <div className="min-h-screen flex flex-col items-center" style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
+          {tpl && palette && cc && (
+            <div style={{ paddingTop: "40px", paddingBottom: "24px" }}>
+              <div style={{ boxShadow: "0 8px 40px rgba(109,29,62,0.18)", borderRadius: 2, overflow: "hidden" }}>
+                <TemplateRender
+                  id={tpl.id} W={cardW} H={cardH}
+                  palette={palette} user={userData} isStd={true}
+                  fontPreset={cc.fontPreset} label={cc.label}
+                  namesText={cc.namesText} dateText={cc.dateText}
+                  locationText={cc.locationText} footer={cc.footer}
+                  photoUrl={cc.photoUrl || undefined} photoUrls={cc.photoUrls}
+                  elementStyles={cc.styles} customPaperBg={cc.customPaperBg}
+                />
+              </div>
+            </div>
+          )}
+          {cfg?.rsvp_enabled !== false && (
+            <div style={{ width: "100%", maxWidth: "400px", padding: "0 24px 48px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+              <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "13px", color: "#9e6b5c", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "8px" }}>
+                Votre réponse
+              </p>
+              {RsvpButtons}
+              {cfg?.rsvp_note && (
+                <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, marginTop: "8px" }}>
+                  {cfg.rsvp_note}
+                </p>
+              )}
+            </div>
+          )}
+          <p style={{ textAlign: "center", fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)", paddingBottom: "24px" }}>
+            Wedy · La liste de mariage qui vous ressemble
+          </p>
+        </div>
+      </>
     );
   }
 

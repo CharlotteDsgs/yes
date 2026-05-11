@@ -58,7 +58,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
 // POST — submit RSVP
 export async function POST(req: Request, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const { status, name, guestCount, message } = await req.json();
+  const { status, name, email, guestCount, message } = await req.json();
 
   if (!["confirmed", "declined"].includes(status)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
@@ -72,6 +72,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ token: 
       rsvp_status: status,
       rsvp_at: new Date().toISOString(),
       ...(name ? { name } : {}),
+      ...(email ? { email: email.toLowerCase().trim() } : {}),
       guest_count: guestCount ?? null,
       rsvp_message: message ?? null,
     })
