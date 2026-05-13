@@ -175,6 +175,16 @@ export const TEMPLATES: TemplateConfig[] = [
       { id: "motif7", label: "Motif 7", bg: "#F0E8F0", inner: "#F0E8F0", textPrimary: "#3A1848", textSecondary: "#7A4888", accent: "#6A2870", paperImage: "/papier%20lettre/Motif_7.png", swatchPos: "5% 5%", swatchSize: "600%" },
     ],
   },
+  {
+    id: "save-the-date", name: "Save the Date", category: "photo",
+    description: "Photo plein format, typographie Save the Date",
+    layoutVariant: "save-photo",
+    defaultPhotoUrl: "/photo_couple/couple_4.jpg",
+    palettes: [
+      { id: "lumiere", label: "Lumière", bg: "#f0ece6", inner: "#f0ece6", textPrimary: "#1a1610", textSecondary: "#5a5040", accent: "#2c2418" },
+      { id: "nuit",    label: "Nuit",    bg: "#1a1a2e", inner: "#1a1a2e", textPrimary: "rgba(255,255,255,0.92)", textSecondary: "rgba(255,255,255,0.65)", accent: "rgba(255,255,255,0.45)" },
+    ],
+  },
 ];
 
 export interface EnvelopeTexture { id: string; label: string; previewHex: string; filter: string; }
@@ -670,6 +680,83 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
   );
 }
 
+function TemplateSaveTheDatePhoto({ W, H, p, user, namesText, dateText, photoUrl, elementStyles }: {
+  W: number; H: number; p: Palette; user: UserData;
+  namesText?: string; dateText?: string; photoUrl?: string; elementStyles?: ElStyles;
+}) {
+  const displayNames = namesText || `${user.p1 || "Emma"} & ${user.p2 || "Charlie"}`;
+  const displayDate = dateText || (user.date ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "18 octobre 2026");
+  const photo = photoUrl ?? "/photo_couple/couple_4.jpg";
+  const col = p.textPrimary;
+  const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
+  const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
+
+  const bigSize    = W * 0.215;
+  const scriptSize = W * 0.115;
+  const namesSize  = W * 0.036;
+  const dateSize   = W * 0.030;
+
+  const saveY    = H * 0.305;
+  const theY     = H * 0.428;
+  const dateWordY = H * 0.572;
+  const lineY    = H * 0.820;
+  const namesY   = H * 0.868;
+  const dateLineY = H * 0.913;
+
+  const lineLen = W * 0.13;
+  const cx = W / 2;
+
+  return (
+    <div style={{ position: "relative", width: W, height: H, overflow: "hidden", background: "#1a1814" }}>
+      <img src={photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.14) 0%, transparent 30%, transparent 68%, rgba(0,0,0,0.28) 100%)" }} />
+      <svg width={W} height={H} style={{ position: "absolute", inset: 0, display: "block" }}>
+        {/* SAVE */}
+        <text x={cx} y={saveY} textAnchor="middle"
+          fontFamily="Georgia, 'Times New Roman', serif"
+          fontSize={getSize("label", bigSize)} fontWeight="400"
+          letterSpacing={W * 0.02}
+          fill="none" stroke={getColor("label", col)} strokeWidth={Math.max(1, W * 0.0038)}
+        >SAVE</text>
+
+        {/* lines + the + lines */}
+        <line x1={cx - lineLen - W * 0.065} y1={theY - scriptSize * 0.28} x2={cx - W * 0.065} y2={theY - scriptSize * 0.28} stroke={getColor("label", col)} strokeWidth={0.8} opacity={0.55}/>
+        <line x1={cx + W * 0.065} y1={theY - scriptSize * 0.28} x2={cx + lineLen + W * 0.065} y2={theY - scriptSize * 0.28} stroke={getColor("label", col)} strokeWidth={0.8} opacity={0.55}/>
+        <text x={cx} y={theY} textAnchor="middle"
+          fontFamily="var(--font-script), Georgia, serif"
+          fontSize={getSize("label", scriptSize)} fontStyle="italic"
+          fill={getColor("label", col)}
+        >the</text>
+
+        {/* DATE */}
+        <text x={cx} y={dateWordY} textAnchor="middle"
+          fontFamily="Georgia, 'Times New Roman', serif"
+          fontSize={getSize("label", bigSize)} fontWeight="400"
+          letterSpacing={W * 0.02}
+          fill="none" stroke={getColor("label", col)} strokeWidth={Math.max(1, W * 0.0038)}
+        >DATE</text>
+
+        {/* thin rule before names */}
+        <line x1={cx - W * 0.12} y1={lineY} x2={cx + W * 0.12} y2={lineY} stroke={getColor("names", col)} strokeWidth={0.7} opacity={0.45}/>
+
+        {/* names */}
+        <text x={cx} y={namesY} textAnchor="middle"
+          fontFamily="var(--font-display), 'Helvetica Neue', sans-serif"
+          fontSize={getSize("names", namesSize)} letterSpacing={W * 0.045}
+          fill={getColor("names", col)}
+        >{displayNames.toUpperCase()}</text>
+
+        {/* date line */}
+        <text x={cx} y={dateLineY} textAnchor="middle"
+          fontFamily="Georgia, serif"
+          fontSize={getSize("date", dateSize)} letterSpacing={W * 0.014}
+          fill={getColor("date", col)} opacity={0.72}
+        >{displayDate}</text>
+      </svg>
+    </div>
+  );
+}
+
 export function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, fontPreset, label, namesText, dateText, locationText, footer, elementStyles, customPaperBg }: {
   id: string; W: number; H: number; palette: Palette; user: UserData; isStd: boolean;
   photoUrl?: string; photoUrls?: string[]; fontPreset?: string;
@@ -678,6 +765,7 @@ export function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photo
 }) {
   const tplCfg = TEMPLATES.find(t => t.id === id);
   const effectivePhotoUrl = photoUrl || tplCfg?.defaultPhotoUrl;
+  if (id === "save-the-date") return <TemplateSaveTheDatePhoto W={W} H={H} p={palette} user={user} namesText={namesText} dateText={dateText} photoUrl={effectivePhotoUrl} elementStyles={elementStyles}/>;
   if (id === "photomaton") {
     const defaultUrls = tplCfg?.defaultPhotoUrls ?? [];
     const urls = (photoUrls && photoUrls.length > 0) ? defaultUrls.map((def, i) => photoUrls[i] || def) : defaultUrls;
