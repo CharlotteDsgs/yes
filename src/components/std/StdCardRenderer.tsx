@@ -132,7 +132,7 @@ export const TEMPLATES: TemplateConfig[] = [
     description: "Votre photo encadrée sur fond floral",
     paperImage: "/papier%20lettre/lettre_flower_big.png",
     layoutVariant: "photo",
-    defaultPhotoUrl: "/photo_couple/couple_2.JPG",
+    defaultPhotoUrl: "/photo_couple/couple_4.jpg",
     palettes: [
       { id: "encre",    label: "Encre",    bg: "#EDE8E0", inner: "#EDE8E0", textPrimary: "#28201A", textSecondary: "#6A5040", accent: "#8A6040" },
       { id: "bordeaux", label: "Bordeaux", bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#6D1D3E", textSecondary: "#9A4060", accent: "#8A2048" },
