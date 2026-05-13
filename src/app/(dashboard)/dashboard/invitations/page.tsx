@@ -928,32 +928,30 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         )}
       </g>
 
-      {/* Names */}
+      {/* Names — text always visible; hl overlay appears on top when selected */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "names" && hl(H * (isStd ? 0.295 : 0.285), H * 0.315)}
-        {selectedElement !== "names" && (<g>
-          <text x={W/2} y={H*(isStd?0.385:0.375)} textAnchor="middle"
+        <text x={W/2} y={H*(isStd?0.385:0.375)} textAnchor="middle"
+          fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
+          fontSize={getSize("names", W * 0.13)} fontWeight="700"
+          fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
+          {name1Raw.toUpperCase()}
+        </text>
+        <text x={W/2} y={H*(isStd?0.48:0.46)} textAnchor="middle"
+          fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>
+          and
+        </text>
+        {name2Raw && (
+          <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
             fontSize={getSize("names", W * 0.13)} fontWeight="700"
             fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
-            {name1Raw.toUpperCase()}
+            {name2Raw.toUpperCase()}
           </text>
-          <text x={W/2} y={H*(isStd?0.48:0.46)} textAnchor="middle"
-            fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>
-            and
-          </text>
-          {name2Raw && (
-            <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle"
-              fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
-              fontSize={getSize("names", W * 0.13)} fontWeight="700"
-              fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
-              {name2Raw.toUpperCase()}
-            </text>
-          )}
-        </g>)}
+        )}
+        {selectedElement === "names" && hl(H * (isStd ? 0.295 : 0.285) - getDY("names")*H, H * 0.315)}
       </g>
 
       <line x1={W*0.35} y1={H*(isStd?0.65:0.63)} x2={W*0.65} y2={H*(isStd?0.65:0.63)}
@@ -3008,13 +3006,15 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         fontStyle,
                         fontWeight,
                         fontSize: fs,
-                        color: elementColor,
-                        WebkitTextFillColor: elementColor,
+                        // For multi-line SVG elements (e.g. Bold Stripes names), keep the input
+                        // invisible so the SVG text stays the visual reference.
+                        color: (isRayures && selectedElement === "names") ? "transparent" : elementColor,
+                        WebkitTextFillColor: (isRayures && selectedElement === "names") ? "transparent" : elementColor,
                         opacity: cfg.opacity,
                         padding: 0,
                         lineHeight: "normal",
                         boxSizing: "border-box",
-                        caretColor: elementColor,
+                        caretColor: (isRayures && selectedElement === "names") ? "transparent" : elementColor,
                         textTransform: effectiveTextTransform as React.CSSProperties["textTransform"],
                         letterSpacing: tplVisualDef.letterSpacing,
                       }}
