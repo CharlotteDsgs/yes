@@ -2991,41 +2991,74 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         <Trash2 size={14}/>
                       </button>
                     </div>
-                    <input
-                      key={selectedElement}
-                      autoFocus
-                      autoComplete="off"
-                      value={currentText}
-                      onChange={e => handleInlineChange(e.target.value)}
-                      onClick={e => e.stopPropagation()}
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        top: inputTop,
-                        width: "100%",
-                        height: inputHeight,
-                        background: "transparent",
-                        WebkitBoxShadow: "0 0 0px 1000px transparent inset",
-                        border: "none",
-                        outline: "none",
-                        textAlign: "center",
-                        fontFamily: elementFont,
-                        fontStyle,
-                        fontWeight,
-                        fontSize: fs,
-                        // For Bold Stripes names: keep input text invisible (SVG is the visual),
-                        // but show the caret so the user knows they can type.
-                        color: isRayuresNames ? "transparent" : elementColor,
-                        WebkitTextFillColor: isRayuresNames ? "transparent" : elementColor,
-                        opacity: cfg.opacity,
-                        padding: 0,
-                        lineHeight: "normal",
-                        boxSizing: "border-box",
-                        caretColor: isRayuresNames ? palette.textPrimary : elementColor,
-                        textTransform: effectiveTextTransform as React.CSSProperties["textTransform"],
-                        letterSpacing: tplVisualDef.letterSpacing,
-                      }}
-                    />
+                    {isRayuresNames ? (
+                      /* Bold Stripes names: single-line input can't represent 3 SVG lines.
+                         Show a compact visible input at the top of the selection box instead. */
+                      <input
+                        key={selectedElement}
+                        autoFocus
+                        autoComplete="off"
+                        value={currentText}
+                        onChange={e => handleInlineChange(e.target.value)}
+                        onClick={e => e.stopPropagation()}
+                        placeholder="Prénom1 & Prénom2"
+                        style={{
+                          position: "absolute",
+                          left: cardW * 0.08,
+                          top: cardH * 0.295 + 6,
+                          width: cardW * 0.84,
+                          height: 30,
+                          background: "rgba(255,255,255,0.93)",
+                          border: `1.5px solid ${palette.textPrimary}44`,
+                          borderRadius: 6,
+                          outline: "none",
+                          textAlign: "center",
+                          fontFamily: "var(--font-display)",
+                          fontSize: 12,
+                          letterSpacing: "0.08em",
+                          color: palette.textPrimary,
+                          caretColor: palette.textPrimary,
+                          boxSizing: "border-box",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                          zIndex: 11,
+                          padding: "0 8px",
+                        }}
+                      />
+                    ) : (
+                      <input
+                        key={selectedElement}
+                        autoFocus
+                        autoComplete="off"
+                        value={currentText}
+                        onChange={e => handleInlineChange(e.target.value)}
+                        onClick={e => e.stopPropagation()}
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          top: inputTop,
+                          width: "100%",
+                          height: inputHeight,
+                          background: "transparent",
+                          WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                          border: "none",
+                          outline: "none",
+                          textAlign: "center",
+                          fontFamily: elementFont,
+                          fontStyle,
+                          fontWeight,
+                          fontSize: fs,
+                          color: elementColor,
+                          WebkitTextFillColor: elementColor,
+                          opacity: cfg.opacity,
+                          padding: 0,
+                          lineHeight: "normal",
+                          boxSizing: "border-box",
+                          caretColor: elementColor,
+                          textTransform: effectiveTextTransform as React.CSSProperties["textTransform"],
+                          letterSpacing: tplVisualDef.letterSpacing,
+                        }}
+                      />
+                    )}
                   </>
                 );
               })()}
