@@ -35,6 +35,7 @@ interface CardCustomization {
   fontPreset: string;
   label: string;
   namesText: string;
+  namesConnector?: string;
   dateText: string;
   locationText: string;
   footer: string;
@@ -853,10 +854,10 @@ function TemplateOliviers({ W, H, p, user, isStd, namesText, dateText, locationT
   );
 }
 
-function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, dateText, locationText, footer,
+function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, namesConnector, dateText, locationText, footer,
   selectedElement, onElementClick, elementStyles }: {
   W: number; H: number; p: Palette; user: UserData; isStd: boolean; customPaperBg?: string;
-  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
+  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
@@ -942,7 +943,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         </text>
         <text x={W/2} y={H*(isStd?0.48:0.46)} textAnchor="middle"
           fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>
-          and
+          {namesConnector || "and"}
         </text>
         {name2Raw && (
           <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle"
@@ -1834,11 +1835,11 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
   );
 }
 
-function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, fontPreset, label, namesText, dateText, locationText, footer,
+function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, fontPreset, label, namesText, namesConnector, dateText, locationText, footer,
   selectedElement, onElementClick, onPhotoClick, onPhotoSlotClick, elementStyles, customPaperBg }: {
   id: string; W: number; H: number; palette: Palette; user: UserData; isStd: boolean;
   photoUrl?: string; photoUrls?: string[]; fontPreset?: string;
-  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
+  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   onPhotoClick?: () => void;
@@ -1866,7 +1867,7 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, f
     namesText={namesText} dateText={dateText} locationText={locationText}
     selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
   if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd} customPaperBg={customPaperBg}
-    label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
+    label={label} namesText={namesText} namesConnector={namesConnector} dateText={dateText} locationText={locationText} footer={footer}
     selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
   if (tplCfg?.paperImage) {
     if (tplCfg.layoutVariant === "elegant")
@@ -1907,10 +1908,10 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, f
      3 → page droite seule (template design)
 ═══════════════════════════════════════════════ */
 
-function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, photoUrl, photoUrls, elementStyles, customPaperBg, onClose, inline }: {
+function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, namesConnector, dateText, locationText, footer, photoUrl, photoUrls, elementStyles, customPaperBg, onClose, inline }: {
   tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
   fontPreset?: string;
-  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string; photoUrl?: string; photoUrls?: string[];
+  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string; photoUrl?: string; photoUrls?: string[];
   elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
   customPaperBg?: string;
   onClose: () => void;
@@ -2037,7 +2038,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
           }}>
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
-              fontPreset={fontPreset} label={label} namesText={namesText}
+              fontPreset={fontPreset} label={label} namesText={namesText} namesConnector={namesConnector}
               dateText={dateText} locationText={locationText} footer={footer}
               photoUrl={photoUrl} photoUrls={photoUrls} elementStyles={elementStyles} customPaperBg={customPaperBg}
             />
@@ -2156,9 +2157,9 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
    CARD FLIP ANIMATION (inline)
 ═══════════════════════════════════════════════ */
 
-function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, photoUrl, photoUrls, elementStyles, customPaperBg }: {
+function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesText, namesConnector, dateText, locationText, footer, photoUrl, photoUrls, elementStyles, customPaperBg }: {
   tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
-  fontPreset?: string; label?: string; namesText?: string; dateText?: string;
+  fontPreset?: string; label?: string; namesText?: string; namesConnector?: string; dateText?: string;
   locationText?: string; footer?: string; photoUrl?: string; photoUrls?: string[];
   elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
   customPaperBg?: string;
@@ -2190,8 +2191,9 @@ function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
         {/* Front */}
         <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", overflow: "hidden" }}>
           <TemplateRender id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
-            fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText}
-            locationText={locationText} footer={footer} photoUrl={photoUrl} photoUrls={photoUrls}
+            fontPreset={fontPreset} label={label} namesText={namesText} namesConnector={namesConnector}
+            dateText={dateText} locationText={locationText} footer={footer}
+            photoUrl={photoUrl} photoUrls={photoUrls}
             elementStyles={elementStyles} customPaperBg={customPaperBg}/>
         </div>
         {/* Back */}
@@ -2659,7 +2661,8 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                     photoUrl={cardCustom.photoUrl || undefined}
                     photoUrls={cardCustom.photoUrls}
                     fontPreset={cardCustom.fontPreset} label={cardCustom.label}
-                    namesText={cardCustom.namesText} dateText={cardCustom.dateText}
+                    namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
+                    dateText={cardCustom.dateText}
                     locationText={cardCustom.locationText} footer={cardCustom.footer}
                     elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}/>
                 </div>
@@ -2679,7 +2682,8 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   photoUrl={cardCustom.photoUrl || undefined}
                   photoUrls={cardCustom.photoUrls}
                   fontPreset={cardCustom.fontPreset} label={cardCustom.label}
-                  namesText={cardCustom.namesText} dateText={cardCustom.dateText} locationText={cardCustom.locationText}
+                  namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
+                  dateText={cardCustom.dateText} locationText={cardCustom.locationText}
                   footer={cardCustom.footer}
                   selectedElement={selectedElement} onElementClick={setSelectedElement}
                   onPhotoClick={() => { currentPhotoSlot.current = null; photoInputRef.current?.click(); }}
@@ -2992,30 +2996,37 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                       </button>
                     </div>
                     {isRayuresNames ? (() => {
-                      // 2-line transparent textarea so clicking top → cursor on name1,
-                      // clicking bottom → cursor on name2.
+                      // 3-line transparent textarea: name1 / connector / name2
+                      // Row heights are equal (1/3 of block each) so clicking top→name1,
+                      // middle→connector, bottom→name2.
                       const rParts = currentText.split(/\s*[&]\s*/);
-                      const taVal = (rParts[0] ?? "").trim() + "\n" + (rParts[1] ?? "").trim();
-                      const taLineH = cardH * 0.315 / 2; // half the names block height per row
+                      const n1 = (rParts[0] ?? "").trim();
+                      const n2 = (rParts[1] ?? "").trim();
+                      const conn = cardCustom.namesConnector ?? "and";
+                      const taVal = n1 + "\n" + conn + "\n" + n2;
+                      const taLineH = cardH * 0.315 / 3;
                       return (
                         <textarea
                           key={selectedElement}
                           autoFocus
                           autoComplete="off"
                           value={taVal}
-                          rows={2}
+                          rows={3}
                           onKeyDown={e => {
-                            // Block adding a 3rd line
                             if (e.key === "Enter") {
                               const lines = (e.target as HTMLTextAreaElement).value.split("\n");
-                              if (lines.length >= 2) e.preventDefault();
+                              if (lines.length >= 3) e.preventDefault();
                             }
                           }}
                           onChange={e => {
                             const lines = e.target.value.split("\n");
-                            const n1 = lines[0] ?? "";
-                            const n2 = lines[1] ?? "";
-                            handleInlineChange(n1 + (n2.trim() ? " & " + n2 : ""));
+                            const newN1 = lines[0] ?? "";
+                            const newConn = lines[1] ?? "and";
+                            const newN2 = lines[2] ?? "";
+                            const next = { ...cardCustom };
+                            next.namesText = newN1 + (newN2.trim() ? " & " + newN2 : "");
+                            next.namesConnector = newConn;
+                            onCardCustomChange(next);
                           }}
                           onClick={e => e.stopPropagation()}
                           style={{
@@ -4032,7 +4043,8 @@ export default function SaveTheDatePage() {
                     paletteId={getPalette(animTpl.id)}
                     user={user} isStd={true}
                     fontPreset={cardCustom.fontPreset} label={cardCustom.label}
-                    namesText={cardCustom.namesText} dateText={cardCustom.dateText}
+                    namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
+                    dateText={cardCustom.dateText}
                     locationText={cardCustom.locationText} footer={cardCustom.footer}
                     photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
                     elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
@@ -4045,7 +4057,8 @@ export default function SaveTheDatePage() {
                     paletteId={getPalette(animTpl.id)}
                     user={user} isStd={true}
                     fontPreset={cardCustom.fontPreset} label={cardCustom.label}
-                    namesText={cardCustom.namesText} dateText={cardCustom.dateText}
+                    namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
+                    dateText={cardCustom.dateText}
                     locationText={cardCustom.locationText} footer={cardCustom.footer}
                     photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
                     elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
@@ -4057,7 +4070,8 @@ export default function SaveTheDatePage() {
                         id={animTpl.id} W={cardW} H={cardH}
                         palette={animPalette} user={user} isStd={true}
                         fontPreset={cardCustom.fontPreset} label={cardCustom.label}
-                        namesText={cardCustom.namesText} dateText={cardCustom.dateText}
+                        namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
+                        dateText={cardCustom.dateText}
                         locationText={cardCustom.locationText} footer={cardCustom.footer}
                         photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
                         elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
