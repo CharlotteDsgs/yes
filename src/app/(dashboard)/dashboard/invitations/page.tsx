@@ -2614,8 +2614,8 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   photoUrls={cardCustom.photoUrls}
                   fontPreset={cardCustom.fontPreset} label={cardCustom.label}
                   namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
-                  dateText={cardCustom.dateText} locationText={cardCustom.locationText}
-                  footer={cardCustom.footer}
+                  dateText={cardCustom.dateText} locationText={cardCustom.locationText || undefined}
+                  footer={cardCustom.footer || undefined}
                   selectedElement={selectedElement} onElementClick={setSelectedElement}
                   onPhotoClick={() => { currentPhotoSlot.current = null; photoInputRef.current?.click(); }}
                   onPhotoSlotClick={i => { currentPhotoSlot.current = i; photoInputRef.current?.click(); }}
@@ -2858,8 +2858,8 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   label:    isDentelle ? rawLabelText.charAt(0).toUpperCase() + rawLabelText.slice(1) : rawLabelText,
                   names:    cardCustom.namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`,
                   date:     defaultDate,
-                  location: cardCustom.locationText,
-                  footer:   cardCustom.footer,
+                  location: cardCustom.locationText || user.location,
+                  footer:   cardCustom.footer || "invitation à suivre",
                   tagline:  cardCustom.footer || "sont heureux de vous inviter",
                 };
                 const currentText = textMap[selectedElement] ?? "";
