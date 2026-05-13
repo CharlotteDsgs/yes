@@ -3019,7 +3019,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         WebkitTextFillColor: isRayuresNames ? "transparent" : elementColor,
                         opacity: cfg.opacity,
                         padding: 0,
-                        lineHeight: isRayuresNames ? String(cardH * 0.315) + "px" : "normal",
+                        lineHeight: "normal",
                         boxSizing: "border-box",
                         caretColor: isRayuresNames ? palette.textPrimary : elementColor,
                         textTransform: effectiveTextTransform as React.CSSProperties["textTransform"],
