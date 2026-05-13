@@ -2991,40 +2991,60 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         <Trash2 size={14}/>
                       </button>
                     </div>
-                    {isRayuresNames ? (
-                      /* Bold Stripes names: single-line input can't represent 3 SVG lines.
-                         Show a compact visible input at the top of the selection box instead. */
-                      <input
-                        key={selectedElement}
-                        autoFocus
-                        autoComplete="off"
-                        value={currentText}
-                        onChange={e => handleInlineChange(e.target.value)}
-                        onClick={e => e.stopPropagation()}
-                        placeholder="Prénom1 & Prénom2"
-                        style={{
-                          position: "absolute",
-                          left: cardW * 0.08,
-                          top: cardH * 0.295 + 6,
-                          width: cardW * 0.84,
-                          height: 30,
-                          background: "rgba(255,255,255,0.93)",
-                          border: `1.5px solid ${palette.textPrimary}44`,
-                          borderRadius: 6,
-                          outline: "none",
-                          textAlign: "center",
-                          fontFamily: "var(--font-display)",
-                          fontSize: 12,
-                          letterSpacing: "0.08em",
-                          color: palette.textPrimary,
-                          caretColor: palette.textPrimary,
-                          boxSizing: "border-box",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
-                          zIndex: 11,
-                          padding: "0 8px",
-                        }}
-                      />
-                    ) : (
+                    {isRayuresNames ? (() => {
+                      // 2-line transparent textarea so clicking top → cursor on name1,
+                      // clicking bottom → cursor on name2.
+                      const rParts = currentText.split(/\s*[&]\s*/);
+                      const taVal = (rParts[0] ?? "").trim() + "\n" + (rParts[1] ?? "").trim();
+                      const taLineH = cardH * 0.315 / 2; // half the names block height per row
+                      return (
+                        <textarea
+                          key={selectedElement}
+                          autoFocus
+                          autoComplete="off"
+                          value={taVal}
+                          rows={2}
+                          onKeyDown={e => {
+                            // Block adding a 3rd line
+                            if (e.key === "Enter") {
+                              const lines = (e.target as HTMLTextAreaElement).value.split("\n");
+                              if (lines.length >= 2) e.preventDefault();
+                            }
+                          }}
+                          onChange={e => {
+                            const lines = e.target.value.split("\n");
+                            const n1 = lines[0] ?? "";
+                            const n2 = lines[1] ?? "";
+                            handleInlineChange(n1 + (n2.trim() ? " & " + n2 : ""));
+                          }}
+                          onClick={e => e.stopPropagation()}
+                          style={{
+                            position: "absolute",
+                            left: 0,
+                            top: cardH * 0.295,
+                            width: "100%",
+                            height: cardH * 0.315,
+                            background: "transparent",
+                            WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                            border: "none",
+                            outline: "none",
+                            resize: "none",
+                            overflow: "hidden",
+                            textAlign: "center",
+                            fontFamily: cardCustom.styles?.names?.font ?? "var(--font-playfair)",
+                            fontWeight: "700",
+                            fontSize: cardW * 0.13,
+                            lineHeight: taLineH + "px",
+                            color: "transparent",
+                            WebkitTextFillColor: "transparent",
+                            caretColor: palette.textPrimary,
+                            padding: 0,
+                            boxSizing: "border-box",
+                            textTransform: "uppercase",
+                          }}
+                        />
+                      );
+                    })() : (
                       <input
                         key={selectedElement}
                         autoFocus
