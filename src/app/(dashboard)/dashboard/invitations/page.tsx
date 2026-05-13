@@ -2523,7 +2523,6 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
   cardCustom: CardCustomization; onCardCustomChange: (next: CardCustomization) => void;
   onAnimate: () => void; onBack: () => void;
 }) {
-  const [tab, setTab] = useState<"card" | "envelope">("card");
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
@@ -2594,86 +2593,18 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
     reader.readAsDataURL(file);
   }
 
-  const tabBtn = (id: "card" | "envelope", lbl: string) => (
-    <button
-      onClick={() => { setTab(id); setSelectedElement(null); }}
-      className="px-5 py-2.5 rounded-full text-sm font-semibold transition-all"
-      style={{
-        fontFamily: "var(--font-display)",
-        backgroundColor: tab === id ? "#6D1D3E" : "rgba(255,255,255,0.8)",
-        color: tab === id ? "white" : "rgba(44,44,44,0.55)",
-        boxShadow: tab === id ? "0 2px 10px rgba(109,29,62,0.22)" : "none",
-        border: `1.5px solid ${tab === id ? "transparent" : "rgba(44,44,44,0.08)"}`,
-      }}
-    >
-      {lbl}
-    </button>
-  );
-
   return (
     <div>
       {/* Hidden photo file input */}
       <input ref={photoInputRef} type="file" accept="image/*" style={{ display: "none" }}
         onChange={e => { if (e.target.files?.[0]) handlePhotoFile(e.target.files[0]); e.target.value = ""; }}/>
 
-      {/* Tab bar */}
-      <div className="px-8 py-4 flex gap-2 border-b border-[#f0e6e2]">
-        {tabBtn("card", "Personnaliser la carte")}
-        {tabBtn("envelope", "Personnaliser l'enveloppe")}
-      </div>
-
       {/* Content */}
       <div className="mx-auto px-8 py-10 flex flex-col md:flex-row gap-10 items-start" style={{ maxWidth: 860 }}>
 
         {/* Left: card preview */}
         <div className="flex-shrink-0 flex flex-col items-center">
-          {tab === "envelope" ? (() => {
-            // Natural open envelope height
-            const envOpenH = Math.round(cardW * ENV_OPEN_H / ENV_OPEN_W);
-
-            // Portrait card rendered then rotated -90° → landscape inside envelope
-            // After rotation: visual width = insideH, visual height = insideW
-            // Set insideH = cardW so the card exactly fills the envelope width
-            const insideH = cardW; // 360 — visual width after rotation
-            const insideW = Math.round(cardW / 1.4); // ≈ 257 — visual height after rotation
-
-            // Position card inside body, bottom-aligned (12px above bottom of envelope)
-            // After rotation: visual center Y = divTop + insideH/2
-            const cardBottomMargin = 12;
-            const cardCenterY = envOpenH - cardBottomMargin - Math.round(insideW / 2);
-            const cardDivTop  = cardCenterY - Math.round(insideH / 2);
-            const cardDivLeft = Math.round((cardW - insideW) / 2);
-
-            return (
-              <div style={{ position: "relative", width: cardW, height: envOpenH }}>
-                {/* Card landscape (rotated portrait) behind the envelope */}
-                <div style={{
-                  position: "absolute",
-                  top: cardDivTop, left: cardDivLeft,
-                  width: insideW, height: insideH,
-                  transform: "rotate(-90deg)",
-                  transformOrigin: "center center",
-                  overflow: "hidden",
-                  boxShadow: "0 6px 24px rgba(0,0,0,0.22)",
-                  zIndex: 1,
-                }}>
-                  <TemplateRender id={tpl.id} W={insideW} H={insideH} palette={palette} user={user} isStd={isStd}
-                    photoUrl={cardCustom.photoUrl || undefined}
-                    photoUrls={cardCustom.photoUrls}
-                    fontPreset={cardCustom.fontPreset} label={cardCustom.label}
-                    namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
-                    dateText={cardCustom.dateText}
-                    locationText={cardCustom.locationText} footer={cardCustom.footer}
-                    elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}/>
-                </div>
-                {/* Envelope on top — transparent center reveals the card */}
-                <div style={{ position: "absolute", top: 0, left: 0, zIndex: 2,
-                  filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.18))" }}>
-                  <EnvelopeBody W={cardW} cfg={envCfg}/>
-                </div>
-              </div>
-            );
-          })() : (
+          {(
             /* Outer relative wrapper so inline input overlay isn't clipped */
             <div style={{ position: "relative", width: cardW, height: cardH }}>
               {/* SVG card */}
@@ -3127,7 +3058,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
               })()}
             </div>
           )}
-          {tab === "card" && !selectedElement && (
+          {!selectedElement && (
             <p className="mt-3 text-xs text-center" style={{ color: "rgba(44,44,44,0.32)", fontFamily: "var(--font-display)", fontStyle: "italic" }}>
               Cliquez sur un texte pour le modifier
             </p>
@@ -3136,27 +3067,23 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
 
         {/* Right: options panel */}
         <div className="flex flex-col gap-5" style={{ minWidth: 260, maxWidth: 280, flex: 1 }}>
-          {tab === "card" ? (
-            selectedElement ? (
-              <ElementStylePanel
-                elementId={selectedElement}
-                cardCustom={cardCustom}
-                onCardCustomChange={onCardCustomChange}
-                palette={palette}
-                user={user}
-                onClose={() => setSelectedElement(null)}
-              />
-            ) : (
-              <CardCustomizerPanel
-                tpl={tpl}
-                paletteId={paletteId}
-                onPaletteChange={onPaletteChange}
-                cardCustom={cardCustom}
-                onCardCustomChange={onCardCustomChange}
-              />
-            )
+          {selectedElement ? (
+            <ElementStylePanel
+              elementId={selectedElement}
+              cardCustom={cardCustom}
+              onCardCustomChange={onCardCustomChange}
+              palette={palette}
+              user={user}
+              onClose={() => setSelectedElement(null)}
+            />
           ) : (
-            <EnvelopeCustomizerPanel cfg={envCfg} onChange={onEnvelopeChange}/>
+            <CardCustomizerPanel
+              tpl={tpl}
+              paletteId={paletteId}
+              onPaletteChange={onPaletteChange}
+              cardCustom={cardCustom}
+              onCardCustomChange={onCardCustomChange}
+            />
           )}
 
           <div className="border-t border-[#f0e6e2] pt-1">
