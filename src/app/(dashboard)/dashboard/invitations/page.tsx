@@ -2936,7 +2936,13 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   else if (selectedElement === "footer" || selectedElement === "tagline") next.footer = value;
                   onCardCustomChange(next);
                 }
-                const inputTop = cfg.y + dyOffset - fs * 1.5;
+                // For Bold Stripes names: the SVG spans 3 lines (NAME1 / and / NAME2).
+                // Override position to cover the full hl rect, and keep caret visible.
+                const isRayuresNames = isRayures && selectedElement === "names";
+                const inputTop = isRayuresNames
+                  ? cardH * 0.295 + dyOffset
+                  : cfg.y + dyOffset - fs * 1.5;
+                const inputHeight = isRayuresNames ? cardH * 0.315 : fs * 3;
                 return (
                   <>
                     {/* Toolbar: move + trash */}
@@ -2996,7 +3002,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         left: 0,
                         top: inputTop,
                         width: "100%",
-                        height: fs * 3,
+                        height: inputHeight,
                         background: "transparent",
                         WebkitBoxShadow: "0 0 0px 1000px transparent inset",
                         border: "none",
@@ -3006,15 +3012,15 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         fontStyle,
                         fontWeight,
                         fontSize: fs,
-                        // For multi-line SVG elements (e.g. Bold Stripes names), keep the input
-                        // invisible so the SVG text stays the visual reference.
-                        color: (isRayures && selectedElement === "names") ? "transparent" : elementColor,
-                        WebkitTextFillColor: (isRayures && selectedElement === "names") ? "transparent" : elementColor,
+                        // For Bold Stripes names: keep input text invisible (SVG is the visual),
+                        // but show the caret so the user knows they can type.
+                        color: isRayuresNames ? "transparent" : elementColor,
+                        WebkitTextFillColor: isRayuresNames ? "transparent" : elementColor,
                         opacity: cfg.opacity,
                         padding: 0,
-                        lineHeight: "normal",
+                        lineHeight: isRayuresNames ? String(cardH * 0.315) + "px" : "normal",
                         boxSizing: "border-box",
-                        caretColor: (isRayures && selectedElement === "names") ? "transparent" : elementColor,
+                        caretColor: isRayuresNames ? palette.textPrimary : elementColor,
                         textTransform: effectiveTextTransform as React.CSSProperties["textTransform"],
                         letterSpacing: tplVisualDef.letterSpacing,
                       }}
