@@ -410,9 +410,9 @@ function TemplateOliviers({ W, H, p, user, isStd, namesText, dateText, locationT
   );
 }
 
-function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, dateText, locationText, elementStyles }: {
+function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, dateText, locationText, footer, elementStyles }: {
   W: number; H: number; p: Palette; user: UserData; isStd: boolean; customPaperBg?: string;
-  label?: string; namesText?: string; dateText?: string; locationText?: string; elementStyles?: ElStyles;
+  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string; elementStyles?: ElStyles;
 }) {
   let stripes: string[];
   if (customPaperBg && /^#[0-9A-Fa-f]{6}$/.test(customPaperBg)) {
@@ -434,8 +434,12 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block" }}>
       {stripes.map((c, i) => <rect key={i} x={i * sw} y={0} width={sw} height={H} fill={c}/>)}
-      <circle cx={W/2} cy={H*0.10} r={W*0.065} fill="none" stroke={p.textPrimary} strokeWidth="1" opacity="0.5"/>
-      <text x={W/2} y={H*0.115} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.05} fill={p.textPrimary} fontStyle="italic">{i1}{i2}</text>
+      {!elementStyles?.["monogram"]?.hidden && (
+        <g>
+          <circle cx={W/2} cy={H*0.10} r={W*0.065} fill="none" stroke={p.textPrimary} strokeWidth="1" opacity="0.5"/>
+          <text x={W/2} y={H*0.115} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.05} fill={p.textPrimary} fontStyle="italic">{i1}{i2}</text>
+        </g>
+      )}
       <g transform={`translate(${getDX("label")*W} ${getDY("label")*H})`} style={{ display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
         <text x={W/2} y={H*0.225} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"} fontSize={getSize("label", W * 0.028)} fill={getColor("label", p.textPrimary)} letterSpacing="4" style={{ textTransform:"uppercase" as const }} opacity="0.7">{displayLabel}</text>
       </g>
@@ -444,6 +448,13 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         <text x={W/2} y={H*(isStd?0.48:0.46)} textAnchor="middle" fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>and</text>
         {name2Raw && <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle" fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"} fontSize={getSize("names", W * 0.13)} fontWeight="700" fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" as const }}>{name2Raw.toUpperCase()}</text>}
       </g>
+      <line x1={W*0.35} y1={H*(isStd?0.65:0.63)} x2={W*0.65} y2={H*(isStd?0.65:0.63)} stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
+      {!elementStyles?.["tagline"]?.hidden && (
+        <text x={W/2} y={H*(isStd?0.735:0.715)} textAnchor="middle" fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
+          fontSize={getSize("tagline", W*0.027)} fill={getColor("tagline", p.textPrimary)} letterSpacing="2.5" style={{ textTransform:"uppercase" as const }} opacity="0.65">
+          {footer || "sont heureux de vous inviter"}
+        </text>
+      )}
       <g transform={`translate(${getDX("date")*W} ${getDY("date")*H})`} style={{ display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
         <text x={W/2} y={H*(isStd?0.815:0.79)} textAnchor="middle" fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"} fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)} letterSpacing="1.5" style={{ textTransform:"uppercase" as const }}>{displayDate}</text>
       </g>
@@ -774,7 +785,7 @@ export function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photo
   }
   if (id === "dentelle") return <TemplateDentelle W={W} H={H} p={palette} user={user} photoUrl={effectivePhotoUrl} fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer} elementStyles={elementStyles} customPaperBg={customPaperBg}/>;
   if (id === "oliviers") return <TemplateOliviers W={W} H={H} p={palette} user={user} isStd={isStd} namesText={namesText} dateText={dateText} locationText={locationText} elementStyles={elementStyles}/>;
-  if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd} customPaperBg={customPaperBg} label={label} namesText={namesText} dateText={dateText} locationText={locationText} elementStyles={elementStyles}/>;
+  if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd} customPaperBg={customPaperBg} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer} elementStyles={elementStyles}/>;
   if (tplCfg?.paperImage) {
     if (tplCfg.layoutVariant === "elegant") return <TemplateElegant W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer} elementStyles={elementStyles}/>;
     if (tplCfg.layoutVariant === "arbres")  return <TemplateArbre W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user} label={label} namesText={namesText} dateText={dateText} locationText={locationText} elementStyles={elementStyles}/>;

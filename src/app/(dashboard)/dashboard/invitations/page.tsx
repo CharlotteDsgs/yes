@@ -852,10 +852,10 @@ function TemplateOliviers({ W, H, p, user, isStd, namesText, dateText, locationT
   );
 }
 
-function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, dateText, locationText,
+function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, dateText, locationText, footer,
   selectedElement, onElementClick, elementStyles }: {
   W: number; H: number; p: Palette; user: UserData; isStd: boolean; customPaperBg?: string;
-  label?: string; namesText?: string; dateText?: string; locationText?: string;
+  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
@@ -904,9 +904,14 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
       {stripes.map((c, i) => <rect key={i} x={i * sw} y={0} width={sw} height={H} fill={c}/>)}
 
       {/* Monogram */}
-      <circle cx={W/2} cy={H*0.10} r={W*0.065} fill="none" stroke={p.textPrimary} strokeWidth="1" opacity="0.5"/>
-      <text x={W/2} y={H*0.115} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.05}
-        fill={p.textPrimary} fontStyle="italic">{i1}{i2}</text>
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("monogram"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["monogram"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "monogram" && hl(H * 0.038, H * 0.122)}
+        <circle cx={W/2} cy={H*0.10} r={W*0.065} fill="none" stroke={p.textPrimary} strokeWidth="1" opacity="0.5"/>
+        <text x={W/2} y={H*0.115} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.05}
+          fill={p.textPrimary} fontStyle="italic">{i1}{i2}</text>
+      </g>
 
       {/* Label */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
@@ -953,10 +958,19 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
 
       <line x1={W*0.35} y1={H*(isStd?0.65:0.63)} x2={W*0.65} y2={H*(isStd?0.65:0.63)}
         stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
-      <text x={W/2} y={H*(isStd?0.735:0.715)} textAnchor="middle" fontFamily="var(--font-montserrat)"
-        fontSize={W*0.027} fill={p.textPrimary} letterSpacing="2.5" style={{ textTransform:"uppercase" }} opacity="0.65">
-        sont heureux de vous inviter
-      </text>
+
+      {/* Tagline */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("tagline"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["tagline"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "tagline" && hl(H * (isStd ? 0.714 : 0.694), H * 0.042)}
+        {selectedElement !== "tagline" && (
+          <text x={W/2} y={H*(isStd?0.735:0.715)} textAnchor="middle" fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
+            fontSize={getSize("tagline", W*0.027)} fill={getColor("tagline", p.textPrimary)} letterSpacing="2.5" style={{ textTransform:"uppercase" }} opacity="0.65">
+            {footer || "sont heureux de vous inviter"}
+          </text>
+        )}
+      </g>
 
       {/* Date */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
@@ -1853,7 +1867,7 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, f
     namesText={namesText} dateText={dateText} locationText={locationText}
     selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
   if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd} customPaperBg={customPaperBg}
-    label={label} namesText={namesText} dateText={dateText} locationText={locationText}
+    label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
     selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
   if (tplCfg?.paperImage) {
     if (tplCfg.layoutVariant === "elegant")
@@ -2694,8 +2708,10 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   names: { y: cardH * 0.100, fs: cardW * 0.022, fontType: "body",   opacity: 1 },
                   date:  { y: cardH * 0.940, fs: cardW * 0.046, fontType: "script", opacity: 0.9 },
                 } : isRayures ? {
+                  monogram: { y: cardH * 0.115, fs: cardW * 0.050, fontType: "body",   opacity: 1 },
                   label:    { y: cardH * 0.225, fs: cardW * 0.028, fontType: "body",   opacity: 0.7 },
                   names:    { y: cardH * 0.490, fs: cardW * 0.060, fontType: "body",   opacity: 1 },
+                  tagline:  { y: cardH * 0.735, fs: cardW * 0.027, fontType: "body",   opacity: 0.65 },
                   date:     { y: cardH * 0.815, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
                   location: { y: cardH * 0.880, fs: cardW * 0.025, fontType: "body",   opacity: 1 },
                 } : isOliviers ? {
@@ -2743,6 +2759,17 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 };
                 const cfg = elems[selectedElement];
                 if (!cfg) return null;
+                // Monogram: toolbar only (initials derive from names, not independently editable)
+                if (selectedElement === "monogram") {
+                  return (
+                    <div onClick={e => e.stopPropagation()} style={{ position: "absolute", top: Math.max(4, cardH * 0.038 - 34), right: 6, display: "flex", gap: 4, zIndex: 10 }}>
+                      <button onClick={e => { e.stopPropagation(); handleDelete(); }} title="Supprimer"
+                        style={{ width: 28, height: 28, borderRadius: 6, backgroundColor: "rgba(255,255,255,0.92)", border: "1px solid rgba(200,40,40,0.22)", boxShadow: "0 1px 4px rgba(0,0,0,0.14)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#C82828" }}>
+                        <Trash2 size={14}/>
+                      </button>
+                    </div>
+                  );
+                }
                 const isScript = cfg.fontType === "script";
                 const elStyle = cardCustom.styles[selectedElement] ?? {};
                 const isDentelle = !isLettre && !isRayures && !isOliviers;
@@ -2756,8 +2783,10 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   names: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                   date:  { font: "var(--font-script)",     style: "normal", weight: "400" },
                 } : isRayures ? {
+                  monogram: { font: "var(--font-serif)",      style: "italic", weight: "400" },
                   label:    { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                   names:    { font: "var(--font-playfair)",   style: "normal", weight: "700" },
+                  tagline:  { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                   date:     { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                   location: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                 } : isLettreElegant ? {
@@ -2814,8 +2843,10 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   names: { textTransform: "none",      letterSpacing: 3 },
                   date:  { textTransform: "none",      letterSpacing: 0 },
                 } : isRayures ? {
+                  monogram: { textTransform: "none",      letterSpacing: 0 },
                   label:    { textTransform: "uppercase", letterSpacing: 4 },
                   names:    { textTransform: "uppercase", letterSpacing: 0 },
+                  tagline:  { textTransform: "uppercase", letterSpacing: 2.5 },
                   date:     { textTransform: "uppercase", letterSpacing: 1.5 },
                   location: { textTransform: "none",      letterSpacing: 1 },
                 } : isOliviers ? {
@@ -2895,6 +2926,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   date:     defaultDate,
                   location: cardCustom.locationText,
                   footer:   cardCustom.footer,
+                  tagline:  cardCustom.footer || "sont heureux de vous inviter",
                 };
                 const currentText = textMap[selectedElement] ?? "";
                 function handleInlineChange(value: string) {
@@ -2903,7 +2935,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   else if (selectedElement === "names") next.namesText = value;
                   else if (selectedElement === "date") next.dateText = value;
                   else if (selectedElement === "location") next.locationText = value;
-                  else if (selectedElement === "footer") next.footer = value;
+                  else if (selectedElement === "footer" || selectedElement === "tagline") next.footer = value;
                   onCardCustomChange(next);
                 }
                 const inputTop = cfg.y + dyOffset - fs * 1.5;
