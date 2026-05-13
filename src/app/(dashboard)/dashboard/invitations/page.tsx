@@ -2996,64 +2996,96 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                       </button>
                     </div>
                     {isRayuresNames ? (() => {
-                      // 3-line transparent textarea: name1 / connector / name2
-                      // Row heights are equal (1/3 of block each) so clicking top→name1,
-                      // middle→connector, bottom→name2.
+                      // 3 separate inputs, each matching the exact SVG font/size of its row,
+                      // so cursor x-position aligns with the visible glyphs.
                       const rParts = currentText.split(/\s*[&]\s*/);
                       const n1 = (rParts[0] ?? "").trim();
                       const n2 = (rParts[1] ?? "").trim();
                       const conn = cardCustom.namesConnector ?? "and";
-                      const taVal = n1 + "\n" + conn + "\n" + n2;
-                      const taLineH = cardH * 0.315 / 3;
+                      const nameFs = cardW * 0.13;
+                      const connFs = cardW * 0.1;
+                      const nameFont = cardCustom.styles?.names?.font ?? "var(--font-playfair)";
+                      const sharedInputStyle: React.CSSProperties = {
+                        position: "absolute",
+                        left: 0,
+                        width: "100%",
+                        background: "transparent",
+                        WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                        border: "none",
+                        outline: "none",
+                        textAlign: "center",
+                        color: "transparent",
+                        WebkitTextFillColor: "transparent",
+                        caretColor: palette.textPrimary,
+                        padding: 0,
+                        boxSizing: "border-box",
+                      };
                       return (
-                        <textarea
-                          key={selectedElement}
-                          autoFocus
-                          autoComplete="off"
-                          value={taVal}
-                          rows={3}
-                          onKeyDown={e => {
-                            if (e.key === "Enter") {
-                              const lines = (e.target as HTMLTextAreaElement).value.split("\n");
-                              if (lines.length >= 3) e.preventDefault();
-                            }
-                          }}
-                          onChange={e => {
-                            const lines = e.target.value.split("\n");
-                            const newN1 = lines[0] ?? "";
-                            const newConn = lines[1] ?? "and";
-                            const newN2 = lines[2] ?? "";
-                            const next = { ...cardCustom };
-                            next.namesText = newN1 + (newN2.trim() ? " & " + newN2 : "");
-                            next.namesConnector = newConn;
-                            onCardCustomChange(next);
-                          }}
-                          onClick={e => e.stopPropagation()}
-                          style={{
-                            position: "absolute",
-                            left: 0,
-                            top: cardH * 0.295,
-                            width: "100%",
-                            height: cardH * 0.315,
-                            background: "transparent",
-                            WebkitBoxShadow: "0 0 0px 1000px transparent inset",
-                            border: "none",
-                            outline: "none",
-                            resize: "none",
-                            overflow: "hidden",
-                            textAlign: "center",
-                            fontFamily: cardCustom.styles?.names?.font ?? "var(--font-playfair)",
-                            fontWeight: "700",
-                            fontSize: cardW * 0.13,
-                            lineHeight: taLineH + "px",
-                            color: "transparent",
-                            WebkitTextFillColor: "transparent",
-                            caretColor: palette.textPrimary,
-                            padding: 0,
-                            boxSizing: "border-box",
-                            textTransform: "uppercase",
-                          }}
-                        />
+                        <>
+                          {/* name1 — Playfair bold uppercase */}
+                          <input
+                            autoFocus
+                            autoComplete="off"
+                            value={n1}
+                            onChange={e => {
+                              const next = { ...cardCustom };
+                              next.namesText = e.target.value + (n2.trim() ? " & " + n2 : "");
+                              onCardCustomChange(next);
+                            }}
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                              ...sharedInputStyle,
+                              top: cardH * 0.375 - nameFs * 0.9,
+                              height: nameFs * 1.2,
+                              fontFamily: nameFont,
+                              fontWeight: "700",
+                              fontSize: nameFs,
+                              lineHeight: nameFs * 1.2 + "px",
+                              textTransform: "uppercase",
+                            }}
+                          />
+                          {/* connector — script font, matches SVG "and" */}
+                          <input
+                            autoComplete="off"
+                            value={conn}
+                            onChange={e => {
+                              const next = { ...cardCustom };
+                              next.namesConnector = e.target.value;
+                              onCardCustomChange(next);
+                            }}
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                              ...sharedInputStyle,
+                              top: cardH * 0.46 - connFs * 0.85,
+                              height: connFs * 1.2,
+                              fontFamily: "var(--font-script)",
+                              fontWeight: "400",
+                              fontSize: connFs,
+                              lineHeight: connFs * 1.2 + "px",
+                            }}
+                          />
+                          {/* name2 — Playfair bold uppercase */}
+                          <input
+                            autoComplete="off"
+                            value={n2}
+                            onChange={e => {
+                              const next = { ...cardCustom };
+                              next.namesText = (n1.trim() ? n1 + " & " : "") + e.target.value;
+                              onCardCustomChange(next);
+                            }}
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                              ...sharedInputStyle,
+                              top: cardH * 0.57 - nameFs * 0.9,
+                              height: nameFs * 1.2,
+                              fontFamily: nameFont,
+                              fontWeight: "700",
+                              fontSize: nameFs,
+                              lineHeight: nameFs * 1.2 + "px",
+                              textTransform: "uppercase",
+                            }}
+                          />
+                        </>
                       );
                     })() : (
                       <input
