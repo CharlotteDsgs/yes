@@ -4117,7 +4117,7 @@ export default function SaveTheDatePage() {
                   />
                 ) : (
                   <>
-                    <div style={{ boxShadow: "0 12px 44px rgba(0,0,0,0.18)", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.12), 0 12px 48px rgba(0,0,0,0.22)", borderRadius: 2, overflow: "hidden" }}>
                       <TemplateRender
                         id={animTpl.id} W={cardW} H={cardH}
                         palette={animPalette} user={user} isStd={true}

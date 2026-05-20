@@ -294,7 +294,7 @@ export default function RsvpPage() {
         <div className="min-h-screen flex flex-col items-center" style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
           {tpl && palette && cc && (
             <div style={{ paddingTop: "40px", paddingBottom: "24px" }}>
-              <div style={{ boxShadow: "0 8px 40px rgba(109,29,62,0.18)", borderRadius: 2, overflow: "hidden" }}>
+              <div style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.12), 0 12px 48px rgba(0,0,0,0.22)", borderRadius: 2, overflow: "hidden" }}>
                 <TemplateRender
                   id={tpl.id} W={cardW} H={cardH}
                   palette={palette} user={userData} isStd={true}
