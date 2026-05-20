@@ -3212,6 +3212,7 @@ export default function SaveTheDatePage() {
   const [contactsSaved, setContactsSaved] = useState(false);
   const [sendMessage, setSendMessage] = useState("");
   const [sendMessageAlign, setSendMessageAlign] = useState<"left" | "center">("center");
+  const [messageSaved, setMessageSaved] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
 
@@ -3231,10 +3232,13 @@ export default function SaveTheDatePage() {
       setUserId(u.id);
       const [{ data: prof }, { data: reg }] = await Promise.all([
         createClient().from("profiles").select("partner1_name,partner2_name,wedding_date").eq("id", u.id).single(),
-        createClient().from("registries").select("id,ceremony_location").eq("user_id", u.id).single(),
+        createClient().from("registries").select("id,ceremony_location,std_config").eq("user_id", u.id).single(),
       ]);
       if (reg?.id) setRegistryId(reg.id);
       setUser({ p1: prof?.partner1_name ?? "", p2: prof?.partner2_name ?? "", date: prof?.wedding_date ?? "", location: reg?.ceremony_location ?? "" });
+      const cfg = (reg as any)?.std_config;
+      if (cfg?.rsvp_note) { setSendMessage(cfg.rsvp_note); setMessageSaved(true); }
+      if (cfg?.rsvp_note_align) setSendMessageAlign(cfg.rsvp_note_align);
 
       // Restore saved state if it exists
       try {
@@ -3304,6 +3308,16 @@ export default function SaveTheDatePage() {
 
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
+
+  async function saveMessage() {
+    if (!registryId) return;
+    const { data: reg } = await createClient().from("registries").select("std_config").eq("id", registryId).single();
+    const existing = (reg as any)?.std_config ?? {};
+    await createClient().from("registries").update({
+      std_config: { ...existing, rsvp_note: sendMessage, rsvp_note_align: sendMessageAlign }
+    } as any).eq("id", registryId);
+    setMessageSaved(true);
+  }
 
   async function publishStdConfig() {
     if (!registryId || !selectedId) return;
@@ -3543,24 +3557,35 @@ export default function SaveTheDatePage() {
             </p>
             <textarea
               value={sendMessage}
-              onChange={e => setSendMessage(e.target.value)}
+              onChange={e => { setSendMessage(e.target.value); setMessageSaved(false); }}
               placeholder="Ex : Merci de nous répondre avant le 15 janvier. Nous avons hâte de vous retrouver !"
               rows={3}
               className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none"
               style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8", textAlign: sendMessageAlign }}
             />
-            <div className="flex gap-2 mt-2">
-              {(["left", "center"] as const).map(align => (
-                <button key={align} onClick={() => setSendMessageAlign(align)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    backgroundColor: sendMessageAlign === align ? "#6D1D3E" : "rgba(109,29,62,0.07)",
-                    color: sendMessageAlign === align ? "white" : "rgba(44,44,44,0.55)",
-                  }}>
-                  {align === "left" ? "⬅ Gauche" : "↔ Centré"}
-                </button>
-              ))}
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex gap-2">
+                {(["left", "center"] as const).map(align => (
+                  <button key={align} onClick={() => { setSendMessageAlign(align); setMessageSaved(false); }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      backgroundColor: sendMessageAlign === align ? "#6D1D3E" : "rgba(109,29,62,0.07)",
+                      color: sendMessageAlign === align ? "white" : "rgba(44,44,44,0.55)",
+                    }}>
+                    {align === "left" ? "⬅ Gauche" : "↔ Centré"}
+                  </button>
+                ))}
+              </div>
+              <button onClick={saveMessage}
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  backgroundColor: messageSaved ? "rgba(34,197,94,0.12)" : "#6D1D3E",
+                  color: messageSaved ? "#16a34a" : "white",
+                }}>
+                {messageSaved ? "✓ Enregistré" : "Enregistrer"}
+              </button>
             </div>
           </div>
 
