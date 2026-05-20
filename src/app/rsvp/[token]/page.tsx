@@ -260,7 +260,7 @@ export default function RsvpPage() {
             )}
             {RsvpButtons}
             {cfg?.rsvp_note && (
-              <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0" }}>
+              <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0", whiteSpace: "pre-wrap" }}>
                 {cfg.rsvp_note}
               </p>
             )}
@@ -298,7 +298,7 @@ export default function RsvpPage() {
               </p>
               {RsvpButtons}
               {cfg?.rsvp_note && (
-                <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, marginTop: "8px" }}>
+                <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, marginTop: "8px", whiteSpace: "pre-wrap" }}>
                   {cfg.rsvp_note}
                 </p>
               )}

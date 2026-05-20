@@ -3211,6 +3211,7 @@ export default function SaveTheDatePage() {
   });
   const [contactsSaved, setContactsSaved] = useState(false);
   const [sendMessage, setSendMessage] = useState("");
+  const [sendMessageAlign, setSendMessageAlign] = useState<"left" | "center">("center");
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
 
@@ -3312,6 +3313,7 @@ export default function SaveTheDatePage() {
       rsvp_enabled: rsvpEnabled,
       rsvp_labels: rsvpLabels,
       rsvp_note: sendMessage,
+      rsvp_note_align: sendMessageAlign,
       template_id: selectedId,
       palette_id: getPalette(selectedId),
       card_custom: cardCustom,
@@ -3545,8 +3547,21 @@ export default function SaveTheDatePage() {
               placeholder="Ex : Merci de nous répondre avant le 15 janvier. Nous avons hâte de vous retrouver !"
               rows={3}
               className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none"
-              style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8" }}
+              style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8", textAlign: sendMessageAlign }}
             />
+            <div className="flex gap-2 mt-2">
+              {(["left", "center"] as const).map(align => (
+                <button key={align} onClick={() => setSendMessageAlign(align)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    backgroundColor: sendMessageAlign === align ? "#6D1D3E" : "rgba(109,29,62,0.07)",
+                    color: sendMessageAlign === align ? "white" : "rgba(44,44,44,0.55)",
+                  }}>
+                  {align === "left" ? "⬅ Gauche" : "↔ Centré"}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* ── 1. RSVP ── */}
