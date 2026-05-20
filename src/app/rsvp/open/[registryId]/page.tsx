@@ -14,6 +14,14 @@ interface StdConfig {
   card_custom: CardCustomization;
 }
 
+const ANIM_BG_COLORS: Record<string, string> = {
+  white: "#FFFFFF", beige: "#F5EFE4", grey: "#ECEAE6", blush: "#F8EDE8", sage: "#EBF0E9",
+};
+function getBgStyle(animBg?: string): React.CSSProperties {
+  if (!animBg || animBg === "marble") return { backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" };
+  return { backgroundColor: ANIM_BG_COLORS[animBg] ?? "#ECEAE6" };
+}
+
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "12px 14px", borderRadius: "8px",
   border: "1.5px solid #f0e6e2", fontSize: "15px", fontFamily: "Georgia, serif",
@@ -213,7 +221,7 @@ export default function PublicRsvpPage() {
     return (
       <>
         {Modal}
-        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", ...getBgStyle((cfg as any).anim_bg) }}>
           <div style={{ height: "60px", flexShrink: 0 }} />
           <div style={{ flex: "0 0 auto", height: "600px", position: "relative" }}>
             {AnimationCard}

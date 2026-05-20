@@ -3198,6 +3198,7 @@ export default function SaveTheDatePage() {
   const [mainTab, setMainTab] = useState<"accueil" | "design" | "personnalisation" | "animation" | "envoi" | "reponses">("accueil");
   const [mode, setMode] = useState<"gallery" | "detail" | "animate">("gallery");
   const [animationType, setAnimationType] = useState<"ouverture" | "retournement" | "rien">("ouverture");
+  const [animBg, setAnimBg] = useState<string>("marble");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [savedTemplateId, setSavedTemplateId] = useState<string | null>(null);
   const [paletteIds, setPaletteIds] = useState<Record<string, string>>({});
@@ -3251,6 +3252,7 @@ export default function SaveTheDatePage() {
       if (cfg?.rsvp_note) { setSendMessage(cfg.rsvp_note); setMessageSaved(true); }
       if (cfg?.rsvp_note_align) setSendMessageAlign(cfg.rsvp_note_align);
       if (cfg?.template_id) setSavedTemplateId(cfg.template_id);
+      if (cfg?.anim_bg) setAnimBg(cfg.anim_bg);
 
       // Restore saved state if it exists
       try {
@@ -3336,6 +3338,7 @@ export default function SaveTheDatePage() {
     setPublishing(true);
     const stdConfig = {
       animation_type: animationType,
+      anim_bg: animBg,
       rsvp_enabled: rsvpEnabled,
       rsvp_labels: rsvpLabels,
       rsvp_note: sendMessage,
@@ -4065,10 +4068,22 @@ export default function SaveTheDatePage() {
         const animPalette = animTpl ? (animTpl.palettes.find(p => p.id === getPalette(animTpl.id)) ?? animTpl.palettes[0]) : null;
         const cardW = 400;
         const cardH = Math.round(cardW * 1.4);
+        const ANIM_BGS = [
+          { id: "marble", label: "Marbre",     image: "/fond/marbre.png",  color: undefined as string | undefined },
+          { id: "white",  label: "Blanc",      image: undefined,           color: "#FFFFFF" },
+          { id: "beige",  label: "Beige",      image: undefined,           color: "#F5EFE4" },
+          { id: "grey",   label: "Gris perle", image: undefined,           color: "#ECEAE6" },
+          { id: "blush",  label: "Rose poudré",image: undefined,           color: "#F8EDE8" },
+          { id: "sage",   label: "Vert sauge", image: undefined,           color: "#EBF0E9" },
+        ];
+        const currentBg = ANIM_BGS.find(b => b.id === animBg) ?? ANIM_BGS[0];
+        const bgStyle: React.CSSProperties = currentBg.image
+          ? { backgroundImage: `url('${currentBg.image}')`, backgroundSize: "cover", backgroundPosition: "center" }
+          : { backgroundColor: currentBg.color };
         return (
           <div className="flex items-stretch" style={{ minHeight: "calc(100vh - 57px)" }}>
-            {/* Left 2/3 — marble preview */}
-            <div className="relative flex flex-col items-center justify-center" style={{ width: "66.666%", backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+            {/* Left 2/3 — background preview */}
+            <div className="relative flex flex-col items-center justify-center" style={{ width: "66.666%", ...bgStyle }}>
               {animTpl && animPalette ? (
                 mode === "animate" && animationType === "ouverture" ? (
                   <CardFoldModal
@@ -4098,7 +4113,7 @@ export default function SaveTheDatePage() {
                   />
                 ) : (
                   <>
-                    <div style={{ boxShadow: "0 12px 44px rgba(0,0,0,0.30)", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ boxShadow: "0 12px 44px rgba(0,0,0,0.18)", borderRadius: 2, overflow: "hidden" }}>
                       <TemplateRender
                         id={animTpl.id} W={cardW} H={cardH}
                         palette={animPalette} user={user} isStd={true}
@@ -4123,28 +4138,30 @@ export default function SaveTheDatePage() {
                 )
               ) : (
                 <div className="text-center px-8">
-                  <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-display)" }}>
+                  <p className="text-sm mb-4" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>
                     Choisissez d&apos;abord un design dans l&apos;onglet <strong>Personnalisation</strong>.
                   </p>
                   <button onClick={() => setMainTab("personnalisation")}
                     className="px-5 py-2.5 rounded-xl text-sm font-semibold"
-                    style={{ backgroundColor: "#FF4D7D", color: "white", fontFamily: "var(--font-display)" }}>
+                    style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}>
                     Personnaliser →
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Right 1/3 — light pink picker */}
-            <div className="flex flex-col px-8 py-10 gap-4" style={{ width: "33.333%", backgroundColor: "#FFF0F4" }}>
-              <div className="flex flex-col gap-4">
-                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
+            {/* Right 1/3 — options panel */}
+            <div className="flex flex-col px-8 py-10 gap-6" style={{ width: "33.333%", backgroundColor: "#FFF0F4" }}>
+
+              {/* Animation type */}
+              <div className="flex flex-col gap-3">
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
                   Type d&apos;animation
                 </p>
                 {([
-                  { id: "ouverture"     as const, label: "Ouverture" },
-                  { id: "retournement"  as const, label: "Retournement" },
-                  { id: "rien"          as const, label: "Pas d'animation" },
+                  { id: "ouverture"    as const, label: "Ouverture" },
+                  { id: "retournement" as const, label: "Retournement" },
+                  { id: "rien"         as const, label: "Pas d'animation" },
                 ]).map(opt => (
                   <button
                     key={opt.id}
@@ -4156,22 +4173,52 @@ export default function SaveTheDatePage() {
                       boxShadow: animationType === opt.id ? "none" : "0 2px 8px rgba(0,0,0,0.04)",
                     }}
                   >
-                    {/* Radio circle */}
                     <span className="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center" style={{ borderColor: animationType === opt.id ? "#6D1D3E" : "rgba(109,29,62,0.25)" }}>
                       {animationType === opt.id && <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "#6D1D3E" }}/>}
                     </span>
-                    <div>
-                      <p className="font-semibold text-sm" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>
-                        {opt.label}
-                      </p>
-                    </div>
+                    <p className="font-semibold text-sm" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{opt.label}</p>
                   </button>
                 ))}
               </div>
 
+              {/* Background picker */}
+              <div className="flex flex-col gap-3">
+                <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
+                  Fond de page
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {ANIM_BGS.map(bg => (
+                    <button
+                      key={bg.id}
+                      onClick={() => setAnimBg(bg.id)}
+                      className="flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all"
+                      style={{
+                        border: animBg === bg.id ? "2px solid #6D1D3E" : "2px solid transparent",
+                        backgroundColor: animBg === bg.id ? "rgba(109,29,62,0.06)" : "transparent",
+                      }}
+                    >
+                      <div
+                        className="w-10 h-10 rounded-lg"
+                        style={{
+                          backgroundImage: bg.image ? `url('${bg.image}')` : undefined,
+                          backgroundColor: bg.color,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
+                          border: bg.id === "white" ? "1px solid rgba(0,0,0,0.08)" : "none",
+                        }}
+                      />
+                      <span className="text-xs" style={{ color: animBg === bg.id ? "#6D1D3E" : "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)", fontWeight: animBg === bg.id ? 700 : 400 }}>
+                        {bg.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <button
                 onClick={() => setMainTab("envoi")}
-                className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold"
+                className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold mt-auto"
                 style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
               >
                 <span>Envoyer la carte</span>
