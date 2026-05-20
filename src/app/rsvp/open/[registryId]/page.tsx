@@ -17,9 +17,14 @@ interface StdConfig {
 const ANIM_BG_COLORS: Record<string, string> = {
   white: "#FFFFFF", beige: "#F5EFE4", grey: "#ECEAE6", blush: "#F8EDE8", sage: "#EBF0E9",
 };
+const ANIM_BG_IMAGES: Record<string, string> = {
+  marble: "/fond/marbre.png",
+  aquarelle: "/fond/aquarelle_kaki.png",
+};
 function getBgStyle(animBg?: string): React.CSSProperties {
-  if (!animBg || animBg === "marble") return { backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" };
-  return { backgroundColor: ANIM_BG_COLORS[animBg] ?? "#ECEAE6" };
+  const img = ANIM_BG_IMAGES[animBg ?? "marble"];
+  if (img) return { backgroundImage: `url('${img}')`, backgroundSize: "cover", backgroundPosition: "center" };
+  return { backgroundColor: ANIM_BG_COLORS[animBg ?? ""] ?? "#ECEAE6" };
 }
 
 const inputStyle: React.CSSProperties = {
