@@ -839,7 +839,7 @@ export function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, 
       style={inline ? {} : { backgroundImage: "url('/fond/marbre.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
       <div style={{ position: "relative", perspective: "1800px", perspectiveOrigin: "50% 50%", overflow: "visible" }}>
         <div style={{ position: "relative", width: 2 * W, height: H, transformStyle: "preserve-3d", transform: `translateX(${-W / 2}px)` }}>
-          <div style={{ position: "absolute", left: W, top: 0, width: W, height: H, opacity: phase === 0 ? 0 : 1, transition: phase === 1 ? "opacity 0.5s ease 0s" : "none" }}>
+          <div style={{ position: "absolute", left: W, top: 0, width: W, height: H, opacity: phase === 0 ? 0 : 1, transition: phase === 1 ? "opacity 0.5s ease 0s" : "none", boxShadow: "0 12px 44px rgba(0,0,0,0.22)" }}>
             <TemplateRender id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd} fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer} photoUrl={photoUrl} photoUrls={photoUrls} elementStyles={elementStyles} customPaperBg={customPaperBg}/>
           </div>
           <div style={{ position: "absolute", left: W / 2, top: 0, width: W / 2, height: H, transformOrigin: "right center", transformStyle: "preserve-3d", transform: `rotateY(${leftFlapAngle}deg)`, transition: flapTransition, opacity: phase >= 2 ? 0 : 1, boxShadow: "0 0 20px rgba(0,0,0,0.13)" }}>
