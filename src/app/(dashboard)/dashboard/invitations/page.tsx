@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList } from "lucide-react";
+import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -3211,7 +3211,7 @@ export default function SaveTheDatePage() {
   });
   const [contactsSaved, setContactsSaved] = useState(false);
   const [sendMessage, setSendMessage] = useState("");
-  const [sendMessageAlign, setSendMessageAlign] = useState<"left" | "center">("center");
+  const [sendMessageAlign, setSendMessageAlign] = useState<"left" | "center" | "right" | "justify">("left");
   const [messageSaved, setMessageSaved] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
@@ -3555,28 +3555,33 @@ export default function SaveTheDatePage() {
             <p className="text-xs mt-1 mb-3" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
               Ce texte s&apos;affiche sur la page web de l&apos;invitation, sous les boutons de réponse. Il ne figure pas dans le mail.
             </p>
+            <div className="flex gap-1 mb-3">
+              {([
+                { val: "left",    Icon: AlignLeft },
+                { val: "center",  Icon: AlignCenter },
+                { val: "right",   Icon: AlignRight },
+                { val: "justify", Icon: AlignJustify },
+              ] as const).map(({ val, Icon }) => (
+                <button key={val} onClick={() => { setSendMessageAlign(val); setMessageSaved(false); }}
+                  className="w-9 h-9 flex items-center justify-center rounded-lg transition-all"
+                  style={{
+                    backgroundColor: sendMessageAlign === val ? "#e8d5de" : "rgba(109,29,62,0.06)",
+                    color: sendMessageAlign === val ? "#6D1D3E" : "rgba(44,44,44,0.45)",
+                    border: sendMessageAlign === val ? "1.5px solid #c9a0b0" : "1.5px solid transparent",
+                  }}>
+                  <Icon size={15}/>
+                </button>
+              ))}
+            </div>
             <textarea
               value={sendMessage}
               onChange={e => { setSendMessage(e.target.value); setMessageSaved(false); }}
-              placeholder="Ex : Merci de nous répondre avant le 15 janvier. Nous avons hâte de vous retrouver !"
+              placeholder="Merci de nous répondre avant le 15 janvier. Nous avons hâte de vous retrouver !"
               rows={3}
               className="w-full rounded-xl px-4 py-3 text-sm resize-none focus:outline-none"
               style={{ border: "1.5px solid #f0e6e2", fontFamily: "var(--font-display)", color: "#2c2c2c", backgroundColor: "#fdfaf8", textAlign: sendMessageAlign }}
             />
-            <div className="flex items-center justify-between mt-2">
-              <div className="flex gap-2">
-                {(["left", "center"] as const).map(align => (
-                  <button key={align} onClick={() => { setSendMessageAlign(align); setMessageSaved(false); }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      backgroundColor: sendMessageAlign === align ? "#6D1D3E" : "rgba(109,29,62,0.07)",
-                      color: sendMessageAlign === align ? "white" : "rgba(44,44,44,0.55)",
-                    }}>
-                    {align === "left" ? "⬅ Gauche" : "↔ Centré"}
-                  </button>
-                ))}
-              </div>
+            <div className="flex justify-end mt-2">
               <button onClick={saveMessage}
                 className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all"
                 style={{
