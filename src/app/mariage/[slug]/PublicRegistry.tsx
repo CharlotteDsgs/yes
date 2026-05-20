@@ -384,7 +384,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           <>
             {/* Mobile-only photo block — above the text */}
             {(themeCoverUrl || (theme as any).giftImage) && (
-              <div className="md:hidden w-full px-5 pt-10 pb-0 relative z-10">
+              <div className="md:hidden w-full px-2 pt-10 pb-0 relative z-10">
                 <div style={{ borderRadius: "16px", overflow: "hidden", aspectRatio: "4/3", boxShadow: "0 12px 40px rgba(232,92,0,0.18)" }}>
                   <img
                     src={themeCoverUrl ?? (theme as any).giftImage}
