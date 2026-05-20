@@ -3196,7 +3196,7 @@ export default function SaveTheDatePage() {
 
   // Send tab state
   const [rsvpEnabled, setRsvpEnabled] = useState(false);
-  const [rsvpLabels, setRsvpLabels] = useState(["Je participe", "Je ne participe pas"]);
+  const [rsvpLabels, setRsvpLabels] = useState(["Je participe", "Je participe et je serai accompagné.e", "Je ne participe pas"]);
   const [rsvpEditingIdx, setRsvpEditingIdx] = useState<number | null>(null);
   const [urlCopied, setUrlCopied] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -3640,6 +3640,9 @@ export default function SaveTheDatePage() {
                           <span className="flex-1 text-sm" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{opt}</span>
                           <button onClick={() => setRsvpEditingIdx(idx)} className="flex-shrink-0 p-1 rounded-lg transition-colors hover:bg-[rgba(109,29,62,0.06)]">
                             <Pencil size={13} style={{ color: "rgba(109,29,62,0.35)" }} />
+                          </button>
+                          <button onClick={() => setRsvpLabels(prev => prev.filter((_, i) => i !== idx))} className="flex-shrink-0 p-1 rounded-lg transition-colors hover:bg-[rgba(200,40,40,0.08)]">
+                            <Trash2 size={13} style={{ color: "rgba(200,40,40,0.35)" }} />
                           </button>
                         </>
                       )}
