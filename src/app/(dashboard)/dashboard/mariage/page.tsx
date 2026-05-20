@@ -61,7 +61,7 @@ export default function VotreMariagePage() {
 
       const [{ data: profile }, { data: registry }] = await Promise.all([
         supabase.from("profiles").select("partner1_name, partner2_name, wedding_date").eq("id", user.id).single(),
-        supabase.from("registries").select("id, slug, cover_image_url, ceremony_location, ceremony_date").eq("user_id", user.id).single(),
+        supabase.from("registries").select("id, slug, cover_image_url, ceremony_location, ceremony_date, cover_image_position").eq("user_id", user.id).single(),
       ]);
 
       if (!registry) { router.push("/creer"); return; }
