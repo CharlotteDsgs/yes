@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       : "";
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://wedy-app.vercel.app";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://weddy.fr";
 
     // Load envelope image as base64 data URI for email embedding
     let envelopeDataUri = "";

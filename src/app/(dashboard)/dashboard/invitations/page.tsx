@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
+import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList, AlignLeft, AlignCenter, AlignRight, AlignJustify, Info } from "lucide-react";
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -3124,8 +3124,8 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
    GALLERY CARD
 ═══════════════════════════════════════════════ */
 
-function GalleryCard({ tpl, paletteId, user, isStd, onClick }: {
-  tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean; onClick: () => void;
+function GalleryCard({ tpl, paletteId, user, isStd, isChosen, onClick }: {
+  tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean; isChosen?: boolean; onClick: () => void;
 }) {
   const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
   // Portrait format: 5:7 ratio
@@ -3137,7 +3137,10 @@ function GalleryCard({ tpl, paletteId, user, isStd, onClick }: {
   return (
     <div
       className="group flex flex-col rounded-2xl overflow-hidden cursor-pointer transition-all duration-200"
-      style={{ backgroundColor: "#fff", boxShadow: "0 4px 20px rgba(109,29,62,0.1)" }}
+      style={{
+        backgroundColor: "#fff",
+        boxShadow: isChosen ? "0 0 0 2.5px #6D1D3E, 0 4px 20px rgba(109,29,62,0.18)" : "0 4px 20px rgba(109,29,62,0.1)",
+      }}
       onClick={onClick}
     >
       <div className="relative" style={{ height: thumbH + 10, overflow: "hidden", backgroundColor: "#F8F5F2" }}>
@@ -3149,6 +3152,13 @@ function GalleryCard({ tpl, paletteId, user, isStd, onClick }: {
             <TemplateRender id={tpl.id} W={fullW} H={fullH} palette={palette} user={user} isStd={isStd}/>
           </div>
         </div>
+        {isChosen && (
+          <div className="absolute top-2 left-2 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold z-10"
+            style={{ backgroundColor: "#6D1D3E", color: "#fff", fontFamily: "var(--font-display)", boxShadow: "0 2px 8px rgba(109,29,62,0.35)" }}>
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5L4.5 8L9 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Design choisi
+          </div>
+        )}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: "rgba(0,0,0,0.32)", zIndex: 3 }}>
           <span className="px-4 py-2 rounded-full text-xs font-bold" style={{ backgroundColor: "white", color: "#6D1D3E", fontFamily: "var(--font-display)" }}>Voir ce modèle →</span>
         </div>
@@ -3189,6 +3199,7 @@ export default function SaveTheDatePage() {
   const [mode, setMode] = useState<"gallery" | "detail" | "animate">("gallery");
   const [animationType, setAnimationType] = useState<"ouverture" | "retournement" | "rien">("ouverture");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [savedTemplateId, setSavedTemplateId] = useState<string | null>(null);
   const [paletteIds, setPaletteIds] = useState<Record<string, string>>({});
   const [envCfg, setEnvCfg] = useState<EnvelopeConfig>(DEFAULT_ENVELOPE);
   const [cardCustom, setCardCustom] = useState<CardCustomization>(DEFAULT_CARD);
@@ -3239,6 +3250,7 @@ export default function SaveTheDatePage() {
       const cfg = (reg as any)?.std_config;
       if (cfg?.rsvp_note) { setSendMessage(cfg.rsvp_note); setMessageSaved(true); }
       if (cfg?.rsvp_note_align) setSendMessageAlign(cfg.rsvp_note_align);
+      if (cfg?.template_id) setSavedTemplateId(cfg.template_id);
 
       // Restore saved state if it exists
       try {
@@ -3333,6 +3345,7 @@ export default function SaveTheDatePage() {
       card_custom: cardCustom,
     };
     await createClient().from("registries").update({ std_config: stdConfig }).eq("id", registryId);
+    setSavedTemplateId(selectedId);
     setPublishing(false);
     setPublished(true);
     setTimeout(() => setPublished(false), 2500);
@@ -3623,7 +3636,7 @@ export default function SaveTheDatePage() {
                 </p>
                 <div className="flex flex-col gap-2">
                   {rsvpLabels.map((opt, idx) => (
-                    <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "#fdfaf8", border: "1.5px solid #f0e6e2" }}>
+                    <div key={idx} className="relative flex items-center gap-3 px-4 py-3 rounded-xl overflow-visible" style={{ backgroundColor: "#fdfaf8", border: "1.5px solid #f0e6e2" }}>
                       <span className="w-4 h-4 rounded-full border-2 flex-shrink-0" style={{ borderColor: "rgba(109,29,62,0.3)" }} />
                       {rsvpEditingIdx === idx ? (
                         <input
@@ -3638,6 +3651,19 @@ export default function SaveTheDatePage() {
                       ) : (
                         <>
                           <span className="flex-1 text-sm" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{opt}</span>
+                          {opt.toLowerCase().includes("accompagné") && (
+                            <div className="relative flex-shrink-0 group/info">
+                              <button className="p-1 rounded-lg flex items-center justify-center" style={{ color: "rgba(109,29,62,0.4)" }}>
+                                <Info size={13} />
+                              </button>
+                              <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-56 opacity-0 group-hover/info:opacity-100 transition-opacity duration-150 z-50">
+                                <div className="rounded-xl px-3 py-2.5 text-xs leading-relaxed shadow-lg" style={{ backgroundColor: "#2c1a22", color: "#f5e9ee", fontFamily: "var(--font-display)" }}>
+                                  Chaque invité peut avoir ses propres options — à définir depuis la liste d'invités.
+                                  <div className="absolute right-2.5 top-full w-0 h-0" style={{ borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: "5px solid #2c1a22" }} />
+                                </div>
+                              </div>
+                            </div>
+                          )}
                           <button onClick={() => setRsvpEditingIdx(idx)} className="flex-shrink-0 p-1 rounded-lg transition-colors hover:bg-[rgba(109,29,62,0.06)]">
                             <Pencil size={13} style={{ color: "rgba(109,29,62,0.35)" }} />
                           </button>
@@ -3685,7 +3711,7 @@ export default function SaveTheDatePage() {
           {/* ── 2. Partage du lien ── */}
           {(() => {
             const publicUrl = registryId
-              ? `${process.env.NEXT_PUBLIC_APP_URL ?? "https://yes-omega-drab.vercel.app"}/rsvp/open/${registryId}`
+              ? `${typeof window !== "undefined" ? window.location.origin : "https://weddy.fr"}/rsvp/open/${registryId}`
               : null;
             return (
               <div className="rounded-2xl p-6 flex flex-col gap-3" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
@@ -4176,7 +4202,7 @@ export default function SaveTheDatePage() {
           <div className="px-8 pb-16 max-w-5xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {displayed.map(t => (
-                <GalleryCard key={t.id} tpl={t} paletteId={getPalette(t.id)} user={user} isStd={true} onClick={() => openDetail(t.id)}/>
+                <GalleryCard key={t.id} tpl={t} paletteId={getPalette(t.id)} user={user} isStd={true} isChosen={t.id === savedTemplateId} onClick={() => openDetail(t.id)}/>
               ))}
             </div>
           </div>
