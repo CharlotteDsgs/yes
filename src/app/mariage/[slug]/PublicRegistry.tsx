@@ -382,6 +382,18 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
         {/* Moderne layout: text left + gift right */}
         {theme.uppercase ? (
           <>
+            {/* Mobile-only photo block — above the text */}
+            {(themeCoverUrl || (theme as any).giftImage) && (
+              <div className="md:hidden w-full px-6 pt-10 pb-2 relative z-10">
+                <img
+                  src={themeCoverUrl ?? (theme as any).giftImage}
+                  alt="Photo"
+                  className="w-full object-cover"
+                  style={{ borderRadius: "16px", maxHeight: "52vw", boxShadow: "0 12px 40px rgba(232,92,0,0.18)" }}
+                />
+              </div>
+            )}
+
             {/* Left — Text, vertically centered */}
             <div className="flex-1 flex flex-col justify-center items-start px-8 md:px-16 py-20 relative z-10">
               <p className="text-xs tracking-[0.4em] uppercase mb-6" style={{ color: theme.accent }}>
