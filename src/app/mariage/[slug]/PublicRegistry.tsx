@@ -364,7 +364,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
 
       /* Hero — Standard layout */
       <section
-        className={`relative overflow-hidden ${theme.uppercase ? "min-h-screen flex items-stretch" : "flex flex-col items-center justify-center text-center px-6"}`}
+        className={`relative overflow-hidden ${theme.uppercase ? "min-h-screen flex flex-col md:flex-row items-stretch" : "flex flex-col items-center justify-center text-center px-6"}`}
         style={{
           backgroundColor: theme.uppercase ? theme.bg : theme.accentLight,
           backgroundImage: (theme as any).bgImage
@@ -384,7 +384,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
           <>
             {/* Mobile-only photo block — above the text */}
             {(themeCoverUrl || (theme as any).giftImage) && (
-              <div className="md:hidden w-full px-2 pt-10 pb-0 relative z-10">
+              <div className="md:hidden w-full px-3 pt-8 pb-0 relative z-10">
                 <div style={{ borderRadius: "16px", overflow: "hidden", aspectRatio: "4/3", boxShadow: "0 12px 40px rgba(232,92,0,0.18)" }}>
                   <img
                     src={themeCoverUrl ?? (theme as any).giftImage}
@@ -396,7 +396,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
             )}
 
             {/* Left — Text, vertically centered */}
-            <div className="flex-1 flex flex-col justify-center items-start px-8 md:px-16 py-20 relative z-10">
+            <div className="flex-1 flex flex-col justify-center items-start px-8 md:px-16 py-10 md:py-20 relative z-10">
               <p className="text-xs tracking-[0.4em] uppercase mb-6" style={{ color: theme.accent }}>
                 Liste de mariage
               </p>
