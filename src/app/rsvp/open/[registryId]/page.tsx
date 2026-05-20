@@ -22,6 +22,7 @@ const ANIM_BG_IMAGES: Record<string, string> = {
   aquarelle: "/fond/aquarelle_kaki.png",
   aquarelle2: "/fond/aquarelle_beige.png",
   aquarelle3: "/fond/aquarelle_rose.png",
+  aquarelle4: "/fond/aquarelle_bleu.png",
 };
 function getBgStyle(animBg?: string): React.CSSProperties {
   const img = ANIM_BG_IMAGES[animBg ?? "marble"];

@@ -4078,6 +4078,7 @@ export default function SaveTheDatePage() {
           { id: "aquarelle", label: "Aquarelle", image: "/fond/aquarelle_kaki.png", color: undefined as string | undefined },
           { id: "aquarelle2", label: "Aquarelle 2", image: "/fond/aquarelle_beige.png", color: undefined as string | undefined },
           { id: "aquarelle3", label: "Aquarelle 3", image: "/fond/aquarelle_rose.png",  color: undefined as string | undefined },
+          { id: "aquarelle4", label: "Aquarelle 4", image: "/fond/aquarelle_bleu.png",  color: undefined as string | undefined },
         ];
         const currentBg = ANIM_BGS.find(b => b.id === animBg) ?? ANIM_BGS[0];
         const bgStyle: React.CSSProperties = currentBg.image
