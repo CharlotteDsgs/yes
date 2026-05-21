@@ -4174,7 +4174,7 @@ export default function SaveTheDatePage() {
             </div>
 
             {/* Right 1/3 — options panel */}
-            <div className="flex flex-col px-8 py-10 gap-6" style={{ width: "33.333%", backgroundColor: "#FFF0F4" }}>
+            <div className="flex flex-col px-5 py-8 gap-4" style={{ width: "22%", minWidth: 220, backgroundColor: "#FFF0F4" }}>
 
               {/* Animation type */}
               <div className="flex flex-col gap-3">
@@ -4217,7 +4217,7 @@ export default function SaveTheDatePage() {
                     {cat.items.length === 0 ? (
                       <p className="text-xs italic" style={{ color: "rgba(44,44,44,0.3)", fontFamily: "var(--font-display)" }}>Bientôt disponible</p>
                     ) : (
-                      <div className="grid grid-cols-4 gap-1 w-full">
+                      <div className="grid grid-cols-4 gap-0.5 w-full">
                         {cat.items.map(bg => (
                           <button
                             key={bg.id}
