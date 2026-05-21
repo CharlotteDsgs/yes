@@ -4071,7 +4071,10 @@ export default function SaveTheDatePage() {
         type BgEntry = { id: string; label: string; image?: string; color?: string };
         const ANIM_BG_CATS: { label: string; items: BgEntry[] }[] = [
           { label: "Texturé", items: [
-            { id: "marble", label: "Marbre", image: "/fond/marbre.png" },
+            { id: "marble",     label: "Marbre",     image: "/fond/marbre.png" },
+            { id: "granite",    label: "Granite",    image: "/fond/granite.png" },
+            { id: "bois_clair", label: "Bois clair", image: "/fond/bois_clair.png" },
+            { id: "bois_fonce", label: "Bois foncé", image: "/fond/bois_fonce.png" },
           ]},
           { label: "Aquarelle", items: [
             { id: "aquarelle",  label: "Kaki",  image: "/fond/aquarelle_kaki.png" },
