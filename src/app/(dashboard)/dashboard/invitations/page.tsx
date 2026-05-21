@@ -4260,8 +4260,6 @@ export default function SaveTheDatePage() {
                 ))}
               </div>
 
-              <button
-                onClick={() => setMainTab("envoi")}
             </div>
           </div>
         );
