@@ -4206,20 +4206,21 @@ export default function SaveTheDatePage() {
                     {cat.items.length === 0 ? (
                       <p className="text-xs italic" style={{ color: "rgba(44,44,44,0.3)", fontFamily: "var(--font-display)" }}>Bientôt disponible</p>
                     ) : (
-                      <div className="flex flex-row gap-2 flex-wrap">
+                      <div className="grid grid-cols-4 gap-1 w-full">
                         {cat.items.map(bg => (
                           <button
                             key={bg.id}
                             onClick={() => setAnimBg(bg.id)}
-                            className="flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all"
+                            className="flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all w-full"
                             style={{
                               border: animBg === bg.id ? "2px solid #6D1D3E" : "2px solid transparent",
                               backgroundColor: animBg === bg.id ? "rgba(109,29,62,0.06)" : "transparent",
                             }}
                           >
                             <div
-                              className="w-10 h-10 rounded-lg"
+                              className="w-full rounded-lg"
                               style={{
+                                aspectRatio: "1",
                                 backgroundImage: bg.image ? `url('${bg.image}')` : undefined,
                                 backgroundColor: bg.color,
                                 backgroundSize: "cover",
