@@ -4176,6 +4176,15 @@ export default function SaveTheDatePage() {
             {/* Right 1/3 — options panel */}
             <div className="flex flex-col px-5 py-8 gap-4 overflow-y-auto" style={{ width: "22%", minWidth: 220, backgroundColor: "#FFF0F4" }}>
 
+              <button
+                onClick={() => setMainTab("envoi")}
+                className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold"
+                style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+              >
+                <span>Envoyer la carte</span>
+                <ArrowRight size={16}/>
+              </button>
+
               {/* Animation type */}
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
@@ -4253,12 +4262,6 @@ export default function SaveTheDatePage() {
 
               <button
                 onClick={() => setMainTab("envoi")}
-                className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold mt-auto"
-                style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
-              >
-                <span>Envoyer la carte</span>
-                <ArrowRight size={16}/>
-              </button>
             </div>
           </div>
         );
