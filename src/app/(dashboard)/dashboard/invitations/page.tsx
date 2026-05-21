@@ -4085,7 +4085,18 @@ export default function SaveTheDatePage() {
             { id: "grey",   label: "Gris perle", color: "#ECEAE6" },
             { id: "blush",  label: "Rose",       color: "#F8EDE8" },
           ]},
-          { label: "Motif", items: [] },
+          { label: "Motif", items: [
+            { id: "vichy1",   label: "Vichy 1",   image: "/fond/vichy_1.jpg" },
+            { id: "vichy2",   label: "Vichy 2",   image: "/fond/vichy_2.jpg" },
+            { id: "vichy3",   label: "Vichy 3",   image: "/fond/vichy_3.jpg" },
+            { id: "rayure1",  label: "Rayure 1",  image: "/fond/rayures_1.jpg" },
+            { id: "rayure2",  label: "Rayure 2",  image: "/fond/rayure_2.jpg" },
+            { id: "rayure3",  label: "Rayure 3",  image: "/fond/rayure_3.jpg" },
+            { id: "rayure4",  label: "Rayure 4",  image: "/fond/rayure_4.jpg" },
+            { id: "liberty1", label: "Liberty 1", image: "/fond/liberty_1.png" },
+            { id: "liberty2", label: "Liberty 2", image: "/fond/liberty_2.png" },
+            { id: "liberty3", label: "Liberty 3", image: "/fond/liberty_3.png" },
+          ]},
         ];
         const allBgs = ANIM_BG_CATS.flatMap(c => c.items);
         const currentBg = allBgs.find(b => b.id === animBg) ?? allBgs[0];

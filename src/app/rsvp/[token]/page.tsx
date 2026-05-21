@@ -23,6 +23,16 @@ const ANIM_BG_IMAGES: Record<string, string> = {
   aquarelle2: "/fond/aquarelle_beige.png",
   aquarelle3: "/fond/aquarelle_rose.png",
   aquarelle4: "/fond/aquarelle_bleu.png",
+  vichy1: "/fond/vichy_1.jpg",
+  vichy2: "/fond/vichy_2.jpg",
+  vichy3: "/fond/vichy_3.jpg",
+  rayure1: "/fond/rayures_1.jpg",
+  rayure2: "/fond/rayure_2.jpg",
+  rayure3: "/fond/rayure_3.jpg",
+  rayure4: "/fond/rayure_4.jpg",
+  liberty1: "/fond/liberty_1.png",
+  liberty2: "/fond/liberty_2.png",
+  liberty3: "/fond/liberty_3.png",
 };
 function getBgStyle(animBg?: string): React.CSSProperties {
   const img = ANIM_BG_IMAGES[animBg ?? "marble"];
