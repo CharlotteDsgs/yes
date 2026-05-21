@@ -4104,9 +4104,9 @@ export default function SaveTheDatePage() {
           ? { backgroundImage: `url('${currentBg.image}')`, backgroundSize: "cover", backgroundPosition: "center" }
           : { backgroundColor: currentBg?.color ?? "#ECEAE6" };
         return (
-          <div className="flex items-stretch" style={{ minHeight: "calc(100vh - 57px)" }}>
-            {/* Left 2/3 — background preview */}
-            <div className="relative flex flex-col items-center justify-center" style={{ width: "66.666%", ...bgStyle }}>
+          <div className="flex items-stretch" style={{ height: "calc(100vh - 57px)" }}>
+            {/* Left panel — background preview */}
+            <div className="relative flex flex-col items-center justify-center" style={{ flex: 1, height: "100%", ...bgStyle }}>
               {animTpl && animPalette ? (
                 mode === "animate" && animationType === "ouverture" ? (
                   <CardFoldModal
@@ -4174,7 +4174,7 @@ export default function SaveTheDatePage() {
             </div>
 
             {/* Right 1/3 — options panel */}
-            <div className="flex flex-col px-5 py-8 gap-4" style={{ width: "22%", minWidth: 220, backgroundColor: "#FFF0F4" }}>
+            <div className="flex flex-col px-5 py-8 gap-4 overflow-y-auto" style={{ width: "22%", minWidth: 220, backgroundColor: "#FFF0F4" }}>
 
               {/* Animation type */}
               <div className="flex flex-col gap-3">
