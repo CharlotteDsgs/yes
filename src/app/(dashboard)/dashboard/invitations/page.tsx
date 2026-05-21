@@ -4068,22 +4068,30 @@ export default function SaveTheDatePage() {
         const animPalette = animTpl ? (animTpl.palettes.find(p => p.id === getPalette(animTpl.id)) ?? animTpl.palettes[0]) : null;
         const cardW = 400;
         const cardH = Math.round(cardW * 1.4);
-        const ANIM_BGS = [
-          { id: "marble", label: "Marbre",     image: "/fond/marbre.png",  color: undefined as string | undefined },
-          { id: "white",  label: "Blanc",      image: undefined,           color: "#FFFFFF" },
-          { id: "beige",  label: "Beige",      image: undefined,           color: "#F5EFE4" },
-          { id: "grey",   label: "Gris perle", image: undefined,           color: "#ECEAE6" },
-          { id: "blush",  label: "Rose poudré",image: undefined,           color: "#F8EDE8" },
-          { id: "sage",   label: "Vert sauge", image: undefined,           color: "#EBF0E9" },
-          { id: "aquarelle", label: "Aquarelle", image: "/fond/aquarelle_kaki.png", color: undefined as string | undefined },
-          { id: "aquarelle2", label: "Aquarelle 2", image: "/fond/aquarelle_beige.png", color: undefined as string | undefined },
-          { id: "aquarelle3", label: "Aquarelle 3", image: "/fond/aquarelle_rose.png",  color: undefined as string | undefined },
-          { id: "aquarelle4", label: "Aquarelle 4", image: "/fond/aquarelle_bleu.png",  color: undefined as string | undefined },
+        type BgEntry = { id: string; label: string; image?: string; color?: string };
+        const ANIM_BG_CATS: { label: string; items: BgEntry[] }[] = [
+          { label: "Texturé", items: [
+            { id: "marble", label: "Marbre", image: "/fond/marbre.png" },
+          ]},
+          { label: "Aquarelle", items: [
+            { id: "aquarelle",  label: "Kaki",  image: "/fond/aquarelle_kaki.png" },
+            { id: "aquarelle2", label: "Beige", image: "/fond/aquarelle_beige.png" },
+            { id: "aquarelle3", label: "Rose",  image: "/fond/aquarelle_rose.png" },
+            { id: "aquarelle4", label: "Bleu",  image: "/fond/aquarelle_bleu.png" },
+          ]},
+          { label: "Uni", items: [
+            { id: "white",  label: "Blanc",      color: "#FFFFFF" },
+            { id: "beige",  label: "Beige",      color: "#F5EFE4" },
+            { id: "grey",   label: "Gris perle", color: "#ECEAE6" },
+            { id: "blush",  label: "Rose",       color: "#F8EDE8" },
+          ]},
+          { label: "Motif", items: [] },
         ];
-        const currentBg = ANIM_BGS.find(b => b.id === animBg) ?? ANIM_BGS[0];
-        const bgStyle: React.CSSProperties = currentBg.image
+        const allBgs = ANIM_BG_CATS.flatMap(c => c.items);
+        const currentBg = allBgs.find(b => b.id === animBg) ?? allBgs[0];
+        const bgStyle: React.CSSProperties = currentBg?.image
           ? { backgroundImage: `url('${currentBg.image}')`, backgroundSize: "cover", backgroundPosition: "center" }
-          : { backgroundColor: currentBg.color };
+          : { backgroundColor: currentBg?.color ?? "#ECEAE6" };
         return (
           <div className="flex items-stretch" style={{ minHeight: "calc(100vh - 57px)" }}>
             {/* Left 2/3 — background preview */}
@@ -4185,39 +4193,50 @@ export default function SaveTheDatePage() {
                 ))}
               </div>
 
-              {/* Background picker */}
-              <div className="flex flex-col gap-3">
+              {/* Background picker — par catégorie */}
+              <div className="flex flex-col gap-4">
                 <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(109,29,62,0.4)", fontFamily: "var(--font-display)" }}>
                   Fond de page
                 </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {ANIM_BGS.map(bg => (
-                    <button
-                      key={bg.id}
-                      onClick={() => setAnimBg(bg.id)}
-                      className="flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all"
-                      style={{
-                        border: animBg === bg.id ? "2px solid #6D1D3E" : "2px solid transparent",
-                        backgroundColor: animBg === bg.id ? "rgba(109,29,62,0.06)" : "transparent",
-                      }}
-                    >
-                      <div
-                        className="w-10 h-10 rounded-lg"
-                        style={{
-                          backgroundImage: bg.image ? `url('${bg.image}')` : undefined,
-                          backgroundColor: bg.color,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
-                          border: bg.id === "white" ? "1px solid rgba(0,0,0,0.08)" : "none",
-                        }}
-                      />
-                      <span className="text-xs" style={{ color: animBg === bg.id ? "#6D1D3E" : "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)", fontWeight: animBg === bg.id ? 700 : 400 }}>
-                        {bg.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                {ANIM_BG_CATS.map(cat => (
+                  <div key={cat.label} className="flex flex-col gap-1.5">
+                    <p className="text-xs font-semibold" style={{ color: "rgba(109,29,62,0.35)", fontFamily: "var(--font-display)", letterSpacing: "0.08em" }}>
+                      {cat.label}
+                    </p>
+                    {cat.items.length === 0 ? (
+                      <p className="text-xs italic" style={{ color: "rgba(44,44,44,0.3)", fontFamily: "var(--font-display)" }}>Bientôt disponible</p>
+                    ) : (
+                      <div className="flex flex-row gap-2 flex-wrap">
+                        {cat.items.map(bg => (
+                          <button
+                            key={bg.id}
+                            onClick={() => setAnimBg(bg.id)}
+                            className="flex flex-col items-center gap-1 p-1.5 rounded-xl transition-all"
+                            style={{
+                              border: animBg === bg.id ? "2px solid #6D1D3E" : "2px solid transparent",
+                              backgroundColor: animBg === bg.id ? "rgba(109,29,62,0.06)" : "transparent",
+                            }}
+                          >
+                            <div
+                              className="w-10 h-10 rounded-lg"
+                              style={{
+                                backgroundImage: bg.image ? `url('${bg.image}')` : undefined,
+                                backgroundColor: bg.color,
+                                backgroundSize: "cover",
+                                backgroundPosition: "center",
+                                boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
+                                border: bg.id === "white" ? "1px solid rgba(0,0,0,0.08)" : "none",
+                              }}
+                            />
+                            <span className="text-xs" style={{ color: animBg === bg.id ? "#6D1D3E" : "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)", fontWeight: animBg === bg.id ? 700 : 400 }}>
+                              {bg.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
 
               <button
