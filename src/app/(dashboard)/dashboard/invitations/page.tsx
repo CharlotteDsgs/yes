@@ -4229,9 +4229,9 @@ export default function SaveTheDatePage() {
                             }}
                           >
                             <div
-                              className="w-full rounded-lg"
+                              className="rounded-md"
                               style={{
-                                aspectRatio: "1",
+                                width: 36, height: 36,
                                 backgroundImage: bg.image ? `url('${bg.image}')` : undefined,
                                 backgroundColor: bg.color,
                                 backgroundSize: "cover",
