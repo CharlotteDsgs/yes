@@ -65,16 +65,19 @@ export default function Sidebar() {
           <Image src="/fox_no-bg.png" alt="Wedy" width={36} height={36} className="object-contain flex-shrink-0" />
           <span
             style={{
-              fontFamily: "var(--font-bagel)",
-              fontSize: "1.3rem",
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontWeight: 300,
+              fontSize: "1.55rem",
               color: "#7A1B45",
               lineHeight: 1,
+              letterSpacing: "0.04em",
               whiteSpace: "nowrap",
               opacity: expanded ? 1 : 0,
               transition: "opacity 150ms ease",
             }}
           >
-            WEDY
+            Wedy
           </span>
         </Link>
       </div>

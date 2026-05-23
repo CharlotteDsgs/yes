@@ -52,6 +52,15 @@ export async function POST(request: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    // STD plan purchase
+    if (session.metadata?.type === "std_plan") {
+      const { plan, registryId } = session.metadata;
+      const supabase = createAdminClient();
+      await supabase.from("registries").update({ std_plan: plan } as any).eq("id", registryId);
+      return NextResponse.json({ received: true });
+    }
+
     const { giftId, registrySlug, contributorName, contributorEmail, message, amount } =
       session.metadata!;
 

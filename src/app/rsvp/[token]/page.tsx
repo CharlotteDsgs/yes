@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { Play } from "lucide-react";
 import { TemplateRender, CardFoldModal, CardFlipScene, TEMPLATES, type UserData, type CardCustomization } from "@/components/std/StdCardRenderer";
 
 interface StdConfig {
@@ -62,6 +63,10 @@ export default function RsvpPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
+  const [rsvpPeek, setRsvpPeek] = useState(false);
+
+  // Reset on replay
+  useEffect(() => { setRsvpPeek(false); }, [replayKey]);
 
   // Modal state
   const [modal, setModal] = useState<{ label: string; rsvpStatus: "confirmed" | "declined" } | null>(null);
@@ -250,25 +255,35 @@ export default function RsvpPage() {
         key={replayKey}
         tpl={tpl} paletteId={cfg.palette_id} user={userData} isStd={true}
         fontPreset={cc?.fontPreset} label={cc?.label} namesText={cc?.namesText}
-        dateText={cc?.dateText} locationText={cc?.locationText} footer={cc?.footer}
+        dateText={cc?.dateText} locationText={cc?.locationText} footer={cc?.footer} tagline={cc?.tagline}
         photoUrl={cc?.photoUrl || undefined} photoUrls={cc?.photoUrls}
         elementStyles={cc?.styles} customPaperBg={cc?.customPaperBg}
-        onClose={() => {}} inline
+        onClose={() => {}} onAnimationDone={() => { setTimeout(() => setRsvpPeek(true), 200); }} inline
       />
     ) : (
       <CardFlipScene
         key={replayKey}
         tpl={tpl} paletteId={cfg.palette_id} user={userData} isStd={true}
         fontPreset={cc?.fontPreset} label={cc?.label} namesText={cc?.namesText}
-        dateText={cc?.dateText} locationText={cc?.locationText} footer={cc?.footer}
+        dateText={cc?.dateText} locationText={cc?.locationText} footer={cc?.footer} tagline={cc?.tagline}
         photoUrl={cc?.photoUrl || undefined} photoUrls={cc?.photoUrls}
         elementStyles={cc?.styles} customPaperBg={cc?.customPaperBg}
-        onAnimationDone={() => {}}
+        onAnimationDone={() => { setTimeout(() => setRsvpPeek(true), 200); }}
       />
     );
 
     return (
       <>
+        <style>{`
+          @keyframes rsvpPeek {
+            0%   { transform: translateY(0); }
+            25%  { transform: translateY(-176px); }
+            45%  { transform: translateY(-176px); }
+            68%  { transform: translateY(18px); }
+            82%  { transform: translateY(-6px); }
+            100% { transform: translateY(0); }
+          }
+        `}</style>
         {Modal}
         <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", ...getBgStyle((cfg as any).anim_bg) }}>
           <div style={{ height: "60px", flexShrink: 0 }} />
@@ -276,8 +291,13 @@ export default function RsvpPage() {
             {AnimationCard}
           </div>
           <div style={{ height: "80px", flexShrink: 0, background: "linear-gradient(to bottom, transparent, white)" }} />
-          <div style={{ background: "white", padding: "0 24px 40px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-            {userData.p1 && userData.p2 && (
+          <div style={{
+            background: "white", padding: "0 24px 40px",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: "12px",
+            willChange: "transform",
+            animation: rsvpPeek ? "rsvpPeek 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+          }}>
+            {cfg.rsvp_enabled !== false && userData.p1 && userData.p2 && (
               <div style={{ textAlign: "center", marginBottom: "8px" }}>
                 <p style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 6px", lineHeight: 1.2 }}>
                   {userData.p1} &amp; {userData.p2}
@@ -287,7 +307,7 @@ export default function RsvpPage() {
                 </p>
               </div>
             )}
-            {RsvpButtons}
+            {cfg.rsvp_enabled !== false && RsvpButtons}
             {cfg?.rsvp_note && (
               <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0", whiteSpace: "pre-wrap" }}>
                 {cfg.rsvp_note}
@@ -313,7 +333,7 @@ export default function RsvpPage() {
                   palette={palette} user={userData} isStd={true}
                   fontPreset={cc.fontPreset} label={cc.label}
                   namesText={cc.namesText} dateText={cc.dateText}
-                  locationText={cc.locationText} footer={cc.footer}
+                  locationText={cc.locationText} footer={cc.footer} tagline={cc.tagline}
                   photoUrl={cc.photoUrl || undefined} photoUrls={cc.photoUrls}
                   elementStyles={cc.styles} customPaperBg={cc.customPaperBg}
                 />
@@ -373,9 +393,9 @@ export default function RsvpPage() {
             {tpl && palette && cc && (
               <button
                 onClick={() => { setReplayKey(k => k + 1); setStep(cfg && cfg.animation_type !== "rien" ? "animation" : "form"); }}
-                style={{ width: "100%", padding: "13px", background: "none", border: "1.5px solid rgba(109,29,62,0.18)", borderRadius: "8px", fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#6D1D3E", cursor: "pointer" }}
+                style={{ alignSelf: "center", width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "1.5px solid rgba(109,29,62,0.18)", borderRadius: "50%", color: "#6D1D3E", cursor: "pointer" }}
               >
-                Revoir l'invitation ↓
+                <Play size={16} fill="#6D1D3E" />
               </button>
             )}
             {cfg?.rsvp_enabled !== false && (

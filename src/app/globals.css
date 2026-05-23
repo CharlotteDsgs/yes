@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Brittany';
+  src: url('/font/BrittanySignatureScript.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --font-display: 'Fredoka', sans-serif;
   --font-script: 'Dancing Script', cursive;
@@ -12,6 +20,8 @@
   --font-allura: 'Allura', cursive;
   --font-pinyon: 'Pinyon Script', cursive;
   --font-bagel: 'Bagel Fat One', cursive;
+  --font-libre-baskerville: 'Libre Baskerville', Georgia, serif;
+  --font-brittany: 'Brittany', cursive;
 
   /* Pop palette */
   --color-red: #E8001A;

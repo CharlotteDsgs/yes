@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList, AlignLeft, AlignCenter, AlignRight, AlignJustify, Info } from "lucide-react";
+import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList, AlignLeft, AlignCenter, AlignRight, AlignJustify, Info, Save } from "lucide-react";
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -39,10 +39,11 @@ interface CardCustomization {
   dateText: string;
   locationText: string;
   footer: string;
+  tagline?: string;
   photoUrl: string;
   photoUrls?: string[]; // per-slot photos for photomaton
   customPaperBg?: string;
-  styles: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  styles: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
 }
 
 const DEFAULT_CARD: CardCustomization = {
@@ -57,17 +58,21 @@ const DEFAULT_CARD: CardCustomization = {
 };
 
 const FONT_LIST = [
-  { id: "dancing",     label: "Dancing Script",      cssVar: "var(--font-script)" },
-  { id: "ballet",      label: "Ballet",               cssVar: "var(--font-ballet)" },
-  { id: "birthstone",  label: "Birthstone",           cssVar: "var(--font-birthstone)" },
-  { id: "great-vibes", label: "Great Vibes",          cssVar: "var(--font-great-vibes)" },
-  { id: "herr",        label: "Herr Von Muellerhoff", cssVar: "var(--font-herr)" },
-  { id: "allura",      label: "Allura",               cssVar: "var(--font-allura)" },
-  { id: "pinyon",      label: "Pinyon Script",        cssVar: "var(--font-pinyon)" },
-  { id: "cormorant",         label: "Cormorant Garamond", cssVar: "var(--font-serif)" },
-  { id: "cormorant-infant",  label: "Cormorant Infant",   cssVar: "var(--font-cormorant-infant)" },
-  { id: "playfair",    label: "Playfair Display",     cssVar: "var(--font-playfair)" },
-  { id: "montserrat",  label: "Montserrat",           cssVar: "var(--font-montserrat)" },
+  { id: "allura",            label: "Allura",              cssVar: "var(--font-allura)" },
+  { id: "ballet",            label: "Ballet",              cssVar: "var(--font-ballet)" },
+  { id: "birthstone",        label: "Birthstone",          cssVar: "var(--font-birthstone)" },
+  { id: "brittany",          label: "Brittany",            cssVar: "var(--font-brittany)" },
+  { id: "calibri",           label: "Calibri",             cssVar: "'Calibri', 'Gill Sans', sans-serif" },
+  { id: "cormorant",         label: "Cormorant Garamond",  cssVar: "var(--font-serif)" },
+  { id: "cormorant-infant",  label: "Cormorant Infant",    cssVar: "var(--font-cormorant-infant)" },
+  { id: "dancing",           label: "Dancing Script",      cssVar: "var(--font-script)" },
+  { id: "great-vibes",       label: "Great Vibes",         cssVar: "var(--font-great-vibes)" },
+  { id: "herr",              label: "Herr Von Muellerhoff",cssVar: "var(--font-herr)" },
+  { id: "libre-baskerville", label: "Libre Baskerville",   cssVar: "var(--font-libre-baskerville)" },
+  { id: "montserrat",        label: "Montserrat",          cssVar: "var(--font-montserrat)" },
+  { id: "pinyon",            label: "Pinyon Script",       cssVar: "var(--font-pinyon)" },
+  { id: "playfair",          label: "Playfair Display",    cssVar: "var(--font-playfair)" },
+  { id: "times-new-roman",   label: "Times New Roman",     cssVar: "'Times New Roman', Times, serif" },
 ];
 
 const TEXT_COLORS = [
@@ -85,9 +90,15 @@ const TEXT_COLORS = [
 const ELEMENT_LABELS: Record<string, string> = {
   label: "Intitulé",
   names: "Prénoms",
+  lmLabel1: "Save the date",
+  lmLabel2: "Sous-titre",
+  lmName1: "Prénom 1",
+  lmConnector: "Connecteur",
+  lmName2: "Prénom 2",
   date: "Date",
   location: "Lieu",
   footer: "Pied de carte",
+  tagline: "Phrase mariage",
 };
 
 const FONT_PRESETS = [
@@ -105,7 +116,7 @@ const TEMPLATES: TemplateConfig[] = [
   {
     id: "dentelle", name: "Epuré", category: "classique",
     description: "Papier texturé, minimalisme élégant",
-    defaultPhotoUrl: "/photo_couple/65EFFCF8-DB1B-4C30-A6A3-534651AD2EEC-labbet-app.JPG",
+    defaultPhotoUrl: "/photo_couple/couple_9.jpg",
     palettes: [
       { id: "papier1", label: "Papier clair", bg: "#F5F3F0", inner: "#F5F3F0", textPrimary: "#1A1A1A", textSecondary: "#606060", accent: "#303030", paperImage: "/papier%20lettre/Fond%20papier/Papier_1.png" },
       { id: "papier2", label: "Papier chaud",  bg: "#EAE0D0", inner: "#EAE0D0", textPrimary: "#2C1E10", textSecondary: "#705040", accent: "#4A3020", paperImage: "/papier%20lettre/Fond%20papier/Papier_2.png" },
@@ -159,6 +170,7 @@ const TEMPLATES: TemplateConfig[] = [
     id: "lettre-flower-big-3", name: "Bouquet I", category: "lettre",
     description: "Grands bouquets floraux aquarelle",
     paperImage: "/papier%20lettre/lettre_flower_big_3.png",
+    layoutVariant: "elegant",
     palettes: [
       { id: "rose",     label: "Rose",     bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#4A1828", textSecondary: "#904060", accent: "#6A2840" },
       { id: "bordeaux", label: "Bordeaux", bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#6D1D3E", textSecondary: "#9A4060", accent: "#8A2048" },
@@ -180,6 +192,7 @@ const TEMPLATES: TemplateConfig[] = [
     id: "lettre-olivier", name: "Olivier", category: "lettre",
     description: "Branches d'olivier sur papier doux",
     paperImage: "/papier%20lettre/lettre_olivier.png",
+    layoutVariant: "italy",
     palettes: [
       { id: "olivier", label: "Olivier", bg: "#EAEEE6", inner: "#EAEEE6", textPrimary: "#2A3A20", textSecondary: "#5A7A4A", accent: "#4A6A3A", paperImage: "/papier%20lettre/lettre_olivier.png", swatchPos: "0% 0%", swatchSize: "400%" },
       { id: "fleur",   label: "Fleur",   bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#4A1828", textSecondary: "#904060", accent: "#6A2840", paperImage: "/papier%20lettre/lettre_flower_1.png", swatchPos: "0% 0%", swatchSize: "400%" },
@@ -190,7 +203,7 @@ const TEMPLATES: TemplateConfig[] = [
     description: "Votre photo encadrée sur fond floral",
     paperImage: "/papier%20lettre/lettre_flower_big.png",
     layoutVariant: "photo",
-    defaultPhotoUrl: "/photo_couple/nathan-dumlao-9UDwXxaPxZc-unsplash.jpg",
+    defaultPhotoUrl: "/photo_couple/couple_8.JPG",
     palettes: [
       { id: "encre",    label: "Encre",    bg: "#EDE8E0", inner: "#EDE8E0", textPrimary: "#28201A", textSecondary: "#6A5040", accent: "#8A6040" },
       { id: "bordeaux", label: "Bordeaux", bg: "#F5E8EE", inner: "#F5E8EE", textPrimary: "#6D1D3E", textSecondary: "#9A4060", accent: "#8A2048" },
@@ -234,6 +247,16 @@ const TEMPLATES: TemplateConfig[] = [
       { id: "motif7", label: "Motif 7", bg: "#F0E8F0", inner: "#F0E8F0", textPrimary: "#1a1614", textSecondary: "#5a5a5a", accent: "#1a1614", paperImage: "/papier%20lettre/Motif_7.png", swatchPos: "5% 5%", swatchSize: "600%" },
     ],
   },
+  {
+    id: "photo-texte", name: "Photo", category: "photo",
+    description: "Photo et typographie épurée",
+    layoutVariant: "photo-texte",
+    defaultPhotoUrl: "/photo_couple/couple_4.jpg",
+    palettes: [
+      { id: "blanc", label: "Blanc", bg: "#FFFFFF", inner: "#FFFFFF", textPrimary: "#0A0A0A", textSecondary: "#888888", accent: "#B8924A" },
+      { id: "creme", label: "Crème", bg: "#FAF8F3", inner: "#FAF8F3", textPrimary: "#1A1410", textSecondary: "#7A6A5A", accent: "#A07848" },
+    ],
+  },
 ];
 
 const FILTERS = [
@@ -243,6 +266,7 @@ const FILTERS = [
   { id: "moderne", label: "Moderne" },
   { id: "lettre", label: "Lettre" },
   { id: "motifs", label: "Motifs" },
+  { id: "photo", label: "Photo" },
 ];
 
 /* ═══════════════════════════════════════════════
@@ -421,7 +445,7 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   onPhotoClick?: () => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
   customPaperBg?: string;
 }) {
   const fp = FONT_PRESETS.find(f => f.id === fontPreset) ?? FONT_PRESETS[0];
@@ -449,6 +473,8 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
   const getCase = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.04} y={y} width={W * 0.92} height={h}
       fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
@@ -496,7 +522,8 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.13} textAnchor="middle"
             fontFamily={getFont("label", fp.scriptFont)}
-            fontStyle={fp.scriptItalic ? "italic" : "normal"}
+            fontStyle={getFontStyle("label", fp.scriptItalic ? "italic" : "normal")}
+            fontWeight={getFontWeight("label")}
             fontSize={getSize("label", W * 0.056)}
             fill={getColor("label", p.textPrimary)}
             opacity="0.88">
@@ -514,9 +541,11 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
         {selectedElement !== "names" && (
           <text x={W / 2} y={H * 0.23} textAnchor="middle"
             fontFamily={getFont("names", fp.bodyFont)}
+            fontStyle={getFontStyle("names")}
+            fontWeight={getFontWeight("names", "500")}
             fontSize={getSize("names", W * 0.038)}
             fill={getColor("names", p.textPrimary)}
-            letterSpacing="3" fontWeight="500">
+            letterSpacing="3">
             {getCase("names", displayNames)}
           </text>
         )}
@@ -551,9 +580,11 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
         {selectedElement !== "date" && (
           <text x={W / 2} y={photoY + photoH + H * 0.095} textAnchor="middle"
             fontFamily={getFont("date", fp.bodyFont)}
+            fontStyle={getFontStyle("date")}
+            fontWeight={getFontWeight("date", "500")}
             fontSize={getSize("date", W * 0.031)}
             fill={getColor("date", p.textPrimary)}
-            letterSpacing="2.5" fontWeight="500">
+            letterSpacing="2.5">
             {getCase("date", displayDate)}
           </text>
         )}
@@ -569,9 +600,11 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={photoY + photoH + H * 0.145} textAnchor="middle"
               fontFamily={getFont("location", fp.bodyFont)}
+              fontStyle={getFontStyle("location")}
+              fontWeight={getFontWeight("location", "500")}
               fontSize={getSize("location", W * 0.028)}
               fill={getColor("location", p.textPrimary)}
-              letterSpacing="2.5" fontWeight="500">
+              letterSpacing="2.5">
               {getCase("location", displayLocation)}
             </text>
           )}
@@ -587,7 +620,8 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
         {selectedElement !== "footer" && (
           <text x={W / 2} y={H * 0.92} textAnchor="middle"
             fontFamily={getFont("footer", fp.scriptFont)}
-            fontStyle={fp.scriptItalic ? "italic" : "normal"}
+            fontStyle={getFontStyle("footer", fp.scriptItalic ? "italic" : "normal")}
+            fontWeight={getFontWeight("footer")}
             fontSize={getSize("footer", W * 0.048)}
             fill={getColor("footer", p.textPrimary)}
             opacity="0.55">
@@ -600,13 +634,14 @@ function TemplateDentelle({ W, H, p, user, photoUrl, fontPreset = "romantique", 
 }
 
 function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUrls,
-  selectedElement, onElementClick, onPhotoClick, elementStyles }: {
+  selectedElement, onElementClick, onPhotoClick, elementStyles, customPaperBg }: {
   W: number; H: number; p: Palette; user: UserData;
   label?: string; namesText?: string; dateText?: string; photoUrls?: string[];
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   onPhotoClick?: (index: number) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
+  customPaperBg?: string;
 }) {
   const displayLabel = label ?? "save the date";
   const displayNames = namesText || `${user.p1 || "Emma"} & ${user.p2 || "Charlie"}`;
@@ -625,6 +660,8 @@ function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUr
   const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
   const getDX    = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY    = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
       fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
@@ -646,7 +683,7 @@ function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUr
         </filter>
       </defs>
 
-      <rect width={W} height={H} fill={p.bg}/>
+      <rect width={W} height={H} fill={customPaperBg ?? p.bg}/>
 
       {/* Label */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
@@ -657,6 +694,8 @@ function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUr
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.064} textAnchor="middle"
             fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"}
+            fontStyle={getFontStyle("label")}
+            fontWeight={getFontWeight("label")}
             fontSize={getSize("label", W * 0.030)}
             fill={getColor("label", p.textPrimary)}
             letterSpacing="4"
@@ -675,6 +714,8 @@ function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUr
         {selectedElement !== "names" && (
           <text x={W / 2} y={H * 0.100} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-montserrat)"}
+            fontStyle={getFontStyle("names")}
+            fontWeight={getFontWeight("names")}
             fontSize={getSize("names", W * 0.022)}
             fill={getColor("names", p.textSecondary)}
             letterSpacing="3">
@@ -718,6 +759,8 @@ function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUr
         {selectedElement !== "date" && (
           <text x={W / 2} y={H * 0.940} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-script)"}
+            fontStyle={getFontStyle("date")}
+            fontWeight={getFontWeight("date")}
             fontSize={getSize("date", W * 0.046)}
             fill={getColor("date", p.textPrimary)}
             opacity="0.9">
@@ -729,27 +772,30 @@ function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUr
   );
 }
 
-function TemplateOliviers({ W, H, p, user, isStd, namesText, dateText, locationText,
+function TemplateOliviers({ W, H, p, user, fontPreset = "romantique", label, namesText, dateText, locationText, footer,
   selectedElement, onElementClick, elementStyles }: {
-  W: number; H: number; p: Palette; user: UserData; isStd: boolean;
-  namesText?: string; dateText?: string; locationText?: string;
+  W: number; H: number; p: Palette; user: UserData; fontPreset?: string;
+  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
 }) {
-  const rawNames = namesText || `${user.p1 || "Jennifer"} & ${user.p2 || "Nikos"}`;
-  const parts = rawNames.split(/\s*[&]\s*/);
-  const name1Raw = (parts[0] ?? rawNames).trim();
-  const name2Raw = (parts[1] ?? "").trim();
+  const fp = FONT_PRESETS.find(f => f.id === fontPreset) ?? FONT_PRESETS[0];
+  const displayLabel = label ?? "save the date";
+  const displayFooter = footer ?? "invitation à suivre";
+  const displayNames = namesText || `${user.p1 || "Jennifer"} & ${user.p2 || "Nikos"}`;
   const fmtDate = user.date ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "18 octobre 2026";
   const displayDate = dateText || fmtDate;
   const displayLocation = locationText ?? user.location;
   const s = W / 400;
 
+  const getFont  = (id: string, def: string) => elementStyles?.[id]?.font ?? def;
   const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
   const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
   const getDX    = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY    = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
       fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
@@ -778,56 +824,54 @@ function TemplateOliviers({ W, H, p, user, isStd, namesText, dateText, locationT
       <OliveBranch x={W*0.05} y={H*0.32} rotate={265} scale={s*1.1} accentColor={p.accent}/>
       <OliveBranch x={W*0.06} y={H*0.10} rotate={270} scale={s}     accentColor={p.accent}/>
 
-      {/* Header label */}
-      <text x={W/2} y={H*0.22} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.032}
-        fill={p.textSecondary} fontStyle="italic">
-        {isStd ? "Kindly Save the Date" : "vous invitent à célébrer leur mariage"}
-      </text>
+      {/* Label */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "label" && hl(H * 0.185, H * 0.055)}
+        {selectedElement !== "label" && (
+          <text x={W/2} y={H*0.22} textAnchor="middle"
+            fontFamily={getFont("label", fp.scriptFont)}
+            fontStyle={getFontStyle("label", fp.scriptItalic ? "italic" : "normal")} fontWeight={getFontWeight("label")}
+            fontSize={getSize("label", W*0.062)} fill={getColor("label", p.textPrimary)} opacity="0.9">
+            {displayLabel}
+          </text>
+        )}
+      </g>
+
+      <line x1={W*0.32} y1={H*0.27} x2={W*0.68} y2={H*0.27} stroke={p.accent} strokeWidth="0.7" opacity="0.45"/>
 
       {/* Names */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "names" && hl(H * (isStd ? 0.295 : 0.275), H * 0.295)}
-        {selectedElement !== "names" && (<g>
-          <text x={W/2} y={isStd ? H*0.38 : H*0.36} textAnchor="middle"
-            fontFamily={elementStyles?.names?.font ?? "var(--font-script)"}
-            fontSize={getSize("names", W * 0.105)} fill={getColor("names", p.textPrimary)}>
-            {name1Raw}
+        {selectedElement === "names" && hl(H * 0.345, H * 0.055)}
+        {selectedElement !== "names" && (
+          <text x={W/2} y={H*0.38} textAnchor="middle"
+            fontFamily={getFont("names", fp.scriptFont)}
+            fontStyle={getFontStyle("names", fp.scriptItalic ? "italic" : "normal")} fontWeight={getFontWeight("names")}
+            fontSize={getSize("names", W*0.072)} fill={getColor("names", p.textPrimary)}>
+            {displayNames}
           </text>
-          <text x={W/2} y={isStd ? H*0.47 : H*0.45} textAnchor="middle"
-            fontFamily="var(--font-serif)" fontSize={W*0.04} fill={p.textSecondary} fontStyle="italic">
-            and
-          </text>
-          {name2Raw && (
-            <text x={W/2} y={isStd ? H*0.57 : H*0.55} textAnchor="middle"
-              fontFamily={elementStyles?.names?.font ?? "var(--font-script)"}
-              fontSize={getSize("names", W * 0.105)} fill={getColor("names", p.textPrimary)}>
-              {name2Raw}
-            </text>
-          )}
-        </g>)}
+        )}
       </g>
 
-      <text x={W/2} y={isStd ? H*0.67 : H*0.65} textAnchor="middle" fontFamily="var(--font-montserrat)"
-        fontSize={W*0.025} fill={p.textSecondary} letterSpacing="3" style={{ textTransform:"uppercase" }}>
-        sont heureux de vous annoncer leur mariage
-      </text>
-      <line x1={W*0.25} y1={isStd ? H*0.72 : H*0.695} x2={W*0.75} y2={isStd ? H*0.72 : H*0.695}
-        stroke={p.accent} strokeWidth="0.6" opacity="0.5"/>
+      <line x1={W*0.32} y1={H*0.43} x2={W*0.68} y2={H*0.43} stroke={p.accent} strokeWidth="0.7" opacity="0.45"/>
 
       {/* Date */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(H * (isStd ? 0.772 : 0.737), H * 0.040)}
+        {selectedElement === "date" && hl(H * 0.497, H * 0.040)}
         {selectedElement !== "date" && (
-          <text x={W/2} y={isStd ? H*0.79 : H*0.755} textAnchor="middle"
-            fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"}
-            fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)}
-            letterSpacing="2" style={{ textTransform:"uppercase" }}>
+          <text x={W/2} y={H*0.52} textAnchor="middle"
+            fontFamily={getFont("date", fp.bodyFont)}
+            fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")}
+            fontSize={getSize("date", W*0.030)} fill={getColor("date", p.textPrimary)}
+            letterSpacing="2">
             {displayDate}
           </text>
         )}
@@ -839,17 +883,34 @@ function TemplateOliviers({ W, H, p, user, isStd, namesText, dateText, locationT
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(H * (isStd ? 0.842 : 0.802), H * 0.038)}
+          {selectedElement === "location" && hl(H * 0.554, H * 0.038)}
           {selectedElement !== "location" && displayLocation && (
-            <text x={W/2} y={isStd ? H*0.86 : H*0.82} textAnchor="middle"
-              fontFamily={elementStyles?.location?.font ?? "var(--font-serif)"}
-              fontSize={getSize("location", W * 0.030)} fill={getColor("location", p.textSecondary)}
-              fontStyle="italic">
+            <text x={W/2} y={H*0.577} textAnchor="middle"
+              fontFamily={getFont("location", fp.bodyFont)}
+              fontStyle={getFontStyle("location", "italic")} fontWeight={getFontWeight("location")}
+              fontSize={getSize("location", W*0.027)} fill={getColor("location", p.textPrimary)}
+              letterSpacing="1.5">
               {displayLocation}
             </text>
           )}
         </g>
       )}
+
+      {/* Footer */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("footer"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "footer" && hl(H * 0.806, H * 0.048)}
+        {selectedElement !== "footer" && (
+          <text x={W/2} y={H*0.835} textAnchor="middle"
+            fontFamily={getFont("footer", fp.scriptFont)}
+            fontStyle={getFontStyle("footer", fp.scriptItalic ? "italic" : "normal")} fontWeight={getFontWeight("footer")}
+            fontSize={getSize("footer", W*0.042)} fill={getColor("footer", p.textSecondary)} opacity="0.75">
+            {displayFooter}
+          </text>
+        )}
+      </g>
     </svg>
   );
 }
@@ -860,7 +921,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
   label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
 }) {
   let stripes: string[];
   if (customPaperBg && /^#[0-9A-Fa-f]{6}$/.test(customPaperBg)) {
@@ -878,7 +939,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
   const sw = W / stripes.length;
 
   const rawNames = namesText || `${user.p1 || "SOPHIA"} & ${user.p2 || "BENNETT"}`;
-  const parts = rawNames.split(/\s*[&]\s*/);
+  const parts = rawNames.split(/\s*(?:&|\bet\b)\s*/i);
   const name1Raw = (parts[0] ?? rawNames).trim();
   const name2Raw = (parts[1] ?? "").trim();
   const i1 = name1Raw[0]?.toUpperCase() ?? "S";
@@ -893,6 +954,8 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
   const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
   const getDX    = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY    = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
       fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.6)"
@@ -923,6 +986,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         {selectedElement === "label" && hl(H * 0.207, H * 0.036)}
         {selectedElement !== "label" && (
           <text x={W/2} y={H*0.225} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"}
+            fontStyle={getFontStyle("label")} fontWeight={getFontWeight("label")}
             fontSize={getSize("label", W * 0.028)} fill={getColor("label", p.textPrimary)}
             letterSpacing="4" style={{ textTransform:"uppercase" }} opacity="0.7">
             {displayLabel}
@@ -937,7 +1001,8 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
         <text x={W/2} y={H*(isStd?0.385:0.375)} textAnchor="middle"
           fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
-          fontSize={getSize("names", W * 0.13)} fontWeight="700"
+          fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "700")}
+          fontSize={getSize("names", W * 0.13)}
           fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
           {name1Raw.toUpperCase()}
         </text>
@@ -948,7 +1013,8 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         {name2Raw && (
           <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
-            fontSize={getSize("names", W * 0.13)} fontWeight="700"
+            fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "700")}
+            fontSize={getSize("names", W * 0.13)}
             fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
             {name2Raw.toUpperCase()}
           </text>
@@ -981,6 +1047,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         {selectedElement !== "date" && (
           <text x={W/2} y={H*(isStd?0.815:0.79)} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"}
+            fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")}
             fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)}
             letterSpacing="1.5" style={{ textTransform:"uppercase" }}>
             {displayDate}
@@ -998,6 +1065,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
           {selectedElement !== "location" && displayLocation && (
             <text x={W/2} y={H*(isStd?0.88:0.855)} textAnchor="middle"
               fontFamily={elementStyles?.location?.font ?? "var(--font-montserrat)"}
+              fontStyle={getFontStyle("location")} fontWeight={getFontWeight("location")}
               fontSize={getSize("location", W * 0.025)} fill={getColor("location", p.textSecondary)}
               letterSpacing="1">
               {displayLocation}
@@ -1009,15 +1077,15 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
   );
 }
 
-function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", label, namesText, dateText, locationText, footer,
-  selectedElement, onElementClick, elementStyles, paperFit = "xMidYMid slice" }: {
+function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", label, namesText, namesConnector, dateText, locationText, footer,
+  selectedElement, onElementClick, elementStyles, paperFit = "xMidYMid slice", tplId, isStd }: {
   W: number; H: number; paperImage: string; p: Palette; user: UserData;
   fontPreset?: string;
-  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
+  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
-  paperFit?: string;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
+  paperFit?: string; tplId?: string; isStd?: boolean;
 }) {
   const fp = FONT_PRESETS.find(f => f.id === fontPreset) ?? FONT_PRESETS[0];
   const displayLabel = label ?? "save the date";
@@ -1034,6 +1102,8 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
   const getCase = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
       fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
@@ -1048,56 +1118,121 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
       <image href={p.paperImage ?? paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio={paperFit}/>
 
       {/* Label */}
-      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
-        className={onElementClick ? "eh" : undefined}
-        transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
-        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "label" && hl(H * 0.178, H * 0.085)}
-        {selectedElement !== "label" && (
-          <text x={W / 2} y={H * 0.22} textAnchor="middle"
-            fontFamily={getFont("label", fp.scriptFont)}
-            fontStyle={fp.scriptItalic ? "italic" : "normal"}
-            fontSize={getSize("label", W * 0.062)}
-            fill={getColor("label", p.textPrimary)}
-            opacity="0.9">
-            {getCase("label", displayLabel)}
-          </text>
-        )}
-      </g>
+      {tplId === "lettre-moderne" && isStd ? (() => {
+        const lParts = (displayLabel || "save the date\ninvitation à suivre").split("\n");
+        const l1 = lParts[0] ?? "save the date";
+        const l2 = lParts[1] ?? "invitation à suivre";
+        return (
+          <>
+            <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("lmLabel1"); } : undefined}
+              className={onElementClick ? "eh" : undefined}
+              transform={`translate(${getDX("lmLabel1")*W} ${getDY("lmLabel1")*H})`}
+              style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["lmLabel1"]?.hidden ? "none" : undefined }}>
+              {selectedElement === "lmLabel1" && hl(H * 0.213, H * 0.058)}
+              {selectedElement !== "lmLabel1" && <text x={W / 2} y={H * 0.245} textAnchor="middle" fontFamily={getFont("lmLabel1", "var(--font-libre-baskerville)")} fontStyle={getFontStyle("lmLabel1")} fontWeight={getFontWeight("lmLabel1")} fontSize={getSize("lmLabel1", W * 0.042)} fill={getColor("lmLabel1", p.textPrimary)}>{l1}</text>}
+            </g>
+            {l2 && (
+              <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("lmLabel2"); } : undefined}
+                className={onElementClick ? "eh" : undefined}
+                transform={`translate(${getDX("lmLabel2")*W} ${getDY("lmLabel2")*H})`}
+                style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["lmLabel2"]?.hidden ? "none" : undefined }}>
+                {selectedElement === "lmLabel2" && hl(H * 0.263, H * 0.052)}
+                {selectedElement !== "lmLabel2" && <text x={W / 2} y={H * 0.295} textAnchor="middle" fontFamily={getFont("lmLabel2", "var(--font-libre-baskerville)")} fontStyle={getFontStyle("lmLabel2")} fontWeight={getFontWeight("lmLabel2")} fontSize={getSize("lmLabel2", W * 0.042)} fill={getColor("lmLabel2", p.textPrimary)}>{l2}</text>}
+              </g>
+            )}
+          </>
+        );
+      })() : (
+        <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
+          className={onElementClick ? "eh" : undefined}
+          transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
+          style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
+          {selectedElement === "label" && hl(H * 0.208, H * 0.115)}
+          {selectedElement !== "label" && (
+            <text x={W / 2} y={H * 0.22} textAnchor="middle"
+              fontFamily={getFont("label", fp.scriptFont)}
+              fontStyle={getFontStyle("label", fp.scriptItalic ? "italic" : "normal")}
+              fontWeight={getFontWeight("label")}
+              fontSize={getSize("label", W * 0.062)}
+              fill={getColor("label", p.textPrimary)}
+              opacity="0.9">
+              {getCase("label", displayLabel)}
+            </text>
+          )}
+        </g>
+      )}
 
-      <line x1={W * 0.32} y1={H * 0.27} x2={W * 0.68} y2={H * 0.27} stroke={p.accent} strokeWidth="0.7" opacity="0.45"/>
+      {tplId !== "lettre-moderne" && <line x1={W * 0.32} y1={H * 0.27} x2={W * 0.68} y2={H * 0.27} stroke={p.accent} strokeWidth="0.7" opacity="0.45"/>}
 
       {/* Names */}
-      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
-        className={onElementClick ? "eh" : undefined}
-        transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
-        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "names" && hl(H * 0.335, H * 0.090)}
-        {selectedElement !== "names" && (
-          <text x={W / 2} y={H * 0.38} textAnchor="middle"
-            fontFamily={getFont("names", fp.scriptFont)}
-            fontStyle={fp.scriptItalic ? "italic" : "normal"}
-            fontSize={getSize("names", W * 0.072)}
-            fill={getColor("names", p.textPrimary)}>
-            {getCase("names", displayNames)}
-          </text>
-        )}
-      </g>
+      {tplId === "lettre-moderne" ? (() => {
+        const lmParts = displayNames.split(/\s*(?:&|\bet\b)\s*/i);
+        const lmN1 = (lmParts[0] ?? displayNames).trim();
+        const lmN2 = (lmParts[1] ?? "").trim();
+        const conn = namesConnector ?? "et";
+        return (
+          <>
+            <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("lmName1"); } : undefined}
+              className={onElementClick ? "eh" : undefined}
+              transform={`translate(${getDX("lmName1")*W} ${getDY("lmName1")*H})`}
+              style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["lmName1"]?.hidden ? "none" : undefined }}>
+              {selectedElement === "lmName1" && hl(H * 0.38, H * 0.14)}
+              {selectedElement !== "lmName1" && <text x={W/2} y={H * 0.44} textAnchor="middle" fontFamily={getFont("lmName1", "var(--font-brittany)")} fontStyle={getFontStyle("lmName1")} fontWeight={getFontWeight("lmName1")} fontSize={getSize("lmName1", W * 0.115)} fill={getColor("lmName1", p.textPrimary)}>{lmN1}</text>}
+            </g>
+            <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("lmConnector"); } : undefined}
+              className={onElementClick ? "eh" : undefined}
+              transform={`translate(${getDX("lmConnector")*W} ${getDY("lmConnector")*H})`}
+              style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["lmConnector"]?.hidden ? "none" : undefined }}>
+              {selectedElement === "lmConnector" && hl(H * 0.495, H * 0.07)}
+              {selectedElement !== "lmConnector" && <text x={W/2} y={H * 0.535} textAnchor="middle" fontFamily={getFont("lmConnector", "var(--font-libre-baskerville)")} fontStyle={getFontStyle("lmConnector", "italic")} fontWeight={getFontWeight("lmConnector")} fontSize={getSize("lmConnector", W * 0.038)} fill={getColor("lmConnector", p.textPrimary)}>{conn}</text>}
+            </g>
+            {lmN2 && (
+              <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("lmName2"); } : undefined}
+                className={onElementClick ? "eh" : undefined}
+                transform={`translate(${getDX("lmName2")*W} ${getDY("lmName2")*H})`}
+                style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["lmName2"]?.hidden ? "none" : undefined }}>
+                {selectedElement === "lmName2" && hl(H * 0.58, H * 0.14)}
+                {selectedElement !== "lmName2" && <text x={W/2} y={H * 0.64} textAnchor="middle" fontFamily={getFont("lmName2", "var(--font-brittany)")} fontStyle={getFontStyle("lmName2")} fontWeight={getFontWeight("lmName2")} fontSize={getSize("lmName2", W * 0.115)} fill={getColor("lmName2", p.textPrimary)}>{lmN2}</text>}
+              </g>
+            )}
+          </>
+        );
+      })() : (
+        <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
+          className={onElementClick ? "eh" : undefined}
+          transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
+          style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
+          <>
+            {selectedElement === "names" && hl(H * 0.335, H * 0.090)}
+            {selectedElement !== "names" && (
+              <text x={W / 2} y={H * 0.38} textAnchor="middle"
+                fontFamily={getFont("names", fp.scriptFont)}
+                fontStyle={getFontStyle("names", fp.scriptItalic ? "italic" : "normal")}
+                fontWeight={getFontWeight("names")}
+                fontSize={getSize("names", W * 0.072)}
+                fill={getColor("names", p.textPrimary)}>
+                {getCase("names", displayNames)}
+              </text>
+            )}
+          </>
+        </g>
+      )}
 
-      <line x1={W * 0.32} y1={H * 0.43} x2={W * 0.68} y2={H * 0.43} stroke={p.accent} strokeWidth="0.7" opacity="0.45"/>
+      {tplId !== "lettre-moderne" && <line x1={W * 0.32} y1={H * 0.43} x2={W * 0.68} y2={H * 0.43} stroke={p.accent} strokeWidth="0.7" opacity="0.45"/>}
 
       {/* Date */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(H * 0.483, H * 0.075)}
+        {selectedElement === "date" && hl(tplId === "lettre-moderne" ? H * 0.685 : H * 0.483, H * 0.055)}
         {selectedElement !== "date" && (
-          <text x={W / 2} y={H * 0.52} textAnchor="middle"
-            fontFamily={getFont("date", fp.bodyFont)}
+          <text x={W / 2} y={tplId === "lettre-moderne" ? H * 0.72 : H * 0.52} textAnchor="middle"
+            fontFamily={tplId === "lettre-moderne" ? "var(--font-libre-baskerville)" : getFont("date", fp.bodyFont)}
             fontSize={getSize("date", W * 0.030)}
             fill={getColor("date", p.textPrimary)}
-            letterSpacing="2" fontWeight="500">
+            fontStyle={getFontStyle("date", tplId === "lettre-moderne" ? "italic" : "normal")}
+            letterSpacing={tplId === "lettre-moderne" ? "0" : "2"} fontWeight={getFontWeight("date")}>
             {getCase("date", displayDate)}
           </text>
         )}
@@ -1109,48 +1244,54 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(H * 0.543, H * 0.068)}
+          {selectedElement === "location" && hl(tplId === "lettre-moderne" ? H * 0.755 : H * 0.543, H * 0.055)}
           {selectedElement !== "location" && displayLocation && (
-            <text x={W / 2} y={H * 0.577} textAnchor="middle"
-              fontFamily={getFont("location", fp.bodyFont)}
-              fontSize={getSize("location", W * 0.027)}
-              fill={getColor("location", p.textSecondary)}
-              letterSpacing="1.5" fontStyle="italic">
+            <text x={W / 2} y={tplId === "lettre-moderne" ? H * 0.79 : H * 0.577} textAnchor="middle"
+              fontFamily={tplId === "lettre-moderne" ? "var(--font-libre-baskerville)" : getFont("location", fp.bodyFont)}
+              fontSize={getSize("location", W * 0.028)}
+              fill={getColor("location", tplId === "lettre-moderne" ? p.textPrimary : p.textSecondary)}
+              fontStyle={getFontStyle("location", "italic")} fontWeight={getFontWeight("location")}
+              letterSpacing={tplId === "lettre-moderne" ? "0" : "1.5"}>
               {getCase("location", displayLocation)}
             </text>
           )}
         </g>
       )}
 
-      {/* Footer */}
-      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("footer"); } : undefined}
-        className={onElementClick ? "eh" : undefined}
-        transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
-        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "footer" && hl(H * 0.801, H * 0.068)}
-        {selectedElement !== "footer" && (
-          <text x={W / 2} y={H * 0.835} textAnchor="middle"
-            fontFamily={getFont("footer", fp.scriptFont)}
-            fontStyle={fp.scriptItalic ? "italic" : "normal"}
-            fontSize={getSize("footer", W * 0.042)}
-            fill={getColor("footer", p.textSecondary)}
-            opacity="0.75">
-            {getCase("footer", displayFooter)}
-          </text>
-        )}
-      </g>
+      {/* Footer — hidden for lettre-moderne */}
+      {tplId !== "lettre-moderne" && (
+        <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("footer"); } : undefined}
+          className={onElementClick ? "eh" : undefined}
+          transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
+          style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
+          {selectedElement === "footer" && hl(H * 0.801, H * 0.068)}
+          {selectedElement !== "footer" && (
+            <text x={W / 2} y={H * 0.835} textAnchor="middle"
+              fontFamily={getFont("footer", fp.scriptFont)}
+              fontStyle={getFontStyle("footer", fp.scriptItalic ? "italic" : "normal")}
+              fontWeight={getFontWeight("footer")}
+              fontSize={getSize("footer", W * 0.042)}
+              fill={getColor("footer", p.textSecondary)}
+              opacity="0.75">
+              {getCase("footer", displayFooter)}
+            </text>
+          )}
+        </g>
+      )}
     </svg>
   );
 }
 
 function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText, locationText, footer,
-  selectedElement, onElementClick, elementStyles }: {
+  selectedElement, onElementClick, elementStyles, tplId }: {
   W: number; H: number; paperImage: string; p: Palette; user: UserData;
   label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
+  tplId?: string;
 }) {
+  const isFlowerBig3    = tplId === "lettre-flower-big-3";
   const displayLabel    = label ?? "save the date";
   const displayFooter   = footer ?? "invitation à suivre";
   const rawNames        = namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
@@ -1167,6 +1308,8 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
   const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
 
   const hl = (y: number, h: number) => (
     <rect x={W * 0.06} y={y} width={W * 0.88} height={h}
@@ -1187,12 +1330,11 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
       {onElementClick && <style>{`.eh:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
       <image href={p.paperImage ?? paperImage} x={0} y={0} width={W} height={H} preserveAspectRatio="none"/>
 
-      {/* Outer decorative dotted border */}
-      <rect x={W * 0.052} y={H * 0.032} width={W * 0.896} height={H * 0.936}
-        fill="none" stroke={p.accent} strokeWidth="0.9" strokeDasharray="2,3.5" opacity="0.7"/>
-      {/* Inner border line */}
-      <rect x={W * 0.068} y={H * 0.042} width={W * 0.864} height={H * 0.916}
-        fill="none" stroke={p.accent} strokeWidth="0.4" opacity="0.35"/>
+      {/* Outer decorative dotted border — masqué pour Bouquet I (fleurs couvrent le bord) */}
+      {!isFlowerBig3 && <rect x={W * 0.052} y={H * 0.032} width={W * 0.896} height={H * 0.936}
+        fill="none" stroke={p.accent} strokeWidth="0.9" strokeDasharray="2,3.5" opacity="0.7"/>}
+      {!isFlowerBig3 && <rect x={W * 0.068} y={H * 0.042} width={W * 0.864} height={H * 0.916}
+        fill="none" stroke={p.accent} strokeWidth="0.4" opacity="0.35"/>}
 
       {/* Label — "save the date" */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
@@ -1202,8 +1344,9 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
         {selectedElement === "label" && hl(H * 0.381, H * 0.055)}
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.408} textAnchor="middle"
-            fontFamily={elementStyles?.label?.font ?? "var(--font-playfair)"}
-            fontStyle="italic"
+            fontFamily={elementStyles?.label?.font ?? (isFlowerBig3 ? "var(--font-pinyon)" : "var(--font-playfair)")}
+            fontStyle={getFontStyle("label", "italic")}
+            fontWeight={getFontWeight("label")}
             fontSize={getSize("label", W * 0.046)}
             fill={getColor("label", "#909090")}>
             {getCase("label", displayLabel)}
@@ -1220,7 +1363,8 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
         {selectedElement !== "names" && (<g>
           <text x={W / 2} y={H * 0.500} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "'Times New Roman', Georgia, serif"}
-            fontWeight="400"
+            fontWeight={getFontWeight("names", "400")}
+            fontStyle={getFontStyle("names")}
             fontSize={getSize("names", W * 0.080)}
             fill={getColor("names", p.accent)}
             letterSpacing="3">
@@ -1228,7 +1372,7 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
           </text>
           <text x={W / 2} y={H * 0.560} textAnchor="middle"
             fontFamily="var(--font-script)"
-            fontStyle="italic"
+            fontStyle={getFontStyle("names", "italic")}
             fontSize={W * 0.054}
             fill={getColor("names", p.textSecondary)}
             opacity="0.75">
@@ -1237,7 +1381,8 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
           {name2Raw && (
             <text x={W / 2} y={H * 0.648} textAnchor="middle"
               fontFamily={elementStyles?.names?.font ?? "'Times New Roman', Georgia, serif"}
-              fontWeight="400"
+              fontWeight={getFontWeight("names", "400")}
+              fontStyle={getFontStyle("names")}
               fontSize={getSize("names", W * 0.080)}
               fill={getColor("names", p.accent)}
               letterSpacing="3">
@@ -1256,6 +1401,7 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
         {selectedElement !== "date" && (
           <text x={W / 2} y={H * 0.752} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"}
+            fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")}
             fontSize={getSize("date", W * 0.026)}
             fill={getColor("date", p.textSecondary)}
             letterSpacing="3.5"
@@ -1274,8 +1420,9 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
           {selectedElement === "location" && hl(H * 0.813, H * 0.055)}
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={H * 0.840} textAnchor="middle"
-              fontFamily={elementStyles?.location?.font ?? "var(--font-serif)"}
-              fontStyle="italic"
+              fontFamily={elementStyles?.location?.font ?? (isFlowerBig3 ? "var(--font-montserrat)" : "var(--font-serif)")}
+              fontStyle={getFontStyle("location", isFlowerBig3 ? "normal" : "italic")}
+              fontWeight={getFontWeight("location")}
               fontSize={getSize("location", W * 0.030)}
               fill={getColor("location", p.textPrimary)}>
               {getCase("location", displayLocation)}
@@ -1292,8 +1439,9 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
         {selectedElement === "footer" && hl(H * 0.905, H * 0.060)}
         {selectedElement !== "footer" && (
           <text x={W / 2} y={H * 0.935} textAnchor="middle"
-            fontFamily={elementStyles?.footer?.font ?? "var(--font-script)"}
-            fontStyle="italic"
+            fontFamily={elementStyles?.footer?.font ?? (isFlowerBig3 ? "var(--font-pinyon)" : "var(--font-script)")}
+            fontStyle={getFontStyle("footer", "italic")}
+            fontWeight={getFontWeight("footer")}
             fontSize={getSize("footer", W * 0.052)}
             fill={getColor("footer", p.textSecondary)}
             opacity="0.75">
@@ -1305,16 +1453,17 @@ function TemplateElegant({ W, H, paperImage, p, user, label, namesText, dateText
   );
 }
 
-function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, locationText,
+function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, locationText, tagline,
   selectedElement, onElementClick, elementStyles }: {
   W: number; H: number; paperImage: string; p: Palette; user: UserData;
-  label?: string; namesText?: string; dateText?: string; locationText?: string;
+  label?: string; namesText?: string; dateText?: string; locationText?: string; tagline?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
 }) {
   const displayLabel    = label ?? "save the date";
   const displayNames    = namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
+  const displayTagline  = tagline ?? "vont se marier le";
   const displayDate     = dateText || (user.date
     ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
     : "18 octobre 2026");
@@ -1325,6 +1474,8 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
   const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.06} y={y} width={W * 0.88} height={h}
       fill="rgba(240,237,228,0.10)" stroke="rgba(240,237,228,0.45)"
@@ -1346,6 +1497,7 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.275} textAnchor="middle"
             fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"}
+            fontStyle={getFontStyle("label")} fontWeight={getFontWeight("label")}
             fontSize={getSize("label", W * 0.028)}
             fill={getColor("label", p.textPrimary)}
             letterSpacing="5"
@@ -1365,7 +1517,8 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
         {selectedElement !== "names" && (
           <text x={W / 2} y={H * 0.390} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-script)"}
-            fontStyle="italic"
+            fontStyle={getFontStyle("names", "italic")}
+            fontWeight={getFontWeight("names")}
             fontSize={getSize("names", W * 0.112)}
             fill={getColor("names", p.textPrimary)}>
             {getCase("names", displayNames)}
@@ -1373,16 +1526,25 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
         )}
       </g>
 
-      {/* "vont se marier" — hardcoded decorative */}
-      <text x={W / 2} y={H * 0.497} textAnchor="middle"
-        fontFamily="var(--font-montserrat)"
-        fontSize={W * 0.024}
-        fill={p.textSecondary}
-        letterSpacing="4"
-        style={{ textTransform: "uppercase" as const }}
-        opacity="0.8">
-        vont se marier le
-      </text>
+      {/* "vont se marier le" — editable phrase */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("tagline"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("tagline")*W} ${getDY("tagline")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["tagline"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "tagline" && hl(H * 0.469, H * 0.052)}
+        {selectedElement !== "tagline" && (
+          <text x={W / 2} y={H * 0.497} textAnchor="middle"
+            fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
+            fontStyle={getFontStyle("tagline")} fontWeight={getFontWeight("tagline")}
+            fontSize={getSize("tagline", W * 0.024)}
+            fill={getColor("tagline", p.textSecondary)}
+            letterSpacing="4"
+            style={{ textTransform: "uppercase" as const }}
+            opacity="0.8">
+            {getCase("tagline", displayTagline)}
+          </text>
+        )}
+      </g>
 
       {/* Date — large script */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
@@ -1393,7 +1555,8 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
         {selectedElement !== "date" && (
           <text x={W / 2} y={H * 0.620} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-script)"}
-            fontStyle="italic"
+            fontStyle={getFontStyle("date", "italic")}
+            fontWeight={getFontWeight("date")}
             fontSize={getSize("date", W * 0.090)}
             fill={getColor("date", p.textPrimary)}>
             {getCase("date", displayDate)}
@@ -1411,6 +1574,7 @@ function TemplateArbre({ W, H, paperImage, p, user, label, namesText, dateText, 
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={H * 0.752} textAnchor="middle"
               fontFamily={elementStyles?.location?.font ?? "var(--font-montserrat)"}
+              fontStyle={getFontStyle("location")} fontWeight={getFontWeight("location")}
               fontSize={getSize("location", W * 0.025)}
               fill={getColor("location", p.textSecondary)}
               letterSpacing="4"
@@ -1431,7 +1595,7 @@ function TemplateItalySTD({ W, H, paperImage, p, user, label, namesText, dateTex
   label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
 }) {
   const displayLabel    = label ?? "for";
   const displayFooter   = footer ?? "invitation à suivre";
@@ -1446,6 +1610,8 @@ function TemplateItalySTD({ W, H, paperImage, p, user, label, namesText, dateTex
   const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.08} y={y} width={W * 0.84} height={h}
       fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
@@ -1502,7 +1668,7 @@ function TemplateItalySTD({ W, H, paperImage, p, user, label, namesText, dateTex
         {selectedElement !== "names" && (
           <text x={W / 2} y={H * 0.569} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-serif)"}
-            fontWeight="500"
+            fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "500")}
             fontSize={getSize("names", W * 0.044)}
             fill={getColor("names", p.textPrimary)}
             letterSpacing="4">
@@ -1520,6 +1686,7 @@ function TemplateItalySTD({ W, H, paperImage, p, user, label, namesText, dateTex
         {selectedElement !== "date" && (
           <text x={W / 2} y={H * 0.660} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-serif)"}
+            fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")}
             fontSize={getSize("date", W * 0.034)}
             fill={getColor("date", p.textPrimary)}
             letterSpacing="1">
@@ -1538,7 +1705,7 @@ function TemplateItalySTD({ W, H, paperImage, p, user, label, namesText, dateTex
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={H * 0.735} textAnchor="middle"
               fontFamily={elementStyles?.location?.font ?? "var(--font-serif)"}
-              fontStyle="italic"
+              fontStyle={getFontStyle("location", "italic")} fontWeight={getFontWeight("location")}
               fontSize={getSize("location", W * 0.028)}
               fill={getColor("location", p.textSecondary)}
               letterSpacing="1">
@@ -1557,7 +1724,7 @@ function TemplateItalySTD({ W, H, paperImage, p, user, label, namesText, dateTex
         {selectedElement !== "footer" && (
           <text x={W / 2} y={H * 0.872} textAnchor="middle"
             fontFamily={elementStyles?.footer?.font ?? "var(--font-script)"}
-            fontStyle="italic"
+            fontStyle={getFontStyle("footer", "italic")} fontWeight={getFontWeight("footer")}
             fontSize={getSize("footer", W * 0.042)}
             fill={getColor("footer", p.textSecondary)}
             opacity="0.75">
@@ -1575,10 +1742,10 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
   namesText?: string; dateText?: string; locationText?: string; footer?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
 }) {
   const rawNames = namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
-  const parts = rawNames.split(/\s*[&]\s*/);
+  const parts = rawNames.split(/\s*(?:&|\bet\b)\s*/i);
   const name1Raw = (parts[0] ?? rawNames).trim();
   const name2Raw = (parts[1] ?? "").trim();
 
@@ -1596,6 +1763,8 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
   const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.05} y={y} width={W * 0.90} height={h}
       fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
@@ -1637,7 +1806,7 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
         {selectedElement === "date" && hl(H * 0.409, H * 0.058)}
         {selectedElement !== "date" && (
           <text x={W / 2} y={H * 0.438} textAnchor="middle"
-            fontFamily="var(--font-serif)" fontWeight="500"
+            fontFamily="var(--font-serif)" fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date", "500")}
             fontSize={getSize("date", W * 0.050)} fill={getColor("date", p.textPrimary)}
             letterSpacing="3">
             {getCase("date", displayDate)}
@@ -1645,11 +1814,11 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
         )}
       </g>
 
-      {/* "pour le mariage de" */}
+      {/* "invitation à suivre" */}
       <text x={W / 2} y={H * 0.490} textAnchor="middle"
         fontFamily="var(--font-serif)" fontStyle="italic"
         fontSize={W * 0.026} fill={p.textSecondary} opacity="0.7">
-        pour le mariage de
+        invitation à suivre
       </text>
 
       <line x1={W * 0.30} y1={H * 0.512} x2={W * 0.70} y2={H * 0.512} stroke={p.accent} strokeWidth="0.6" opacity="0.35"/>
@@ -1662,7 +1831,7 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
         {selectedElement === "names" && hl(H * 0.528, H * 0.252)}
         {selectedElement !== "names" && (<g>
           <text x={W / 2} y={H * 0.590} textAnchor="middle"
-            fontFamily="var(--font-playfair)" fontWeight="700"
+            fontFamily="var(--font-playfair)" fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "700")}
             fontSize={getSize("names", W * 0.088)} fill={getColor("names", p.textPrimary)}
             letterSpacing="2">
             {elementStyles?.["names"]?.uppercase === false ? name1Raw : elementStyles?.["names"]?.uppercase === "capitalize" ? name1Raw.charAt(0).toUpperCase() + name1Raw.slice(1).toLowerCase() : name1Raw.toUpperCase()}
@@ -1674,7 +1843,7 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
           </text>
           {name2Raw && (
             <text x={W / 2} y={H * 0.720} textAnchor="middle"
-              fontFamily="var(--font-playfair)" fontWeight="700"
+              fontFamily="var(--font-playfair)" fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "700")}
               fontSize={getSize("names", W * 0.088)} fill={getColor("names", p.textPrimary)}
               letterSpacing="2">
               {elementStyles?.["names"]?.uppercase === false ? name2Raw : elementStyles?.["names"]?.uppercase === "capitalize" ? name2Raw.charAt(0).toUpperCase() + name2Raw.slice(1).toLowerCase() : name2Raw.toUpperCase()}
@@ -1695,6 +1864,7 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
           {selectedElement !== "location" && displayLocation && (
             <text x={W / 2} y={H * 0.822} textAnchor="middle"
               fontFamily="var(--font-montserrat)"
+              fontStyle={getFontStyle("location")} fontWeight={getFontWeight("location")}
               fontSize={getSize("location", W * 0.025)} fill={getColor("location", p.textPrimary)}
               letterSpacing="3.5" style={{ textTransform: "uppercase" as const }}>
               {getCase("location", displayLocation)}
@@ -1711,13 +1881,132 @@ function TemplateLettreBold({ W, H, paperImage, p, user, namesText, dateText, lo
         {selectedElement === "footer" && hl(H * 0.866, H * 0.052)}
         {selectedElement !== "footer" && (
           <text x={W / 2} y={H * 0.892} textAnchor="middle"
-            fontFamily="var(--font-serif)" fontStyle="italic"
+            fontFamily="var(--font-serif)" fontStyle={getFontStyle("footer", "italic")} fontWeight={getFontWeight("footer")}
             fontSize={getSize("footer", W * 0.024)} fill={getColor("footer", p.textSecondary)}
             opacity="0.65">
             {getCase("footer", displayFooter)}
           </text>
         )}
       </g>
+    </svg>
+  );
+}
+
+function TemplatePhotoTexte({ W, H, p, user, label, footer, namesText, dateText, locationText, photoUrl,
+  selectedElement, onElementClick, onPhotoClick, elementStyles }: {
+  W: number; H: number; p: Palette; user: UserData;
+  label?: string; footer?: string; namesText?: string; dateText?: string; locationText?: string; photoUrl?: string;
+  selectedElement?: string | null;
+  onElementClick?: (id: string | null) => void;
+  onPhotoClick?: () => void;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
+}) {
+  const displayLabel    = label ?? "Save the date";
+  const displayFooter   = footer || "pour célébrer le mariage de";
+  const displayNames    = namesText || `${user.p1 || "Emma"} & ${user.p2 || "Charlie"}`;
+  const displayDate     = dateText || (user.date ? (() => { const d = new Date(user.date + "T12:00:00"); return `${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}.${d.getFullYear()}`; })() : "01.05.2027");
+  const displayLocation = locationText ?? user.location;
+  const photo           = photoUrl ?? "/photo_couple/couple_4.jpg";
+  const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
+  const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
+  const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\b\w/g, c => c.toUpperCase()) : val; };
+  const getDX    = (id: string) => elementStyles?.[id]?.dx ?? 0;
+  const getDY    = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle  = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400")    => { const v = elementStyles?.[id]?.bold;   return v !== undefined ? (v ? "700"    : def)      : def; };
+  const hl = (y: number, h: number) => (
+    <rect x={W*0.04} y={y} width={W*0.92} height={h}
+      fill="rgba(255,255,255,0.12)" stroke="rgba(0,0,0,0.30)"
+      strokeWidth="0.8" strokeDasharray="3,2.5" rx="3"/>
+  );
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block", outline: "none" }}
+      onClick={onElementClick ? () => onElementClick(null) : undefined}>
+      {onElementClick && <style>{`.pth:hover text{opacity:0.45;transition:opacity 120ms}`}</style>}
+      <image href={photo} x={0} y={0} width={W} height={H} preserveAspectRatio="xMidYMid slice"
+        onClick={(onPhotoClick || onElementClick) ? e => {
+          e.stopPropagation();
+          if (selectedElement && onElementClick) { onElementClick(null); }
+          else if (onPhotoClick) { onPhotoClick(); }
+        } : undefined}
+        style={{ cursor: onPhotoClick ? "pointer" : "default" }}/>
+      {/* Label */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("label"); } : undefined}
+        className={onElementClick ? "pth" : undefined}
+        transform={`translate(${getDX("label")*W} ${getDY("label")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "label" && hl(H*0.058, H*0.096)}
+        {selectedElement !== "label" && (
+          <text x={W/2} y={H*0.140} textAnchor="middle"
+            fontFamily={elementStyles?.label?.font ?? "var(--font-brittany)"}
+            fontStyle={getFontStyle("label","normal")} fontWeight={getFontWeight("label")}
+            fontSize={getSize("label", W*0.120)} fill={getColor("label","#0A0A0A")}>
+            {getCase("label", displayLabel)}
+          </text>
+        )}
+      </g>
+      {/* Footer subtitle */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("footer"); } : undefined}
+        className={onElementClick ? "pth" : undefined}
+        transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "footer" && hl(H*0.222, H*0.038)}
+        {selectedElement !== "footer" && (
+          <text x={W/2} y={H*0.245} textAnchor="middle"
+            fontFamily={elementStyles?.footer?.font ?? "var(--font-libre-baskerville)"}
+            fontStyle={getFontStyle("footer","normal")} fontWeight={getFontWeight("footer")}
+            fontSize={getSize("footer", W*0.030)} fill={getColor("footer", p.accent)}>
+            {getCase("footer", displayFooter)}
+          </text>
+        )}
+      </g>
+      {/* Names */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
+        className={onElementClick ? "pth" : undefined}
+        transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "names" && hl(H*0.328, H*0.058)}
+        {selectedElement !== "names" && (
+          <text x={W/2} y={H*0.370} textAnchor="middle"
+            fontFamily={elementStyles?.names?.font ?? "var(--font-libre-baskerville)"}
+            fontWeight={getFontWeight("names","700")} fontStyle={getFontStyle("names")}
+            fontSize={getSize("names", W*0.070)} fill={getColor("names","#0A0A0A")}>
+            {getCase("names", displayNames)}
+          </text>
+        )}
+      </g>
+      {/* Date */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
+        className={onElementClick ? "pth" : undefined}
+        transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "date" && hl(H*0.430, H*0.038)}
+        {selectedElement !== "date" && (
+          <text x={W/2} y={H*0.455} textAnchor="middle"
+            fontFamily={elementStyles?.date?.font ?? "var(--font-sans)"}
+            fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")}
+            fontSize={getSize("date", W*0.028)} fill={getColor("date", p.accent)}>
+            {getCase("date", displayDate)}
+          </text>
+        )}
+      </g>
+      {/* Location */}
+      {(displayLocation || onElementClick) && (
+        <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("location"); } : undefined}
+          className={onElementClick ? "pth" : undefined}
+          transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
+          style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
+          {selectedElement === "location" && hl(H*0.492, H*0.038)}
+          {selectedElement !== "location" && displayLocation && (
+            <text x={W/2} y={H*0.515} textAnchor="middle"
+              fontFamily={elementStyles?.location?.font ?? "var(--font-sans)"}
+              fontStyle={getFontStyle("location")} fontWeight={getFontWeight("location")}
+              fontSize={getSize("location", W*0.028)} fill={getColor("location","#333333")}>
+              {getCase("location", displayLocation)}
+            </text>
+          )}
+        </g>
+      )}
     </svg>
   );
 }
@@ -1730,7 +2019,7 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   onPhotoClick?: () => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
 }) {
   const displayLabel = label ?? "save the date";
   const displayDate = dateText || (user.date
@@ -1748,6 +2037,8 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
   const getCase  = (id: string, val: string) => { const u = elementStyles?.[id]?.uppercase; return u === true ? val.toUpperCase() : u === "capitalize" ? val.replace(/\\b\\w/g, c => c.toUpperCase()) : val; };
   const getDX  = (id: string) => elementStyles?.[id]?.dx ?? 0;
   const getDY  = (id: string) => elementStyles?.[id]?.dy ?? 0;
+  const getFontStyle = (id: string, def = "normal") => { const v = elementStyles?.[id]?.italic; return v !== undefined ? (v ? "italic" : "normal") : def; };
+  const getFontWeight = (id: string, def = "400") => { const v = elementStyles?.[id]?.bold; return v !== undefined ? (v ? "700" : def) : def; };
   const hl = (y: number, h: number) => (
     <rect x={W * 0.06} y={y} width={W * 0.88} height={h}
       fill="rgba(109,29,62,0.06)" stroke="rgba(109,29,62,0.35)"
@@ -1769,7 +2060,7 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
         {selectedElement !== "label" && (
           <text x={W / 2} y={H * 0.122} textAnchor="middle"
             fontFamily={elementStyles?.label?.font ?? "var(--font-script)"}
-            fontStyle="italic"
+            fontStyle={getFontStyle("label", "italic")} fontWeight={getFontWeight("label")}
             fontSize={getSize("label", W * 0.042)}
             fill={getColor("label", p.textPrimary)}
             opacity="0.85">
@@ -1805,6 +2096,7 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
         {selectedElement !== "names" && (
           <text x={W / 2} y={fY + fH + H * 0.030} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-montserrat)"}
+            fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names")}
             fontSize={getSize("names", W * 0.026)}
             fill={getColor("names", p.textPrimary)}
             letterSpacing="3"
@@ -1823,7 +2115,7 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
         {selectedElement !== "date" && (
           <text x={W / 2} y={fY + fH + H * 0.082} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-script)"}
-            fontStyle="italic"
+            fontStyle={getFontStyle("date", "italic")} fontWeight={getFontWeight("date")}
             fontSize={getSize("date", W * 0.040)}
             fill={getColor("date", p.textPrimary)}
             opacity="0.82">
@@ -1835,16 +2127,16 @@ function TemplateLettrPhoto({ W, H, paperImage, p, user, label, namesText, dateT
   );
 }
 
-function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, fontPreset, label, namesText, namesConnector, dateText, locationText, footer,
+function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, fontPreset, label, namesText, namesConnector, dateText, locationText, footer, tagline,
   selectedElement, onElementClick, onPhotoClick, onPhotoSlotClick, elementStyles, customPaperBg }: {
   id: string; W: number; H: number; palette: Palette; user: UserData; isStd: boolean;
   photoUrl?: string; photoUrls?: string[]; fontPreset?: string;
-  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string;
+  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string; tagline?: string;
   selectedElement?: string | null;
   onElementClick?: (id: string | null) => void;
   onPhotoClick?: () => void;
   onPhotoSlotClick?: (index: number) => void;
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
   customPaperBg?: string;
 }) {
   const tplCfg = TEMPLATES.find(t => t.id === id);
@@ -1857,27 +2149,53 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, f
     return <TemplatePhotomaton W={W} H={H} p={palette} user={user}
       label={label} namesText={namesText} dateText={dateText} photoUrls={urls}
       selectedElement={selectedElement} onElementClick={onElementClick}
-      onPhotoClick={onPhotoSlotClick} elementStyles={elementStyles}/>;
+      onPhotoClick={onPhotoSlotClick} elementStyles={elementStyles} customPaperBg={customPaperBg}/>;
   }
   if (id === "dentelle") return <TemplateDentelle W={W} H={H} p={palette} user={user} photoUrl={effectivePhotoUrl}
     fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
     selectedElement={selectedElement} onElementClick={onElementClick} onPhotoClick={onPhotoClick} elementStyles={elementStyles}
     customPaperBg={customPaperBg}/>;
-  if (id === "oliviers") return <TemplateOliviers W={W} H={H} p={palette} user={user} isStd={isStd}
-    namesText={namesText} dateText={dateText} locationText={locationText}
+  if (id === "oliviers") return <TemplateOliviers W={W} H={H} p={palette} user={user} fontPreset={fontPreset}
+    label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
     selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
   if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd} customPaperBg={customPaperBg}
-    label={label} namesText={namesText} namesConnector={namesConnector} dateText={dateText} locationText={locationText} footer={footer}
+    label={label} namesText={namesText} namesConnector={namesConnector} dateText={dateText} locationText={locationText} footer={!footer || footer === "invitation à suivre" ? "pour le mariage de" : footer}
     selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
+  if (id === "photo-texte" || tplCfg?.layoutVariant === "photo-texte")
+    return <TemplatePhotoTexte W={W} H={H} p={palette} user={user} label={label} footer={!footer || footer === "invitation à suivre" ? "pour le mariage de" : footer} namesText={namesText}
+      dateText={dateText} locationText={locationText} photoUrl={effectivePhotoUrl}
+      selectedElement={selectedElement} onElementClick={onElementClick}
+      onPhotoClick={onPhotoClick ? () => onPhotoClick() : undefined}
+      elementStyles={elementStyles}/>;
   if (tplCfg?.paperImage) {
+    // Per-template default styles (user-saved values take priority per property)
+    const _tplDefs: Record<string, Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>> = {
+      "lettre-flower-big-3": {
+        label:    { dy: -0.1485, font: "var(--font-pinyon)" },
+        names:    { dy: -0.0780, color: "#676647" },
+        date:     { dy: -0.0638, font: "var(--font-montserrat)", color: "#676647" },
+        location: { dy: -0.1000, font: "var(--font-montserrat)" },
+        footer:   { dy: -0.1377, font: "var(--font-pinyon)", size: 0.65, color: "#676647" },
+      },
+      "motifs": {
+        names: { size: 0.62, font: "var(--font-montserrat)", italic: false },
+      },
+    };
+    const _def = _tplDefs[id];
+    const _effStyles = _def
+      ? (() => {
+          const keys = [...new Set([...Object.keys(_def), ...Object.keys(elementStyles ?? {})])];
+          return Object.fromEntries(keys.map(k => [k, { ..._def[k], ...(elementStyles?.[k] ?? {}) }]));
+        })()
+      : elementStyles;
     if (tplCfg.layoutVariant === "elegant")
       return <TemplateElegant W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
         label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
-        selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
+        selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={_effStyles} tplId={id}/>;
     if (tplCfg.layoutVariant === "arbres")
       return <TemplateArbre W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
-        label={label} namesText={namesText} dateText={dateText} locationText={locationText}
-        selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}/>;
+        label={label} namesText={namesText} dateText={dateText} locationText={locationText} tagline={tagline}
+        selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={_effStyles}/>;
     if (tplCfg.layoutVariant === "italy")
       return <TemplateItalySTD W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
         label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
@@ -1889,12 +2207,12 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, f
     if (tplCfg.layoutVariant === "photo")
       return <TemplateLettrPhoto W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
         label={label} namesText={namesText} dateText={dateText}
-        photoUrl={photoUrl} selectedElement={selectedElement} onElementClick={onElementClick}
+        photoUrl={effectivePhotoUrl} selectedElement={selectedElement} onElementClick={onElementClick}
         onPhotoClick={onPhotoClick} elementStyles={elementStyles}/>;
     return <TemplateLettre W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user}
-      fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer}
+      fontPreset={fontPreset} label={label} namesText={namesText} namesConnector={namesConnector} dateText={dateText} locationText={locationText} footer={footer}
       selectedElement={selectedElement} onElementClick={onElementClick} elementStyles={elementStyles}
-      paperFit={tplCfg.paperFit}/>;
+      paperFit={tplCfg.paperFit} tplId={id} isStd={isStd}/>;
   }
   return null;
 }
@@ -1908,11 +2226,11 @@ function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photoUrls, f
      3 → page droite seule (template design)
 ═══════════════════════════════════════════════ */
 
-function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, namesConnector, dateText, locationText, footer, photoUrl, photoUrls, elementStyles, customPaperBg, onClose, inline }: {
+function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, namesConnector, dateText, locationText, footer, tagline, photoUrl, photoUrls, elementStyles, customPaperBg, onClose, inline }: {
   tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
   fontPreset?: string;
-  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string; photoUrl?: string; photoUrls?: string[];
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string; tagline?: string; photoUrl?: string; photoUrls?: string[];
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
   customPaperBg?: string;
   onClose: () => void;
   inline?: boolean;
@@ -1988,7 +2306,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
     : phase === 2 ? `transform ${FOLD_EASE}, opacity 0s`
     : "none";
 
-  const flapPaperImage = palette.paperImage ?? "/papier%20lettre/Fond%20papier/Papier_1.png";
+  const flapPaperImage = "/papier%20lettre/Fond%20papier/Papier_1.png";
   const paperFace = (position: "left" | "right", back?: boolean): React.CSSProperties => ({
     position: "absolute", inset: 0,
     backfaceVisibility: "hidden",
@@ -2039,7 +2357,7 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
             <TemplateRender
               id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
               fontPreset={fontPreset} label={label} namesText={namesText} namesConnector={namesConnector}
-              dateText={dateText} locationText={locationText} footer={footer}
+              dateText={dateText} locationText={locationText} footer={footer} tagline={tagline}
               photoUrl={photoUrl} photoUrls={photoUrls} elementStyles={elementStyles} customPaperBg={customPaperBg}
             />
           </div>
@@ -2157,11 +2475,11 @@ function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
    CARD FLIP ANIMATION (inline)
 ═══════════════════════════════════════════════ */
 
-function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesText, namesConnector, dateText, locationText, footer, photoUrl, photoUrls, elementStyles, customPaperBg }: {
+function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesText, namesConnector, dateText, locationText, footer, tagline, photoUrl, photoUrls, elementStyles, customPaperBg }: {
   tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
   fontPreset?: string; label?: string; namesText?: string; namesConnector?: string; dateText?: string;
-  locationText?: string; footer?: string; photoUrl?: string; photoUrls?: string[];
-  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }>;
+  locationText?: string; footer?: string; tagline?: string; photoUrl?: string; photoUrls?: string[];
+  elementStyles?: Record<string, { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }>;
   customPaperBg?: string;
 }) {
   const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
@@ -2177,7 +2495,7 @@ function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [key]);
 
-  const backImage = palette.paperImage ?? "/papier%20lettre/Fond%20papier/Papier_1.png";
+  const backImage = "/papier%20lettre/Fond%20papier/Papier_1.png";
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden" style={{ position: "relative", perspective: "1400px" }}>
@@ -2192,7 +2510,7 @@ function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesTe
         <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", overflow: "hidden" }}>
           <TemplateRender id={tpl.id} W={W} H={H} palette={palette} user={user} isStd={isStd}
             fontPreset={fontPreset} label={label} namesText={namesText} namesConnector={namesConnector}
-            dateText={dateText} locationText={locationText} footer={footer}
+            dateText={dateText} locationText={locationText} footer={footer} tagline={tagline}
             photoUrl={photoUrl} photoUrls={photoUrls}
             elementStyles={elementStyles} customPaperBg={customPaperBg}/>
         </div>
@@ -2238,12 +2556,14 @@ function CardCustomizerPanel({ tpl, paletteId, onPaletteChange, cardCustom, onCa
   const hasPaperImages = tpl.palettes.every(p => p.paperImage);
   const isCustomActive = !hasPaperImages && !!cardCustom.customPaperBg;
   const activeLabel = isCustomActive ? "Personnalisé" : tpl.palettes.find(p => p.id === paletteId)?.label;
+  // Masquer "Fond du papier" si le template a une image papier fixe (pas modifiable par palette)
+  const hidePaperBg = !!tpl.paperImage && !hasPaperImages;
 
   return (
     <div className="flex flex-col gap-6">
 
       {/* Couleur du papier */}
-      <div>
+      {!hidePaperBg && (tpl.palettes.length > 1 || !hasPaperImages) && <div>
         <p style={sec}>Fond du papier</p>
         <div className="flex gap-2.5 flex-wrap">
           {tpl.palettes.map(p => {
@@ -2293,7 +2613,7 @@ function CardCustomizerPanel({ tpl, paletteId, onPaletteChange, cardCustom, onCa
         <p className="text-xs mt-2" style={{ color: "rgba(44,44,44,0.38)", fontFamily: "var(--font-display)" }}>
           {activeLabel}
         </p>
-      </div>
+      </div>}
 
 
     </div>
@@ -2324,7 +2644,7 @@ function ElementStylePanel({ elementId, cardCustom, onCardCustomChange, palette,
     fontSize: "0.65rem", color: "rgba(44,44,44,0.42)", fontFamily: "var(--font-display)",
     fontWeight: 500, marginBottom: 6, display: "block",
   };
-  function updateStyle(updates: { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean }) {
+  function updateStyle(updates: { font?: string; color?: string; size?: number; uppercase?: boolean | "capitalize"; dx?: number; dy?: number; hidden?: boolean; italic?: boolean; bold?: boolean }) {
     onCardCustomChange({
       ...cardCustom,
       styles: { ...cardCustom.styles, [elementId]: { ...style, ...updates } },
@@ -2456,6 +2776,40 @@ function ElementStylePanel({ elementId, cardCustom, onCardCustomChange, palette,
         </div>
       </div>
 
+      {/* Style */}
+      <div>
+        <span style={sub}>Style</span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => updateStyle({ italic: style.italic === true ? undefined : true })}
+            className="flex-1 py-2 rounded-xl text-sm transition-all"
+            style={{
+              fontStyle: "italic",
+              fontFamily: "var(--font-serif)",
+              fontSize: "0.9rem",
+              backgroundColor: style.italic === true ? "rgba(109,29,62,0.08)" : "rgba(255,255,255,0.7)",
+              border: `1.5px solid ${style.italic === true ? "rgba(109,29,62,0.25)" : "transparent"}`,
+              color: style.italic === true ? "#6D1D3E" : "#2c2c2c",
+              fontWeight: 500,
+            }}>
+            I
+          </button>
+          <button
+            onClick={() => updateStyle({ bold: style.bold === true ? undefined : true })}
+            className="flex-1 py-2 rounded-xl text-sm transition-all"
+            style={{
+              fontWeight: style.bold === true ? 700 : 500,
+              fontFamily: "var(--font-sans)",
+              fontSize: "0.9rem",
+              backgroundColor: style.bold === true ? "rgba(109,29,62,0.08)" : "rgba(255,255,255,0.7)",
+              border: `1.5px solid ${style.bold === true ? "rgba(109,29,62,0.25)" : "transparent"}`,
+              color: style.bold === true ? "#6D1D3E" : "#2c2c2c",
+            }}>
+            G
+          </button>
+        </div>
+      </div>
+
       {/* Date format — shown only when editing the date element */}
       {elementId === "date" && (() => {
         const d = user.date ? new Date(user.date + "T12:00:00") : null;
@@ -2516,12 +2870,13 @@ function ElementStylePanel({ elementId, cardCustom, onCardCustomChange, palette,
    DETAIL VIEW
 ═══════════════════════════════════════════════ */
 
-function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange, envCfg, onEnvelopeChange, cardCustom, onCardCustomChange, onAnimate, onBack }: {
+function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange, envCfg, onEnvelopeChange, cardCustom, onCardCustomChange, onAnimate, onBack, onSave, cardSaved }: {
   tpl: TemplateConfig; paletteId: string; onPaletteChange: (id: string) => void;
   isStd: boolean; user: UserData; onUserChange: (next: UserData) => void;
   envCfg: EnvelopeConfig; onEnvelopeChange: (next: EnvelopeConfig) => void;
   cardCustom: CardCustomization; onCardCustomChange: (next: CardCustomization) => void;
   onAnimate: () => void; onBack: () => void;
+  onSave?: () => void; cardSaved?: boolean;
 }) {
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -2615,7 +2970,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   fontPreset={cardCustom.fontPreset} label={cardCustom.label}
                   namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
                   dateText={cardCustom.dateText} locationText={cardCustom.locationText || undefined}
-                  footer={cardCustom.footer || undefined}
+                  footer={cardCustom.footer || undefined} tagline={cardCustom.tagline}
                   selectedElement={selectedElement} onElementClick={setSelectedElement}
                   onPhotoClick={() => { currentPhotoSlot.current = null; photoInputRef.current?.click(); }}
                   onPhotoSlotClick={i => { currentPhotoSlot.current = i; photoInputRef.current?.click(); }}
@@ -2628,12 +2983,15 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 const photoH_ = cardH * 0.37;
                 type ElemCfg = { y: number; fs: number; fontType: "script" | "body"; opacity: number };
                 const isPhotomaton    = tpl.id === "photomaton";
+                const isLettrModerne  = tpl.id === "lettre-moderne";
                 const isRayures       = tpl.id === "rayures";
                 const isOliviers      = tpl.id === "oliviers";
+                const isPhotoTexte    = tpl.id === "photo-texte";
                 const isLettrePhoto   = !!tpl.paperImage && tpl.layoutVariant === "photo";
                 const isLettreArbres  = !!tpl.paperImage && tpl.layoutVariant === "arbres";
                 const isLettreBold    = !!tpl.paperImage && tpl.layoutVariant === "bold";
                 const isLettreElegant = !!tpl.paperImage && tpl.layoutVariant === "elegant";
+                const isFlowerBig3    = tpl.id === "lettre-flower-big-3";
                 const isLettreItaly   = !!tpl.paperImage && tpl.layoutVariant === "italy";
                 const isLettre = !!tpl.paperImage;
                 const fY_photo = cardH * 0.21; const fH_photo = cardH * 0.48;
@@ -2649,9 +3007,11 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   date:     { y: cardH * 0.815, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
                   location: { y: cardH * 0.880, fs: cardW * 0.025, fontType: "body",   opacity: 1 },
                 } : isOliviers ? {
-                  names:    { y: cardH * 0.470, fs: cardW * 0.065, fontType: "script", opacity: 1 },
-                  date:     { y: cardH * 0.790, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
-                  location: { y: cardH * 0.860, fs: cardW * 0.030, fontType: "body",   opacity: 1 },
+                  label:    { y: cardH * 0.22,  fs: cardW * 0.062, fontType: "script", opacity: 0.9 },
+                  names:    { y: cardH * 0.38,  fs: cardW * 0.072, fontType: "script", opacity: 1 },
+                  date:     { y: cardH * 0.52,  fs: cardW * 0.030, fontType: "body",   opacity: 1 },
+                  location: { y: cardH * 0.577, fs: cardW * 0.027, fontType: "body",   opacity: 1 },
+                  footer:   { y: cardH * 0.835, fs: cardW * 0.042, fontType: "script", opacity: 0.75 },
                 } : isLettreElegant ? {
                   label:    { y: cardH * 0.408, fs: cardW * 0.046, fontType: "body",   opacity: 1 },
                   names:    { y: cardH * 0.560, fs: cardW * 0.054, fontType: "script", opacity: 1 },
@@ -2661,6 +3021,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 } : isLettreArbres ? {
                   label:    { y: cardH * 0.275, fs: cardW * 0.028, fontType: "body",   opacity: 0.9 },
                   names:    { y: cardH * 0.390, fs: cardW * 0.112, fontType: "script", opacity: 1 },
+                  tagline:  { y: cardH * 0.497, fs: cardW * 0.024, fontType: "body",   opacity: 0.8 },
                   date:     { y: cardH * 0.620, fs: cardW * 0.090, fontType: "script", opacity: 1 },
                   location: { y: cardH * 0.752, fs: cardW * 0.025, fontType: "body",   opacity: 0.85 },
                 } : isLettrePhoto ? {
@@ -2678,12 +3039,26 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   date:     { y: cardH * 0.660, fs: cardW * 0.034, fontType: "body",   opacity: 1 },
                   location: { y: cardH * 0.735, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
                   footer:   { y: cardH * 0.872, fs: cardW * 0.042, fontType: "script", opacity: 0.75 },
+                } : isLettrModerne ? {
+                  lmLabel1:    { y: cardH * 0.245, fs: cardW * 0.042, fontType: "body",   opacity: 0.9 },
+                  lmLabel2:    { y: cardH * 0.295, fs: cardW * 0.042, fontType: "body",   opacity: 1 },
+                  lmName1:     { y: cardH * 0.44,  fs: cardW * 0.115, fontType: "script", opacity: 1 },
+                  lmConnector: { y: cardH * 0.535, fs: cardW * 0.038, fontType: "body",   opacity: 1 },
+                  lmName2:     { y: cardH * 0.64,  fs: cardW * 0.115, fontType: "script", opacity: 1 },
+                  date:        { y: cardH * 0.72,  fs: cardW * 0.030, fontType: "body",   opacity: 1 },
+                  location:    { y: cardH * 0.79,  fs: cardW * 0.028, fontType: "body",   opacity: 1 },
                 } : isLettre ? {
                   label:    { y: cardH * 0.22,  fs: cardW * 0.062, fontType: "script", opacity: 0.9 },
                   names:    { y: cardH * 0.38,  fs: cardW * 0.072, fontType: "script", opacity: 1 },
                   date:     { y: cardH * 0.52,  fs: cardW * 0.030, fontType: "body",   opacity: 1 },
                   location: { y: cardH * 0.577, fs: cardW * 0.027, fontType: "body",   opacity: 1 },
                   footer:   { y: cardH * 0.835, fs: cardW * 0.042, fontType: "script", opacity: 0.75 },
+                } : isPhotoTexte ? {
+                  label:    { y: cardH * 0.140, fs: cardW * 0.120, fontType: "script", opacity: 1 },
+                  footer:   { y: cardH * 0.245, fs: cardW * 0.030, fontType: "body",   opacity: 1 },
+                  names:    { y: cardH * 0.370, fs: cardW * 0.070, fontType: "body",   opacity: 1 },
+                  date:     { y: cardH * 0.455, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
+                  location: { y: cardH * 0.515, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
                 } : {
                   label:    { y: cardH * 0.13,                        fs: cardW * 0.056, fontType: "script", opacity: 0.88 },
                   names:    { y: cardH * 0.23,                        fs: cardW * 0.038, fontType: "body",   opacity: 1 },
@@ -2706,8 +3081,12 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 }
                 const isScript = cfg.fontType === "script";
                 const elStyle = cardCustom.styles[selectedElement] ?? {};
+
                 const isDentelle = !isLettre && !isRayures && !isOliviers;
-                const tplSizeDef: Record<string, number> = isDentelle ? { names: 1.3 } : {};
+                const tplSizeDef: Record<string, number> = {
+                  ...(isDentelle ? { names: 1.3 } : {}),
+                  ...(tpl.id === "motifs" ? { names: 0.62 } : {}),
+                };
                 const fs = cfg.fs * (elStyle.size ?? tplSizeDef[selectedElement] ?? 1);
 
                 // Per-template default font/style/weight — must match what the SVG renders
@@ -2724,14 +3103,15 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   date:     { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                   location: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                 } : isLettreElegant ? {
-                  label:    { font: "var(--font-playfair)",               style: "italic", weight: "400" },
+                  label:    { font: isFlowerBig3 ? "var(--font-pinyon)"     : "var(--font-playfair)",              style: "italic", weight: "400" },
                   names:    { font: "'Times New Roman', Georgia, serif",  style: "normal", weight: "400" },
                   date:     { font: "var(--font-montserrat)",             style: "normal", weight: "400" },
-                  location: { font: "var(--font-serif)",                  style: "italic", weight: "400" },
-                  footer:   { font: "var(--font-script)",                 style: "italic", weight: "400" },
+                  location: { font: isFlowerBig3 ? "var(--font-montserrat)" : "var(--font-serif)",                style: isFlowerBig3 ? "normal" : "italic", weight: "400" },
+                  footer:   { font: isFlowerBig3 ? "var(--font-pinyon)"     : "var(--font-script)",               style: "italic", weight: "400" },
                 } : isLettreArbres ? {
                   label:    { font: "var(--font-montserrat)", style: "normal", weight: "400" },
-                  names:    { font: "var(--font-script)",     style: "italic", weight: "400" },
+                  names:    { font: tpl.id === "motifs" ? "var(--font-montserrat)" : "var(--font-script)", style: tpl.id === "motifs" ? "normal" : "italic", weight: "400" },
+                  tagline:  { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                   date:     { font: "var(--font-script)",     style: "italic", weight: "400" },
                   location: { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                 } : isLettreBold ? {
@@ -2749,6 +3129,26 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   label:    { font: "var(--font-script)",     style: "italic", weight: "400" },
                   names:    { font: "var(--font-montserrat)", style: "normal", weight: "400" },
                   date:     { font: "var(--font-script)",     style: "italic", weight: "400" },
+                } : isLettrModerne ? {
+                  lmLabel1:    { font: "var(--font-libre-baskerville)", style: "normal", weight: "400" },
+                  lmLabel2:    { font: "var(--font-libre-baskerville)", style: "normal", weight: "400" },
+                  lmName1:     { font: "var(--font-brittany)",          style: "normal", weight: "400" },
+                  lmConnector: { font: "var(--font-libre-baskerville)", style: "italic", weight: "400" },
+                  lmName2:     { font: "var(--font-brittany)",          style: "normal", weight: "400" },
+                  date:        { font: "var(--font-libre-baskerville)", style: "italic", weight: "400" },
+                  location:    { font: "var(--font-libre-baskerville)", style: "italic", weight: "400" },
+                } : isPhotoTexte ? {
+                  label:    { font: "var(--font-brittany)",          style: "normal", weight: "400" },
+                  footer:   { font: "var(--font-libre-baskerville)", style: "normal", weight: "400" },
+                  names:    { font: "var(--font-libre-baskerville)", style: "normal", weight: "700" },
+                  date:     { font: "var(--font-sans)",             style: "normal", weight: "400" },
+                  location: { font: "var(--font-sans)",             style: "normal", weight: "400" },
+                } : isOliviers ? {
+                  label:    { font: fp.scriptFont, style: fp.scriptItalic ? "italic" : "normal", weight: "400" },
+                  names:    { font: fp.scriptFont, style: fp.scriptItalic ? "italic" : "normal", weight: "400" },
+                  date:     { font: fp.bodyFont,   style: "normal", weight: "400" },
+                  location: { font: fp.bodyFont,   style: "italic", weight: "400" },
+                  footer:   { font: fp.scriptFont, style: fp.scriptItalic ? "italic" : "normal", weight: "400" },
                 } : isDentelle ? {
                   label:    { font: "var(--font-pinyon)",  style: "normal", weight: "400" },
                   names:    { font: fp.bodyFont,           style: "normal", weight: "400" },
@@ -2766,8 +3166,10 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 const tplDef = tplFontMap[selectedElement];
                 const hasUserFont = !!elStyle.font;
                 const elementFont  = elStyle.font ?? tplDef?.font ?? (isScript ? fp.scriptFont : fp.bodyFont);
-                const fontStyle    = hasUserFont ? (isScript && fp.scriptItalic ? "italic" : "normal") : (tplDef?.style ?? "normal");
-                const fontWeight   = hasUserFont ? "400" : (tplDef?.weight ?? "400");
+                const tplFontStyle = hasUserFont ? (isScript && fp.scriptItalic ? "italic" : "normal") : (tplDef?.style ?? "normal");
+                const tplFontWeight = hasUserFont ? "400" : (tplDef?.weight ?? "400");
+                const fontStyle    = elStyle.italic !== undefined ? (elStyle.italic ? "italic" : "normal") : tplFontStyle;
+                const fontWeight   = elStyle.bold   !== undefined ? (elStyle.bold   ? "700"    : "400")    : tplFontWeight;
                 const elementColor = elStyle.color ?? palette.textPrimary;
 
                 // Per-template default visual style (textTransform + letterSpacing) — must match SVG
@@ -2784,9 +3186,11 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   date:     { textTransform: "uppercase", letterSpacing: 1.5 },
                   location: { textTransform: "none",      letterSpacing: 1 },
                 } : isOliviers ? {
-                  names:    { textTransform: "none",      letterSpacing: 0 },
-                  date:     { textTransform: "uppercase", letterSpacing: 2 },
-                  location: { textTransform: "none",      letterSpacing: 0 },
+                  label:    { textTransform: "none", letterSpacing: 0 },
+                  names:    { textTransform: "none", letterSpacing: 0 },
+                  date:     { textTransform: "none", letterSpacing: 2 },
+                  location: { textTransform: "none", letterSpacing: 1.5 },
+                  footer:   { textTransform: "none", letterSpacing: 0 },
                 } : isLettreElegant ? {
                   label:    { textTransform: "none",      letterSpacing: 0 },
                   names:    { textTransform: "uppercase", letterSpacing: 3 },
@@ -2796,6 +3200,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 } : isLettreArbres ? {
                   label:    { textTransform: "uppercase", letterSpacing: 5 },
                   names:    { textTransform: "none",      letterSpacing: 0 },
+                  tagline:  { textTransform: "uppercase", letterSpacing: 4 },
                   date:     { textTransform: "none",      letterSpacing: 0 },
                   location: { textTransform: "uppercase", letterSpacing: 4 },
                 } : isLettreItaly ? {
@@ -2819,8 +3224,22 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   date:     { textTransform: "none",      letterSpacing: 2.5 },
                   location: { textTransform: "none",      letterSpacing: 2.5 },
                   footer:   { textTransform: "none",      letterSpacing: 0 },
+                } : isLettrModerne ? {
+                  lmLabel1:    { textTransform: "none", letterSpacing: 0 },
+                  lmLabel2:    { textTransform: "none", letterSpacing: 0 },
+                  lmName1:     { textTransform: "none", letterSpacing: 0 },
+                  lmConnector: { textTransform: "none", letterSpacing: 0 },
+                  lmName2:     { textTransform: "none", letterSpacing: 0 },
+                  date:        { textTransform: "none", letterSpacing: 0 },
+                  location:    { textTransform: "none", letterSpacing: 0 },
+                } : isPhotoTexte ? {
+                  label:    { textTransform: "none", letterSpacing: 0 },
+                  footer:   { textTransform: "none", letterSpacing: 0 },
+                  names:    { textTransform: "none", letterSpacing: 0 },
+                  date:     { textTransform: "none", letterSpacing: 0 },
+                  location: { textTransform: "none", letterSpacing: 0 },
                 } : {
-                  // TemplateLettre
+                  // TemplateLettre (autres)
                   label:    { textTransform: "none", letterSpacing: 0 },
                   names:    { textTransform: "none", letterSpacing: 0 },
                   date:     { textTransform: "none", letterSpacing: 2 },
@@ -2847,34 +3266,64 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 const fmtDatePhotomaton = _d
                   ? `${pad2(_d.getDate())} . ${pad2(_d.getMonth()+1)} . ${String(_d.getFullYear()).slice(-2)}`
                   : "22 . 10 . 26";
+                const fmtDatePhotoTexte = _d
+                  ? `${pad2(_d.getDate())}.${pad2(_d.getMonth()+1)}.${_d.getFullYear()}`
+                  : "01.05.2027";
                 const defaultDate = cardCustom.dateText || (
                   isPhotomaton   ? fmtDatePhotomaton :
                   isLettreBold   ? fmtDateBold :
+                  isPhotoTexte   ? fmtDatePhotoTexte :
                   (isRayures || isOliviers || isLettreItaly || isLettrePhoto) ? fmtDateShort :
                   fmtDateFallback
                 );
-                const rawLabelText = cardCustom.label || "save the date";
+                const rawLabelText = cardCustom.label ?? "save the date";
+                const lmLabelParts = (cardCustom.label ?? "save the date\ninvitation à suivre").split("\n");
+                const lmLabel1Val = lmLabelParts[0] ?? "save the date";
+                const lmLabel2Val = lmLabelParts[1] ?? "invitation à suivre";
+                const lmNameParts = (cardCustom.namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`).split(/\s*(?:&|\bet\b)\s*/i);
+                const lmN1Val = (lmNameParts[0] ?? "").trim() || (user.p1 || "Ève");
+                const lmN2Val = (lmNameParts[1] ?? "").trim() || (user.p2 || "Antoine");
+                const lmConnVal = cardCustom.namesConnector ?? "et";
                 const textMap: Record<string, string> = {
-                  label:    isDentelle ? rawLabelText.charAt(0).toUpperCase() + rawLabelText.slice(1) : rawLabelText,
-                  names:    cardCustom.namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`,
-                  date:     defaultDate,
-                  location: cardCustom.locationText || user.location,
-                  footer:   cardCustom.footer || "invitation à suivre",
-                  tagline:  cardCustom.footer || "sont heureux de vous inviter",
+                  label:       isDentelle ? rawLabelText.charAt(0).toUpperCase() + rawLabelText.slice(1) : rawLabelText,
+                  names: (() => {
+                    const raw = cardCustom.namesText || `${user.p1 || "Ève"} & ${user.p2 || "Antoine"}`;
+                    if (isLettreElegant || isRayures || isOliviers || isLettreBold) return raw.replace(/\s*&\s*/g, " et ");
+                    return raw;
+                  })(),
+                  lmLabel1:    lmLabel1Val,
+                  lmLabel2:    lmLabel2Val,
+                  lmName1:     lmN1Val,
+                  lmConnector: lmConnVal,
+                  lmName2:     lmN2Val,
+                  date:        defaultDate,
+                  location:    cardCustom.locationText || user.location,
+                  footer:      (isPhotoTexte || isRayures) ? (!cardCustom.footer || cardCustom.footer === "invitation à suivre" ? "pour le mariage de" : cardCustom.footer) : (cardCustom.footer ?? "invitation à suivre"),
+                  tagline:     isLettreArbres ? (cardCustom.tagline ?? "vont se marier le") : ((!cardCustom.footer || cardCustom.footer === "invitation à suivre") && isRayures ? "pour le mariage de" : (cardCustom.footer ?? "sont heureux de vous inviter")),
                 };
                 const currentText = textMap[selectedElement] ?? "";
                 function handleInlineChange(value: string) {
                   const next = { ...cardCustom };
                   if (selectedElement === "label") next.label = value;
+                  else if (selectedElement === "lmLabel1") next.label = value + "\n" + lmLabel2Val;
+                  else if (selectedElement === "lmLabel2") next.label = lmLabel1Val + "\n" + value;
                   else if (selectedElement === "names") next.namesText = value;
+                  else if (selectedElement === "lmName1") next.namesText = value + (lmN2Val ? " & " + lmN2Val : "");
+                  else if (selectedElement === "lmName2") next.namesText = (lmN1Val ? lmN1Val + " & " : "") + value;
+                  else if (selectedElement === "lmConnector") next.namesConnector = value;
                   else if (selectedElement === "date") next.dateText = value;
                   else if (selectedElement === "location") next.locationText = value;
-                  else if (selectedElement === "footer" || selectedElement === "tagline") next.footer = value;
+                  else if (selectedElement === "tagline") { if (isLettreArbres) next.tagline = value; else next.footer = value; }
+                  else if (selectedElement === "footer") next.footer = value;
                   onCardCustomChange(next);
                 }
-                // For Bold Stripes names: the SVG spans 3 lines (NAME1 / and / NAME2).
-                // Override position to cover the full hl rect, and keep caret visible.
-                const isRayuresNames = isRayures && selectedElement === "names";
+                const isRayuresNames     = isRayures && selectedElement === "names";
+                const isLettreMoLabel    = isLettrModerne && selectedElement === "label";
+                const isLettreMoLabel1   = isLettrModerne && selectedElement === "lmLabel1";
+                const isLettreMoLabel2   = isLettrModerne && selectedElement === "lmLabel2";
+                const isLettreMoName1    = isLettrModerne && selectedElement === "lmName1";
+                const isLettreMoConn     = isLettrModerne && selectedElement === "lmConnector";
+                const isLettreMoName2    = isLettrModerne && selectedElement === "lmName2";
                 const inputTop = isRayuresNames
                   ? cardH * 0.295 + dyOffset
                   : cfg.y + dyOffset - fs * 1.5;
@@ -2926,7 +3375,125 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                         <Trash2 size={14}/>
                       </button>
                     </div>
-                    {isRayuresNames ? (() => {
+                    {isLettreMoLabel1 ? (() => {
+                      const f = cardW * 0.042;
+                      const color = cardCustom.styles?.lmLabel1?.color ?? palette.textPrimary;
+                      const font = cardCustom.styles?.lmLabel1?.font ?? "var(--font-libre-baskerville)";
+                      return (
+                        <input autoFocus autoComplete="off" value={lmLabel1Val}
+                          onChange={e => handleInlineChange(e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          style={{ position: "absolute", left: 0, width: "100%", background: "transparent", WebkitBoxShadow: "0 0 0px 1000px transparent inset", border: "none", outline: "none", textAlign: "center", color, WebkitTextFillColor: color, caretColor: color, padding: 0, boxSizing: "border-box", lineHeight: "1", top: cardH * 0.245 - f * 0.82, height: f * 1.4, fontFamily: font, fontSize: f }}
+                        />
+                      );
+                    })() : isLettreMoLabel2 ? (() => {
+                      const f = cardW * 0.042;
+                      const color = cardCustom.styles?.lmLabel2?.color ?? palette.textPrimary;
+                      const font = cardCustom.styles?.lmLabel2?.font ?? "var(--font-libre-baskerville)";
+                      return (
+                        <input autoFocus autoComplete="off" value={lmLabel2Val}
+                          onChange={e => handleInlineChange(e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          style={{ position: "absolute", left: 0, width: "100%", background: "transparent", WebkitBoxShadow: "0 0 0px 1000px transparent inset", border: "none", outline: "none", textAlign: "center", color, WebkitTextFillColor: color, caretColor: color, padding: 0, boxSizing: "border-box", lineHeight: "1", top: cardH * 0.295 - f * 0.82, height: f * 1.4, fontFamily: font, fontSize: f }}
+                        />
+                      );
+                    })() : isLettreMoName1 ? (() => {
+                      const nameFs = cardW * 0.115;
+                      const nameFont = cardCustom.styles?.lmName1?.font ?? "var(--font-brittany)";
+                      const nameColor = cardCustom.styles?.lmName1?.color ?? palette.textPrimary;
+                      return (
+                        <input autoFocus autoComplete="off" value={lmN1Val}
+                          onChange={e => handleInlineChange(e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          style={{ position: "absolute", left: 0, width: "100%", background: "transparent", WebkitBoxShadow: "0 0 0px 1000px transparent inset", border: "none", outline: "none", textAlign: "center", color: nameColor, WebkitTextFillColor: nameColor, caretColor: nameColor, padding: 0, boxSizing: "border-box", lineHeight: "1", top: cardH * 0.44 - nameFs * 0.82, height: nameFs * 1.4, fontFamily: nameFont, fontSize: nameFs }}
+                        />
+                      );
+                    })() : isLettreMoConn ? (() => {
+                      const connFs = cardW * 0.038;
+                      const connColor = cardCustom.styles?.lmConnector?.color ?? palette.textPrimary;
+                      return (
+                        <input autoFocus autoComplete="off" value={lmConnVal}
+                          onChange={e => handleInlineChange(e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          style={{ position: "absolute", left: 0, width: "100%", background: "transparent", WebkitBoxShadow: "0 0 0px 1000px transparent inset", border: "none", outline: "none", textAlign: "center", color: connColor, WebkitTextFillColor: connColor, caretColor: connColor, padding: 0, boxSizing: "border-box", lineHeight: "1", top: cardH * 0.535 - connFs * 0.82, height: connFs * 1.4, fontFamily: "var(--font-libre-baskerville)", fontSize: connFs, fontStyle: "italic" }}
+                        />
+                      );
+                    })() : isLettreMoName2 ? (() => {
+                      const nameFs = cardW * 0.115;
+                      const nameFont = cardCustom.styles?.lmName2?.font ?? "var(--font-brittany)";
+                      const nameColor = cardCustom.styles?.lmName2?.color ?? palette.textPrimary;
+                      return (
+                        <input autoFocus autoComplete="off" value={lmN2Val}
+                          onChange={e => handleInlineChange(e.target.value)}
+                          onClick={e => e.stopPropagation()}
+                          style={{ position: "absolute", left: 0, width: "100%", background: "transparent", WebkitBoxShadow: "0 0 0px 1000px transparent inset", border: "none", outline: "none", textAlign: "center", color: nameColor, WebkitTextFillColor: nameColor, caretColor: nameColor, padding: 0, boxSizing: "border-box", lineHeight: "1", top: cardH * 0.64 - nameFs * 0.82, height: nameFs * 1.4, fontFamily: nameFont, fontSize: nameFs }}
+                        />
+                      );
+                    })() : isLettreMoLabel ? (() => {
+                      const lParts = currentText.split("\n");
+                      const l1 = lParts[0] ?? "save the date";
+                      const l2 = lParts[1] ?? "invitation à suivre";
+                      const fs1 = cardW * 0.042;
+                      const fs2 = cardW * 0.042;
+                      const labelFont = cardCustom.styles?.label?.font ?? "var(--font-libre-baskerville)";
+                      const labelColor = cardCustom.styles?.label?.color ?? palette.textPrimary;
+                      const sharedStyle: React.CSSProperties = {
+                        position: "absolute",
+                        left: 0,
+                        width: "100%",
+                        background: "transparent",
+                        WebkitBoxShadow: "0 0 0px 1000px transparent inset",
+                        border: "none",
+                        outline: "none",
+                        textAlign: "center",
+                        color: labelColor,
+                        WebkitTextFillColor: labelColor,
+                        caretColor: labelColor,
+                        padding: 0,
+                        boxSizing: "border-box",
+                        fontStyle: "italic",
+                        lineHeight: "1",
+                      };
+                      return (
+                        <>
+                          <input
+                            autoFocus
+                            autoComplete="off"
+                            value={l1}
+                            onChange={e => {
+                              const next = { ...cardCustom };
+                              next.label = e.target.value + "\n" + l2;
+                              onCardCustomChange(next);
+                            }}
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                              ...sharedStyle,
+                              top: cardH * 0.245 - fs1 * 0.82,
+                              height: fs1 * 1.4,
+                              fontFamily: labelFont,
+                              fontSize: fs1,
+                            }}
+                          />
+                          <input
+                            autoComplete="off"
+                            value={l2}
+                            onChange={e => {
+                              const next = { ...cardCustom };
+                              next.label = l1 + "\n" + e.target.value;
+                              onCardCustomChange(next);
+                            }}
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                              ...sharedStyle,
+                              top: cardH * 0.295 - fs2 * 0.82,
+                              height: fs2 * 1.4,
+                              fontFamily: labelFont,
+                              fontSize: fs2,
+                            }}
+                          />
+                        </>
+                      );
+                    })() : isRayuresNames ? (() => {
                       // 3 separate inputs, each matching the exact SVG font/size of its row,
                       // so cursor x-position aligns with the visible glyphs.
                       const rParts = currentText.split(/\s*[&]\s*/);
@@ -3086,7 +3653,16 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
             />
           )}
 
-          <div className="border-t border-[#f0e6e2] pt-1">
+          <div className="border-t border-[#f0e6e2] pt-1 flex flex-col gap-2">
+            {onSave && (
+              <button
+                onClick={onSave}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                style={{ backgroundColor: cardSaved ? "#2a7a4b" : "rgba(109,29,62,0.08)", color: cardSaved ? "white" : "#6D1D3E", fontFamily: "var(--font-display)", border: `1.5px solid ${cardSaved ? "#2a7a4b" : "rgba(109,29,62,0.2)"}` }}
+              >
+                {cardSaved ? <><Check size={14}/> Enregistré</> : <><Save size={14}/> Enregistrer</>}
+              </button>
+            )}
             <button onClick={onAnimate}
               className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-bold transition-all"
               style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}>
@@ -3194,13 +3770,19 @@ export default function SaveTheDatePage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [registryId, setRegistryId] = useState<string | null>(null);
+  const [stdPlan, setStdPlan] = useState<"essentiel" | "premium" | null>(null);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [pricingContext, setPricingContext] = useState<"publish" | "invites">("publish");
+  const [checkoutLoading, setCheckoutLoading] = useState<"essentiel" | "premium" | null>(null);
+  const [stdPaidSuccess, setStdPaidSuccess] = useState<"essentiel" | "premium" | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
-  const [mainTab, setMainTab] = useState<"accueil" | "design" | "personnalisation" | "animation" | "envoi" | "reponses">("accueil");
+  const [mainTab, setMainTab] = useState<"accueil" | "design" | "personnalisation" | "animation" | "envoi" | "invites" | "reponses">("accueil");
   const [mode, setMode] = useState<"gallery" | "detail" | "animate">("gallery");
   const [animationType, setAnimationType] = useState<"ouverture" | "retournement" | "rien">("ouverture");
   const [animBg, setAnimBg] = useState<string>("marble");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [savedTemplateId, setSavedTemplateId] = useState<string | null>(null);
+  const [cardSaved, setCardSaved] = useState(false);
   const [paletteIds, setPaletteIds] = useState<Record<string, string>>({});
   const [envCfg, setEnvCfg] = useState<EnvelopeConfig>(DEFAULT_ENVELOPE);
   const [cardCustom, setCardCustom] = useState<CardCustomization>(DEFAULT_CARD);
@@ -3238,15 +3820,28 @@ export default function SaveTheDatePage() {
   const [guests, setGuests] = useState<any[]>([]);
   const [guestsLoading, setGuestsLoading] = useState(false);
 
+  // Handle Stripe redirect with ?std_paid=
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paid = params.get("std_paid");
+    if (paid === "essentiel" || paid === "premium") {
+      setStdPlan(paid);
+      setStdPaidSuccess(paid);
+      setTimeout(() => setStdPaidSuccess(null), 6000);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
   useEffect(() => {
     createClient().auth.getUser().then(async ({ data: { user: u } }) => {
       if (!u) { router.push("/connexion"); return; }
       setUserId(u.id);
       const [{ data: prof }, { data: reg }] = await Promise.all([
         createClient().from("profiles").select("partner1_name,partner2_name,wedding_date").eq("id", u.id).single(),
-        createClient().from("registries").select("id,ceremony_location,std_config").eq("user_id", u.id).single(),
+        createClient().from("registries").select("id,ceremony_location,std_config,std_plan").eq("user_id", u.id).single(),
       ]);
       if (reg?.id) setRegistryId(reg.id);
+      if ((reg as any)?.std_plan) setStdPlan((reg as any).std_plan);
       setUser({ p1: prof?.partner1_name ?? "", p2: prof?.partner2_name ?? "", date: prof?.wedding_date ?? "", location: reg?.ceremony_location ?? "" });
       const cfg = (reg as any)?.std_config;
       if (cfg?.rsvp_note) { setSendMessage(cfg.rsvp_note); setMessageSaved(true); }
@@ -3333,9 +3928,8 @@ export default function SaveTheDatePage() {
     setMessageSaved(true);
   }
 
-  async function publishStdConfig() {
+  async function saveStdConfig() {
     if (!registryId || !selectedId) return;
-    setPublishing(true);
     const stdConfig = {
       animation_type: animationType,
       anim_bg: animBg,
@@ -3349,6 +3943,14 @@ export default function SaveTheDatePage() {
     };
     await createClient().from("registries").update({ std_config: stdConfig }).eq("id", registryId);
     setSavedTemplateId(selectedId);
+    setCardSaved(true);
+    setTimeout(() => setCardSaved(false), 2500);
+  }
+
+  async function publishStdConfig() {
+    if (!registryId || !selectedId) return;
+    setPublishing(true);
+    await saveStdConfig();
     setPublishing(false);
     setPublished(true);
     setTimeout(() => setPublished(false), 2500);
@@ -3373,6 +3975,28 @@ export default function SaveTheDatePage() {
     if (mainTab === "reponses") loadGuests();
   }
 
+  async function startCheckout(plan: "essentiel" | "premium") {
+    if (!registryId) {
+      alert("Impossible de charger votre registre. Rechargez la page et réessayez.");
+      return;
+    }
+    setCheckoutLoading(plan);
+    try {
+      const res = await fetch("/api/std/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, registryId }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) throw new Error(json.error ?? `Erreur ${res.status}`);
+      if (!json.url) throw new Error("URL de paiement manquante");
+      window.location.href = json.url;
+    } catch (e: any) {
+      alert(e.message);
+      setCheckoutLoading(null);
+    }
+  }
+
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
 
@@ -3384,12 +4008,13 @@ export default function SaveTheDatePage() {
             { id: "design",          label: "Design" },
             { id: "personnalisation",label: "Personnalisation" },
             { id: "animation",       label: "Animation" },
-            { id: "envoi",           label: "Détails de l'envoi" },
+            { id: "envoi",           label: "Message & RSVP" },
+            { id: "invites",         label: "Gestion des invités" },
             { id: "reponses",        label: "Gestion des réponses" },
           ] as const).map((tab) => (
             <button
               key={tab.id}
-              onClick={() => { setMainTab(tab.id); if (tab.id === "reponses") loadGuests(); }}
+              onClick={() => { setMainTab(tab.id); if (tab.id === "reponses" || tab.id === "invites") loadGuests(); }}
               className="relative px-6 py-4 font-semibold transition-colors whitespace-nowrap"
               style={{
                 fontFamily: "var(--font-display)",
@@ -3405,6 +4030,16 @@ export default function SaveTheDatePage() {
           ))}
         </div>
       </div>
+
+      {/* ── Bandeau succès paiement ── */}
+      {stdPaidSuccess && (
+        <div className="flex items-center justify-center gap-3 px-6 py-3" style={{ backgroundColor: "#1a4731", color: "#d1fae5" }}>
+          <Check size={16} />
+          <span className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)" }}>
+            Paiement confirmé — Formule {stdPaidSuccess === "essentiel" ? "Essentielle" : "Premium"} activée !
+          </span>
+        </div>
+      )}
 
       {/* ── Accueil ── */}
       {mainTab === "accueil" && (
@@ -3438,7 +4073,7 @@ export default function SaveTheDatePage() {
               const H = Math.round(W * 1.4);
               const tpl = TEMPLATES.find(t => t.id === "lettre-flower-big-3")!;
               const palette = tpl.palettes[0];
-              const previewUser = { ...user, p1: user.p1 || "Emma", p2: user.p2 || "Louis", date: user.date || "2026-07-12", location: user.location || "Paris, France" };
+              const previewUser = { p1: "Emma", p2: "Charlie", date: "2027-05-01", location: "Paris, France" };
               return (
                 <div className="flex-shrink-0 relative" style={{ width: W + 24, height: H + 24, flexShrink: 0 }}>
                   <div style={{ position: "absolute", top: 20, left: 20, width: W, height: H, backgroundColor: "#EABACB", borderRadius: "12px", transform: "rotate(-4deg)" }} />
@@ -3615,7 +4250,12 @@ export default function SaveTheDatePage() {
             {/* Toggle row */}
             <div className="flex items-center justify-between gap-4 p-6">
               <div>
-                <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Inclure un formulaire RSVP</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Inclure un formulaire RSVP</p>
+                  {stdPlan !== "premium" && (
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}>Premium</span>
+                  )}
+                </div>
                 <p className="text-xs mt-1" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
                   {rsvpEnabled ? "Les invités pourront confirmer ou décliner leur présence." : "Le Save the Date sera envoyé sans demande de réponse."}
                 </p>
@@ -3689,30 +4329,77 @@ export default function SaveTheDatePage() {
             )}
           </div>
 
+          {/* ── Prévisualiser ── */}
+          {registryId && (
+            <div className="rounded-2xl p-6 flex items-center justify-between gap-4" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
+              <div>
+                <p className="text-sm font-semibold mb-1" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Prévisualiser l&apos;invitation</p>
+                <p className="text-xs" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
+                  Sauvegarde et affiche exactement ce que verront vos invités.
+                </p>
+              </div>
+              <button
+                onClick={async () => {
+                  await saveStdConfig();
+                  window.open(`/rsvp/open/${registryId}`, "_blank");
+                }}
+                disabled={!selectedId}
+                className="flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-80"
+                style={{ backgroundColor: "rgba(109,29,62,0.07)", color: "#6D1D3E", fontFamily: "var(--font-display)", border: "1.5px solid rgba(109,29,62,0.15)", opacity: !selectedId ? 0.4 : 1 }}
+              >
+                <Play size={13} fill="#6D1D3E" /> Prévisualiser
+              </button>
+            </div>
+          )}
+
           {/* ── Publier ── */}
           <div className="rounded-2xl p-6 flex flex-col gap-3" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
-            <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Publier l&apos;invitation</p>
-            <p className="text-xs" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
-              Sauvegarde le design, l&apos;animation et les options RSVP pour que les invités voient la bonne version.
-            </p>
-            <button
-              onClick={publishStdConfig}
-              disabled={publishing || !selectedId}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
-              style={{
-                backgroundColor: published ? "#2d6a4f" : "#6D1D3E",
-                color: "white",
-                fontFamily: "var(--font-display)",
-                opacity: !selectedId ? 0.4 : 1,
-                transition: "background-color 0.3s",
-              }}
-            >
-              {publishing ? "Publication…" : published ? "✓ Publié !" : "Publier l'invitation"}
-            </button>
+            {stdPlan ? (
+              <>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Publier l&apos;invitation</p>
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: stdPlan === "premium" ? "#6D1D3E" : "rgba(109,29,62,0.1)", color: stdPlan === "premium" ? "white" : "#6D1D3E", fontFamily: "var(--font-display)" }}>
+                    {stdPlan === "premium" ? "Premium" : "Essentielle"}
+                  </span>
+                </div>
+                <p className="text-xs" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
+                  Sauvegarde le design, l&apos;animation et les options RSVP pour que les invités voient la bonne version.
+                </p>
+                <button
+                  onClick={publishStdConfig}
+                  disabled={publishing || !selectedId}
+                  className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
+                  style={{
+                    backgroundColor: published ? "#2d6a4f" : "#6D1D3E",
+                    color: "white",
+                    fontFamily: "var(--font-display)",
+                    opacity: !selectedId ? 0.4 : 1,
+                    transition: "background-color 0.3s",
+                  }}
+                >
+                  {publishing ? "Publication…" : published ? "✓ Publié !" : "Publier l'invitation"}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>Publier l&apos;invitation</p>
+                <p className="text-xs" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
+                  Choisissez une formule pour rendre votre invitation accessible à vos invités.
+                </p>
+                <button
+                  onClick={() => { setPricingContext("publish"); setShowPricingModal(true); }}
+                  disabled={!selectedId}
+                  className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
+                  style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)", opacity: !selectedId ? 0.4 : 1 }}
+                >
+                  Choisir une formule →
+                </button>
+              </>
+            )}
           </div>
 
-          {/* ── 2. Partage du lien ── */}
-          {(() => {
+          {/* ── Partage du lien ── */}
+          {stdPlan && (() => {
             const publicUrl = registryId
               ? `${typeof window !== "undefined" ? window.location.origin : "https://weddy.fr"}/rsvp/open/${registryId}`
               : null;
@@ -3742,7 +4429,41 @@ export default function SaveTheDatePage() {
             );
           })()}
 
-          {/* ── 3. Envoyer par email ── */}
+        </div>
+      )}
+
+      {/* ── Gestion des invités ── */}
+      {mainTab === "invites" && (
+        <div className="px-8 py-10 max-w-5xl mx-auto flex flex-col gap-5">
+
+          {/* ── Paywall si pas Premium ── */}
+          {stdPlan !== "premium" && (
+            <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
+              <div className="px-8 py-12 flex flex-col items-center text-center gap-5">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(109,29,62,0.08)" }}>
+                  <Mail size={22} style={{ color: "#6D1D3E" }} />
+                </div>
+                <div>
+                  <p className="text-xl font-light mb-2" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
+                    Envoyez vos invitations par email
+                  </p>
+                  <p className="text-sm" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)", maxWidth: 380, margin: "0 auto" }}>
+                    Ajoutez vos invités, suivez les envois et gérez les RSVP — disponible avec la Formule Premium.
+                  </p>
+                </div>
+                <button
+                  onClick={() => { setPricingContext("invites"); setShowPricingModal(true); }}
+                  className="px-8 py-3.5 rounded-xl text-sm font-bold transition-all hover:opacity-90"
+                  style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+                >
+                  Découvrir la Formule Premium →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Envoyer par email (Premium uniquement) ── */}
+          {stdPlan === "premium" && (
           <div className="rounded-2xl p-6 flex flex-col gap-4" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -3838,6 +4559,7 @@ export default function SaveTheDatePage() {
               {sending ? "Envoi en cours…" : `Envoyer ${guestList.length > 0 ? `à ${guestList.length} invité${guestList.length > 1 ? "s" : ""}` : ""}`}
             </button>
           </div>
+          )}
 
         </div>
       )}
@@ -4119,7 +4841,7 @@ export default function SaveTheDatePage() {
                     fontPreset={cardCustom.fontPreset} label={cardCustom.label}
                     namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
                     dateText={cardCustom.dateText}
-                    locationText={cardCustom.locationText} footer={cardCustom.footer}
+                    locationText={cardCustom.locationText} footer={cardCustom.footer} tagline={cardCustom.tagline}
                     photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
                     elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
                     onClose={() => setMode("detail")}
@@ -4133,7 +4855,7 @@ export default function SaveTheDatePage() {
                     fontPreset={cardCustom.fontPreset} label={cardCustom.label}
                     namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
                     dateText={cardCustom.dateText}
-                    locationText={cardCustom.locationText} footer={cardCustom.footer}
+                    locationText={cardCustom.locationText} footer={cardCustom.footer} tagline={cardCustom.tagline}
                     photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
                     elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
                   />
@@ -4146,7 +4868,7 @@ export default function SaveTheDatePage() {
                         fontPreset={cardCustom.fontPreset} label={cardCustom.label}
                         namesText={cardCustom.namesText} namesConnector={cardCustom.namesConnector}
                         dateText={cardCustom.dateText}
-                        locationText={cardCustom.locationText} footer={cardCustom.footer}
+                        locationText={cardCustom.locationText} footer={cardCustom.footer} tagline={cardCustom.tagline}
                         photoUrl={cardCustom.photoUrl || undefined} photoUrls={cardCustom.photoUrls}
                         elementStyles={cardCustom.styles} customPaperBg={cardCustom.customPaperBg}
                       />
@@ -4324,6 +5046,8 @@ export default function SaveTheDatePage() {
           onCardCustomChange={setCardCustom}
           onAnimate={() => setMainTab("animation")}
           onBack={goBack}
+          onSave={registryId ? saveStdConfig : undefined}
+          cardSaved={cardSaved}
         />
       )}
 
@@ -4339,12 +5063,117 @@ export default function SaveTheDatePage() {
           dateText={cardCustom.dateText}
           locationText={cardCustom.locationText}
           footer={cardCustom.footer}
+          tagline={cardCustom.tagline}
           photoUrl={cardCustom.photoUrl || undefined}
           photoUrls={cardCustom.photoUrls}
           elementStyles={cardCustom.styles}
           customPaperBg={cardCustom.customPaperBg}
           onClose={() => setMode("detail")}
         />
+      )}
+
+      {/* ── Modal Tarifs ── */}
+      {showPricingModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(10,6,8,0.72)", backdropFilter: "blur(8px)" }}
+          onClick={e => { if (e.target === e.currentTarget) setShowPricingModal(false); }}
+        >
+          <div className="relative w-full max-w-2xl rounded-3xl overflow-hidden" style={{ backgroundColor: "white", boxShadow: "0 40px 100px rgba(0,0,0,0.35)" }}>
+            {/* Close */}
+            <button onClick={() => setShowPricingModal(false)} className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-[rgba(44,44,44,0.08)]">
+              <X size={16} style={{ color: "rgba(44,44,44,0.45)" }} />
+            </button>
+
+            {/* Header */}
+            <div className="px-8 pt-10 pb-6 text-center" style={{ background: "linear-gradient(135deg, #6D1D3E 0%, #9e3d60 100%)" }}>
+              <p className="text-xs font-bold tracking-[0.35em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-display)" }}>Wedy · Save the Date</p>
+              <h2 className="text-3xl font-light" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "white" }}>
+                Activez votre invitation
+              </h2>
+              <p className="text-sm mt-2" style={{ color: "rgba(255,255,255,0.65)", fontFamily: "var(--font-display)" }}>
+                Paiement unique · Accès à vie
+              </p>
+            </div>
+
+            {/* Plans */}
+            <div className="grid grid-cols-2 gap-5 p-8">
+
+              {/* Essentielle */}
+              <div className="flex flex-col rounded-2xl overflow-hidden" style={{ border: pricingContext === "invites" ? "1.5px solid #e0d0d6" : "2px solid #6D1D3E", opacity: pricingContext === "invites" ? 0.7 : 1 }}>
+                <div className="px-6 py-5" style={{ backgroundColor: pricingContext === "invites" ? "#fdfaf8" : "#fdf5f8" }}>
+                  <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>Essentielle</p>
+                  <p className="text-4xl font-light" style={{ fontFamily: "var(--font-serif)", color: "#2c2c2c" }}>25 <span className="text-xl">€</span></p>
+                  <p className="text-xs mt-1" style={{ color: "rgba(44,44,44,0.4)", fontFamily: "var(--font-display)" }}>paiement unique</p>
+                </div>
+                <div className="flex flex-col gap-2.5 px-6 py-5 flex-1" style={{ backgroundColor: "white" }}>
+                  {["Carte animée au choix", "Lien de partage public", "Prévisualisation invité"].map(f => (
+                    <div key={f} className="flex items-start gap-2">
+                      <Check size={13} style={{ color: "#2d6a4f", flexShrink: 0, marginTop: 2 }} />
+                      <span className="text-xs" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{f}</span>
+                    </div>
+                  ))}
+                  {["RSVP", "Gestion des invités", "Envoi email"].map(f => (
+                    <div key={f} className="flex items-start gap-2" style={{ opacity: 0.35 }}>
+                      <span className="text-xs mt-0.5 w-3 text-center" style={{ color: "#999" }}>✕</span>
+                      <span className="text-xs" style={{ color: "#999", fontFamily: "var(--font-display)" }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="px-6 pb-6" style={{ backgroundColor: "white" }}>
+                  <button
+                    onClick={() => startCheckout("essentiel")}
+                    disabled={checkoutLoading !== null || pricingContext === "invites"}
+                    className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
+                    style={{
+                      backgroundColor: pricingContext === "invites" ? "rgba(109,29,62,0.08)" : "#6D1D3E",
+                      color: pricingContext === "invites" ? "rgba(109,29,62,0.4)" : "white",
+                      fontFamily: "var(--font-display)",
+                      cursor: pricingContext === "invites" ? "default" : "pointer",
+                    }}
+                  >
+                    {checkoutLoading === "essentiel" ? "Chargement…" : pricingContext === "invites" ? "Non inclus" : "Choisir l'Essentielle"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Premium */}
+              <div className="flex flex-col rounded-2xl overflow-hidden" style={{ border: "2px solid #6D1D3E", boxShadow: "0 8px 32px rgba(109,29,62,0.15)" }}>
+                <div className="px-6 py-5" style={{ background: "linear-gradient(135deg, #6D1D3E 0%, #9e3d60 100%)" }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-display)" }}>Premium</p>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: "rgba(255,255,255,0.2)", color: "white", fontFamily: "var(--font-display)" }}>Recommandé</span>
+                  </div>
+                  <p className="text-4xl font-light" style={{ fontFamily: "var(--font-serif)", color: "white" }}>70 <span className="text-xl">€</span></p>
+                  <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-display)" }}>paiement unique</p>
+                </div>
+                <div className="flex flex-col gap-2.5 px-6 py-5 flex-1" style={{ backgroundColor: "white" }}>
+                  {["Carte animée au choix", "Lien de partage public", "Prévisualisation invité", "Formulaire RSVP", "Gestion des invités", "Envoi par email"].map(f => (
+                    <div key={f} className="flex items-start gap-2">
+                      <Check size={13} style={{ color: "#2d6a4f", flexShrink: 0, marginTop: 2 }} />
+                      <span className="text-xs" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="px-6 pb-6" style={{ backgroundColor: "white" }}>
+                  <button
+                    onClick={() => startCheckout("premium")}
+                    disabled={checkoutLoading !== null}
+                    className="w-full py-3 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                    style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+                  >
+                    {checkoutLoading === "premium" ? "Chargement…" : "Choisir le Premium"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <p className="text-center text-xs pb-6" style={{ color: "rgba(44,44,44,0.35)", fontFamily: "var(--font-display)" }}>
+              Paiement sécurisé par Stripe · Aucun abonnement
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

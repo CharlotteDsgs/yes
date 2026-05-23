@@ -43,6 +43,7 @@ export interface Database {
           ceremony_location: string | null
           is_published: boolean
           plan: "free" | "premium"
+          std_plan: "essentiel" | "premium" | null
           created_at: string
           updated_at: string
         }
