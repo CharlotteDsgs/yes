@@ -33,7 +33,7 @@ export default function Hero() {
 
         {/* ── Titre centré ── */}
         <h1
-          className="text-center mb-14"
+          className="text-center mb-14 mt-16"
           style={{
             fontFamily: "var(--font-sans)",
             fontSize: "clamp(2rem, 4vw, 3.25rem)",
