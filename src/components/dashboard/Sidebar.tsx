@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import WedyLogo from "@/components/WedyLogo";
 import { usePathname, useRouter } from "next/navigation";
 import { Heart, Gift, Mail, LogOut, User } from "lucide-react";
@@ -62,25 +61,9 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="border-b border-[#f0e6e2] flex items-center h-16 flex-shrink-0 px-3 gap-2 overflow-hidden">
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <Image src="/fox_no-bg.png" alt="Weddy" width={36} height={36} className="object-contain flex-shrink-0" />
-          <span
-            style={{
-              fontFamily: "var(--font-serif)",
-              fontStyle: "italic",
-              fontWeight: 300,
-              fontSize: "1.55rem",
-              color: "#7A1B45",
-              lineHeight: 1,
-              letterSpacing: "0.04em",
-              whiteSpace: "nowrap",
-              opacity: expanded ? 1 : 0,
-              transition: "opacity 150ms ease",
-            }}
-          >
-            Weddy
-          </span>
-        </Link>
+        <div style={{ opacity: expanded ? 1 : 0, transition: "opacity 150ms ease" }}>
+          <WedyLogo size="sm" />
+        </div>
       </div>
 
       {/* Nav items */}
