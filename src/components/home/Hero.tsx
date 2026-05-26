@@ -79,7 +79,7 @@ export default function Hero() {
           <div className="flex flex-col gap-6">
             <div
               className="mx-auto rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #636F1E", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "10px 10px 0px #8C9A30, 18px 18px 0px #C8D45A" }}
+              style={{ border: "3px solid #636F1E", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "10px 10px 0px #d9cd7a, 18px 18px 0px #f3ead5" }}
             >
               <Image src="/screenshot-std.png" alt="Éditeur Save the Date" fill className="object-cover object-top" />
             </div>
