@@ -249,11 +249,11 @@ export default function ComptePage() {
                     : "Accès limité · Passez à la version complète"}
                 </p>
               </div>
-              <PlanBadge plan={data?.std_plan} type="std"/>
+              <PlanBadge plan={data?.std_plan ?? null} type="std"/>
             </div>
           </div>
 
-          {(!data?.std_plan || data.std_plan === "free") && (
+          {!data?.std_plan && (
             <a href="/dashboard/invitations" style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               marginTop: 14, padding: "8px 16px", borderRadius: 20,
