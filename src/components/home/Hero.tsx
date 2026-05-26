@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function Hero() {
   return (
     <section
-      className="relative overflow-hidden pt-24 pb-20"
+      className="relative overflow-hidden pt-24 pb-20 min-h-screen flex flex-col justify-center"
       style={{ background: "#FFF5F7" }}
     >
       {/* Background polka dots */}
