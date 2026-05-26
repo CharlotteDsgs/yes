@@ -7,29 +7,7 @@ export default function Hero() {
       className="relative overflow-hidden pt-28 pb-20 min-h-screen flex flex-col"
       style={{ background: "#FFF5F7" }}
     >
-      {/* Background polka dots */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {[
-          { pos: "top-[6%]   left-[2%]",    size: 60,  color: "#D4789A", opacity: 0.13 },
-          { pos: "top-[28%]  left-[0%]",    size: 84,  color: "#E8A0BB", opacity: 0.11 },
-          { pos: "top-[58%]  left-[3%]",    size: 48,  color: "#C45C85", opacity: 0.10 },
-          { pos: "bottom-[8%] left-[6%]",   size: 36,  color: "#7A1B45", opacity: 0.09 },
-          { pos: "top-[10%]  right-[2%]",   size: 72,  color: "#E8A0BB", opacity: 0.12 },
-          { pos: "top-[42%]  right-[0%]",   size: 100, color: "#D4789A", opacity: 0.08 },
-          { pos: "bottom-[15%] right-[3%]", size: 56,  color: "#C45C85", opacity: 0.10 },
-          { pos: "top-[5%]   left-[38%]",   size: 44,  color: "#F0BACE", opacity: 0.18 },
-          { pos: "top-[3%]   left-[55%]",   size: 28,  color: "#7A1B45", opacity: 0.10 },
-          { pos: "top-[8%]   left-[70%]",   size: 52,  color: "#E8A0BB", opacity: 0.13 },
-        ].map((dot, i) => (
-          <div
-            key={i}
-            className={`absolute ${dot.pos} rounded-full`}
-            style={{ width: dot.size, height: dot.size, backgroundColor: dot.color, opacity: dot.opacity }}
-          />
-        ))}
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+<div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 
         {/* ── Titre centré ── */}
         <h1
