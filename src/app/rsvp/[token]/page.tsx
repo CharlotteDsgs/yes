@@ -64,11 +64,17 @@ export default function RsvpPage() {
   const [submitting, setSubmitting] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
   const [rsvpPeek, setRsvpPeek] = useState(false);
-  const [peekDone, setPeekDone] = useState(false);
-  const [rsvpOpen, setRsvpOpen] = useState(false);
 
   // Reset on replay
-  useEffect(() => { setRsvpPeek(false); setPeekDone(false); setRsvpOpen(false); }, [replayKey]);
+  useEffect(() => { setRsvpPeek(false); }, [replayKey]);
+
+  // Scroll peek: scroll down briefly then back to top
+  useEffect(() => {
+    if (!rsvpPeek) return;
+    const t1 = setTimeout(() => window.scrollTo({ top: 220, behavior: "smooth" }), 200);
+    const t2 = setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 1600);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [rsvpPeek]);
 
   // Modal state
   const [modal, setModal] = useState<{ label: string; rsvpStatus: "confirmed" | "declined" } | null>(null);
@@ -283,87 +289,27 @@ export default function RsvpPage() {
             {AnimationCard}
           </div>
         </div>
-        {cfg.rsvp_enabled !== false && (<>
-          <style>{`
-            @keyframes rsvpBounce {
-              0%   { transform: translateY(100%); }
-              18%  { transform: translateY(-60px); }
-              45%  { transform: translateY(-60px); }
-              68%  { transform: translateY(10px); }
-              82%  { transform: translateY(-6px); }
-              100% { transform: translateY(100%); }
-            }
-          `}</style>
-
-          {/* Phase 1 : peek — texte monte et redescend */}
-          {rsvpPeek && !peekDone && (
-            <div
-              onAnimationEnd={() => setPeekDone(true)}
-              style={{
-                position: "fixed", bottom: 0, left: 0, right: 0,
-                background: "white", borderRadius: "20px 20px 0 0",
-                padding: "22px 24px 32px",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: "6px",
-                boxShadow: "0 -4px 24px rgba(0,0,0,0.12)",
-                animation: "rsvpBounce 2.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
-              }}>
-              {userData.p1 && userData.p2 && (<>
-                <p style={{ fontFamily: "Georgia, serif", fontSize: "22px", color: "#6D1D3E", fontStyle: "italic", margin: 0, lineHeight: 1.2 }}>
+        {/* RSVP section — in normal flow below the card, scroll to access */}
+        {cfg.rsvp_enabled !== false && (
+          <div style={{ background: "white", padding: "40px 24px 64px", display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
+            {userData.p1 && userData.p2 && (
+              <div style={{ textAlign: "center", marginBottom: "8px" }}>
+                <p style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 6px", lineHeight: 1.2 }}>
                   {userData.p1} &amp; {userData.p2}
                 </p>
-                <p style={{ fontFamily: "Georgia, serif", fontSize: "15px", color: "#9e6b5c", margin: 0 }}>
+                <p style={{ fontFamily: "Georgia, serif", fontSize: "18px", color: "#9e6b5c", margin: 0 }}>
                   attendent votre réponse
                 </p>
-              </>)}
-            </div>
-          )}
-
-          {/* Phase 2 : petite tab persistante */}
-          {peekDone && !rsvpOpen && (
-            <button
-              onClick={() => setRsvpOpen(true)}
-              style={{
-                position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-                background: "white", borderRadius: "16px 16px 0 0",
-                padding: "10px 32px 14px",
-                boxShadow: "0 -2px 12px rgba(0,0,0,0.10)",
-                border: "none", cursor: "pointer",
-                fontFamily: "Georgia, serif", fontSize: "14px", color: "#9e6b5c",
-                display: "flex", alignItems: "center", gap: "6px",
-              }}>
-              ↑ Répondre
-            </button>
-          )}
-
-          {/* Phase 3 : section RSVP complète */}
-          {rsvpOpen && (
-            <div style={{
-              position: "fixed", bottom: 0, left: 0, right: 0,
-              background: "white", borderRadius: "20px 20px 0 0",
-              padding: "24px 24px 48px",
-              display: "flex", flexDirection: "column", alignItems: "center", gap: "12px",
-              boxShadow: "0 -4px 24px rgba(0,0,0,0.12)",
-              animation: "none",
-            }}>
-              {userData.p1 && userData.p2 && (
-                <div style={{ textAlign: "center", marginBottom: "4px" }}>
-                  <p style={{ fontFamily: "Georgia, serif", fontSize: "22px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 4px", lineHeight: 1.2 }}>
-                    {userData.p1} &amp; {userData.p2}
-                  </p>
-                  <p style={{ fontFamily: "Georgia, serif", fontSize: "15px", color: "#9e6b5c", margin: 0 }}>
-                    attendent votre réponse
-                  </p>
-                </div>
-              )}
-              {RsvpButtons}
-              {cfg?.rsvp_note && (
-                <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "17px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0", whiteSpace: "pre-wrap" }}>
-                  {cfg.rsvp_note}
-                </p>
-              )}
-            </div>
-          )}
-        </>)}
+              </div>
+            )}
+            {RsvpButtons}
+            {cfg?.rsvp_note && (
+              <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "19px", color: "#7a7370", lineHeight: 1.7, maxWidth: "380px", margin: "4px 0 0", whiteSpace: "pre-wrap" }}>
+                {cfg.rsvp_note}
+              </p>
+            )}
+          </div>
+        )}
       </>
     );
   }
