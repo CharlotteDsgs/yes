@@ -17,7 +17,7 @@ export default function WedyLogo({ size = "md", href = "/" }: Props) {
   const inner = (
     <span className="flex items-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logo/logo1.png" alt="" width={icon} height={icon} style={{ objectFit: "contain", background: "transparent", display: "block" }} />
+      <img src="/logo/logo1.png" alt="" width={icon} height={icon} style={{ display: "block" }} />
       <svg
         viewBox="0 0 220 80"
         width={w}
