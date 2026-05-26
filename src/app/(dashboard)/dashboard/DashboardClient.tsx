@@ -1669,7 +1669,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                         </div>
                         <div className="flex flex-col flex-1 p-4 gap-1">
                           <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-semibold truncate" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{gift.title}</p>
+                            <p className="text-base font-semibold truncate" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{gift.title}</p>
                             <div className="flex items-center gap-1 flex-shrink-0">
                               <button onClick={() => startEditGift(gift)} className="transition-colors" style={{ color: "rgba(109,29,62,0.25)" }} onMouseEnter={e => (e.currentTarget.style.color = "rgba(109,29,62,0.7)")} onMouseLeave={e => (e.currentTarget.style.color = "rgba(109,29,62,0.25)")}>
                                 <SquarePen size={14} strokeWidth={1.5} />
@@ -1683,7 +1683,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                             <p className="text-xs font-light line-clamp-2" style={{ color: "rgba(44,44,44,0.55)" }}>{gift.description}</p>
                           )}
                           <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-                            <span className="text-base font-bold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>{Number(gift.price).toFixed(0)} €</span>
+                            <span className="text-lg font-bold" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>{Number(gift.price).toFixed(0)} €</span>
                             {funded && (
                               <span className="text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5" style={{ backgroundColor: "#dcfce7", color: "#15803d" }}>
                                 <Check size={13} strokeWidth={2.5} />
