@@ -274,47 +274,43 @@ export default function RsvpPage() {
 
     return (
       <>
-        <style>{`
-          @keyframes rsvpPeek {
-            0%   { transform: translateY(0); }
-            25%  { transform: translateY(-176px); }
-            45%  { transform: translateY(-176px); }
-            68%  { transform: translateY(18px); }
-            82%  { transform: translateY(-6px); }
-            100% { transform: translateY(0); }
-          }
-        `}</style>
         {Modal}
-        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", ...getBgStyle((cfg as any).anim_bg) }}>
-          <div style={{ height: "60px", flexShrink: 0 }} />
-          <div style={{ flex: "0 0 auto", height: "600px", position: "relative" }}>
+        {/* Full-page background + card */}
+        <div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", ...getBgStyle((cfg as any).anim_bg) }}>
+          <div style={{ width: "100%", maxWidth: "420px", height: "600px", position: "relative" }}>
             {AnimationCard}
           </div>
-          <div style={{ height: "80px", flexShrink: 0, background: "linear-gradient(to bottom, transparent, white)" }} />
+        </div>
+        {/* RSVP section — fixed bottom sheet, slides up after animation */}
+        {cfg.rsvp_enabled !== false && (
           <div style={{
-            background: "white", padding: "0 24px 40px",
+            position: "fixed", bottom: 0, left: 0, right: 0,
+            background: "white",
+            borderRadius: "20px 20px 0 0",
+            padding: "24px 24px 40px",
             display: "flex", flexDirection: "column", alignItems: "center", gap: "12px",
-            willChange: "transform",
-            animation: rsvpPeek ? "rsvpPeek 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+            boxShadow: "0 -4px 24px rgba(0,0,0,0.10)",
+            transform: rsvpPeek ? "translateY(0)" : "translateY(100%)",
+            transition: "transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           }}>
-            {cfg.rsvp_enabled !== false && userData.p1 && userData.p2 && (
-              <div style={{ textAlign: "center", marginBottom: "8px" }}>
-                <p style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 6px", lineHeight: 1.2 }}>
+            {userData.p1 && userData.p2 && (
+              <div style={{ textAlign: "center", marginBottom: "4px" }}>
+                <p style={{ fontFamily: "Georgia, serif", fontSize: "22px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 4px", lineHeight: 1.2 }}>
                   {userData.p1} &amp; {userData.p2}
                 </p>
-                <p style={{ fontFamily: "Georgia, serif", fontSize: "18px", color: "#9e6b5c", margin: 0 }}>
+                <p style={{ fontFamily: "Georgia, serif", fontSize: "15px", color: "#9e6b5c", margin: 0 }}>
                   attendent votre réponse
                 </p>
               </div>
             )}
-            {cfg.rsvp_enabled !== false && RsvpButtons}
+            {RsvpButtons}
             {cfg?.rsvp_note && (
-              <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0", whiteSpace: "pre-wrap" }}>
+              <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "17px", color: "#7a7370", lineHeight: 1.7, maxWidth: "360px", margin: "4px 0 0", whiteSpace: "pre-wrap" }}>
                 {cfg.rsvp_note}
               </p>
             )}
           </div>
-        </div>
+        )}
       </>
     );
   }
