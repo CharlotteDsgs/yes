@@ -28,7 +28,7 @@ export default function WedyLogo({ size = "md", href = "/" }: Props) {
       <defs>
         <path id="weddy-arc" d="M 5,72 Q 110,22 215,72" />
       </defs>
-      <text style={{ fontFamily: "var(--font-logo)", fontSize: 46, fill: "#7A1B45" }}>
+      <text style={{ fontFamily: "var(--font-logo)", fontSize: 46, fill: "#990841" }}>
         <textPath href="#weddy-arc" startOffset="50%" textAnchor="middle">
           weddy
         </textPath>
