@@ -256,8 +256,8 @@ export default function PublicRsvpPage() {
       <>
         {Modal}
         {/* Full-page background + card */}
-        <div style={{ height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", ...getBgStyle((cfg as any).anim_bg) }}>
-          <div style={{ width: "100%", maxWidth: "420px", height: "600px", position: "relative" }}>
+        <div style={{ height: "100vh", display: "flex", flexDirection: "column", ...getBgStyle((cfg as any).anim_bg) }}>
+          <div style={{ flex: 1, position: "relative" }}>
             {AnimationCard}
           </div>
         </div>
