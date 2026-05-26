@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import NavbarWrapper from "@/components/home/NavbarWrapper";
-import { Cormorant_Garamond, Cormorant_Infant, Jost, Fredoka, Anton, Playfair_Display, Montserrat, Dancing_Script, Ballet, Birthstone, Great_Vibes, Herr_Von_Muellerhoff, Allura, Pinyon_Script, Cherry_Bomb_One, Libre_Baskerville } from "next/font/google";
+import { Cormorant_Garamond, Cormorant_Infant, Jost, Fredoka, Anton, Playfair_Display, Montserrat, Dancing_Script, Ballet, Birthstone, Great_Vibes, Herr_Von_Muellerhoff, Allura, Pinyon_Script, Cherry_Bomb_One, Libre_Baskerville, Baloo_2 } from "next/font/google";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -63,6 +63,7 @@ const pinyonScript = Pinyon_Script({ variable: "--font-pinyon", subsets: ["latin
 const cormorantInfant = Cormorant_Infant({ variable: "--font-cormorant-infant", subsets: ["latin"], weight: ["300", "400", "500", "600"], style: ["normal", "italic"], display: "swap" });
 const cherryBomb = Cherry_Bomb_One({ variable: "--font-bagel", subsets: ["latin"], weight: ["400"], display: "swap" });
 const libreBaskerville = Libre_Baskerville({ variable: "--font-libre-baskerville", subsets: ["latin"], weight: ["400", "700"], style: ["normal", "italic"], display: "swap" });
+const baloo = Baloo_2({ variable: "--font-logo", subsets: ["latin"], weight: ["700"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "Weddy — La liste de mariage qui vous ressemble",
@@ -77,7 +78,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${cormorant.variable} ${cormorantInfant.variable} ${jost.variable} ${fredoka.variable} ${anton.variable} ${playfair.variable} ${montserrat.variable} ${dancing.variable} ${ballet.variable} ${birthstone.variable} ${greatVibes.variable} ${herrVon.variable} ${allura.variable} ${pinyonScript.variable} ${cherryBomb.variable} ${libreBaskerville.variable}`}>
+    <html lang="fr" className={`${cormorant.variable} ${cormorantInfant.variable} ${jost.variable} ${fredoka.variable} ${anton.variable} ${playfair.variable} ${montserrat.variable} ${dancing.variable} ${ballet.variable} ${birthstone.variable} ${greatVibes.variable} ${herrVon.variable} ${allura.variable} ${pinyonScript.variable} ${cherryBomb.variable} ${libreBaskerville.variable} ${baloo.variable}`}>
       <body className="min-h-full flex flex-col">
         <NavbarWrapper />
         {children}

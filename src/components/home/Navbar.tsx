@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -51,11 +50,12 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between h-20">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-1">
+        <Link href="/" className="flex items-center">
           <span
             style={{
-              fontFamily: "var(--font-bagel)",
+              fontFamily: "var(--font-logo)",
               fontSize: "1.75rem",
+              fontWeight: 700,
               color: "#7A1B45",
               lineHeight: 1,
               letterSpacing: "0.01em",
@@ -63,14 +63,6 @@ export default function Navbar() {
           >
             WEDDY
           </span>
-          <Image
-            src="/fox_no-bg.png"
-            alt="Weddy fox"
-            width={44}
-            height={44}
-            className="object-contain"
-            priority
-          />
         </Link>
 
         {/* Desktop Nav */}
