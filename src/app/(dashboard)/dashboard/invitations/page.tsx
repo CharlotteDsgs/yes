@@ -3846,7 +3846,7 @@ export default function SaveTheDatePage() {
       const cfg = (reg as any)?.std_config;
       if (cfg?.rsvp_note) { setSendMessage(cfg.rsvp_note); setMessageSaved(true); }
       if (cfg?.rsvp_note_align) setSendMessageAlign(cfg.rsvp_note_align);
-      if (cfg?.template_id) setSavedTemplateId(cfg.template_id);
+      if (cfg?.template_id) { setSavedTemplateId(cfg.template_id); setSelectedId(cfg.template_id); }
       if (cfg?.anim_bg) setAnimBg(cfg.anim_bg);
 
       // Restore saved state if it exists
