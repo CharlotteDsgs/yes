@@ -55,8 +55,8 @@ export default function Hero() {
           {/* ── Colonne gauche : Liste de mariage ── */}
           <div className="flex flex-col gap-6">
             <div
-              className="w-full rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #C4607A", aspectRatio: "16/10", position: "relative" }}
+              className="mx-auto rounded-3xl overflow-hidden"
+              style={{ border: "3px solid #C4607A", aspectRatio: "16/10", position: "relative", width: "70%" }}
             >
               <Image src="/screenshot-cadeaux.png" alt="Liste de cadeaux" fill className="object-cover object-top" />
             </div>
@@ -77,8 +77,8 @@ export default function Hero() {
           {/* ── Colonne droite : Save the Date ── */}
           <div className="flex flex-col gap-6">
             <div
-              className="w-full rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #737A2D", aspectRatio: "16/10", position: "relative" }}
+              className="mx-auto rounded-3xl overflow-hidden"
+              style={{ border: "3px solid #737A2D", aspectRatio: "16/10", position: "relative", width: "70%" }}
             >
               <Image src="/screenshot-std.png" alt="Éditeur Save the Date" fill className="object-cover object-top" />
             </div>
