@@ -58,7 +58,7 @@ export default function Hero() {
               className="mx-auto rounded-3xl overflow-hidden"
               style={{ border: "3px solid #C4607A", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "10px 10px 0px rgba(196,96,122,0.35), 18px 18px 0px rgba(196,96,122,0.15)" }}
             >
-              <Image src="/screenshot-cadeaux.png" alt="Liste de cadeaux" fill className="object-cover object-top" />
+              <Image src="/screenshot-cadeaux2.png" alt="Liste de cadeaux" fill className="object-cover object-top" />
             </div>
 
             <Link
