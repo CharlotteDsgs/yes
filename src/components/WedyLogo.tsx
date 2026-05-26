@@ -6,7 +6,7 @@ interface Props {
 }
 
 const dims = {
-  sm:  { w: 130, h: 48, icon: 24 },
+  sm:  { w: 155, h: 57, icon: 32 },
   nav: { w: 155, h: 57, icon: 32 },
   md:  { w: 180, h: 66, icon: 34 },
   lg:  { w: 230, h: 84, icon: 44 },
