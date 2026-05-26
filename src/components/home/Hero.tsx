@@ -67,7 +67,7 @@ export default function Hero() {
               style={{ backgroundColor: "#831535", color: "white" }}
             >
               <Image src="/logo/logo1.png" alt="" width={40} height={40} className="object-contain flex-shrink-0" />
-              <span style={{ fontFamily: "var(--font-logo)", fontSize: "1.35rem", fontWeight: 700, letterSpacing: "0.01em" }}>
+              <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
                 Créer ma liste de mariage
               </span>
               <span style={{ fontSize: "1.5rem" }}>→</span>
@@ -89,7 +89,7 @@ export default function Hero() {
               style={{ backgroundColor: "#6B7530", color: "white" }}
             >
               <Image src="/logo/logo1.png" alt="" width={40} height={40} className="object-contain flex-shrink-0" />
-              <span style={{ fontFamily: "var(--font-logo)", fontSize: "1.35rem", fontWeight: 700, letterSpacing: "0.01em" }}>
+              <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
                 Créer mon <em>Save the Date</em>
               </span>
               <span style={{ fontSize: "1.5rem" }}>→</span>
