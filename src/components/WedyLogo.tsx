@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface Props {
   size?: "sm" | "md" | "lg";
@@ -6,15 +7,17 @@ interface Props {
 }
 
 const dims = {
-  sm: { w: 130, h: 48 },
-  md: { w: 180, h: 66 },
-  lg: { w: 230, h: 84 },
+  sm: { w: 130, h: 48, icon: 32 },
+  md: { w: 180, h: 66, icon: 44 },
+  lg: { w: 230, h: 84, icon: 56 },
 };
 
 export default function WedyLogo({ size = "md", href = "/" }: Props) {
-  const { w, h } = dims[size];
+  const { w, h, icon } = dims[size];
 
   const inner = (
+    <span className="flex items-center gap-1">
+      <Image src="/logo/logo1.png" alt="" width={icon} height={icon} className="object-contain" priority />
     <svg
       viewBox="0 0 220 80"
       width={w}
@@ -31,6 +34,7 @@ export default function WedyLogo({ size = "md", href = "/" }: Props) {
         </textPath>
       </text>
     </svg>
+    </span>
   );
 
   return href ? <Link href={href}>{inner}</Link> : inner;
