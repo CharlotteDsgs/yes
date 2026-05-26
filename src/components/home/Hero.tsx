@@ -63,7 +63,7 @@ export default function Hero() {
             </Link>
             <div
               className="rounded-3xl overflow-hidden"
-              style={{ border: "2px solid #D4849A", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "8px 8px 0px rgba(196,96,122,0.25), 16px 16px 0px rgba(196,96,122,0.10)" }}
+              style={{ aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "6px 6px 0px rgba(180,80,100,0.22)" }}
             >
               <Image src="/screenshot-cadeaux2.png" alt="Liste de cadeaux" fill className="object-cover object-top" />
             </div>
@@ -80,7 +80,7 @@ export default function Hero() {
             </Link>
             <div
               className="rounded-3xl overflow-hidden"
-              style={{ border: "2px solid #D4849A", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "8px 8px 0px rgba(196,96,122,0.20), 16px 16px 0px rgba(196,96,122,0.08)" }}
+              style={{ aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "6px 6px 0px rgba(180,80,100,0.22)" }}
             >
               <Image src="/screenshot-std.png" alt="Éditeur Save the Date" fill className="object-cover object-top" />
             </div>
