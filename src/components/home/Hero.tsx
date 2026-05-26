@@ -56,11 +56,9 @@ export default function Hero() {
           <div className="flex flex-col gap-6">
             <div
               className="w-full rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #C4607A", aspectRatio: "4/3" }}
+              style={{ border: "3px solid #C4607A", aspectRatio: "4/3", position: "relative" }}
             >
-              <div className="w-full h-full bg-[#f9e8ee] flex items-center justify-center text-[#C4607A] text-sm opacity-50">
-                → screenshot liste cadeaux
-              </div>
+              <Image src="/screenshot-cadeaux.png" alt="Liste de cadeaux" fill className="object-cover object-top" />
             </div>
 
             <Link
@@ -80,11 +78,9 @@ export default function Hero() {
           <div className="flex flex-col gap-6">
             <div
               className="w-full rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #737A2D", aspectRatio: "4/3" }}
+              style={{ border: "3px solid #737A2D", aspectRatio: "4/3", position: "relative" }}
             >
-              <div className="w-full h-full bg-[#f0f0dc] flex items-center justify-center text-[#737A2D] text-sm opacity-50">
-                → screenshot éditeur STD
-              </div>
+              <Image src="/screenshot-std.png" alt="Éditeur Save the Date" fill className="object-cover object-top" />
             </div>
 
             <Link
