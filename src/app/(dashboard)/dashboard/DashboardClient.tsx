@@ -1636,7 +1636,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
                   <p className="text-sm font-light" style={{ color: "rgba(109,29,62,0.5)" }}>Aucun cadeau ne correspond à ce filtre.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {displayed.map((gift) => {
                     const funded = gift.is_funded;
                     return (
