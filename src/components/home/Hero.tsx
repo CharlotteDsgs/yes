@@ -90,7 +90,7 @@ export default function Hero() {
               style={{ width: "85%", backgroundColor: "#6B7530", color: "white" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo/logo2.png" alt="" width={40} height={40} style={{ display: "block" }} />
+              <img src="/logo/logo2_sansbg.png" alt="" width={40} height={40} style={{ display: "block" }} />
               <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
                 Créer mon <em>Save the Date</em>
               </span>
