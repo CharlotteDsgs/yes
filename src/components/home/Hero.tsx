@@ -43,7 +43,7 @@ export default function Hero() {
           }}
         >
           Votre{" "}
-          <span style={{ fontFamily: "var(--font-gulf)", color: "#990841" }}>
+          <span style={{ fontFamily: "var(--font-gulf)", color: "#990841", textShadow: "0px 7px 0px #EAB0C0" }}>
             plannification de mariage
           </span>{" "}
           commence ici
