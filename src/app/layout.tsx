@@ -65,6 +65,7 @@ const cormorantInfant = Cormorant_Infant({ variable: "--font-cormorant-infant", 
 const cherryBomb = Cherry_Bomb_One({ variable: "--font-bagel", subsets: ["latin"], weight: ["400"], display: "swap" });
 const libreBaskerville = Libre_Baskerville({ variable: "--font-libre-baskerville", subsets: ["latin"], weight: ["400", "700"], style: ["normal", "italic"], display: "swap" });
 const balabeloo = localFont({ src: "../../public/font/Balabeloo.ttf", variable: "--font-logo", display: "swap" });
+const gulf = localFont({ src: "../../public/font/gulf.ttf", variable: "--font-gulf", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Weddy — La liste de mariage qui vous ressemble",
@@ -79,7 +80,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${cormorant.variable} ${cormorantInfant.variable} ${jost.variable} ${fredoka.variable} ${anton.variable} ${playfair.variable} ${montserrat.variable} ${dancing.variable} ${ballet.variable} ${birthstone.variable} ${greatVibes.variable} ${herrVon.variable} ${allura.variable} ${pinyonScript.variable} ${cherryBomb.variable} ${libreBaskerville.variable} ${balabeloo.variable}`}>
+    <html lang="fr" className={`${cormorant.variable} ${cormorantInfant.variable} ${jost.variable} ${fredoka.variable} ${anton.variable} ${playfair.variable} ${montserrat.variable} ${dancing.variable} ${ballet.variable} ${birthstone.variable} ${greatVibes.variable} ${herrVon.variable} ${allura.variable} ${pinyonScript.variable} ${cherryBomb.variable} ${libreBaskerville.variable} ${balabeloo.variable} ${gulf.variable}`}>
       <body className="min-h-full flex flex-col">
         <NavbarWrapper />
         {children}
