@@ -18,7 +18,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
 
   const { data: guest } = await supabase
     .from("std_guests")
-    .select("name, rsvp_status, rsvp_message, guest_count, registry_id")
+    .select("name, rsvp_status, rsvp_message, guest_count, registry_id, custom_labels, custom_note")
     .eq("token", token)
     .single();
 
@@ -52,6 +52,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
     partner2_name: profile?.partner2_name ?? null,
     location: null,
     stdConfig,
+    customLabels: (guest as any).custom_labels ?? null,
+    customNote: (guest as any).custom_note ?? null,
   });
 }
 

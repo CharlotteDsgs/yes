@@ -988,11 +988,11 @@ export function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photo
   return null;
 }
 
-export function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, tagline, photoUrl, photoUrls, elementStyles, customPaperBg, onClose, onAnimationDone, inline }: {
+export function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, tagline, photoUrl, photoUrls, elementStyles, customPaperBg, onClose, onAnimationDone, inline, cardWidth }: {
   tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
   fontPreset?: string; label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string; tagline?: string; photoUrl?: string; photoUrls?: string[];
   elementStyles?: ElStyles; customPaperBg?: string;
-  onClose: () => void; onAnimationDone?: () => void; inline?: boolean;
+  onClose: () => void; onAnimationDone?: () => void; inline?: boolean; cardWidth?: number;
 }) {
   const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
   const [reducedMotion] = useState<boolean>(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -1009,7 +1009,7 @@ export function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, 
 
   function handleReplay() { setPhase(0); setRestartKey(k => k + 1); }
 
-  const W = inline ? 400 : 460; const H = Math.round(W * 1.4);
+  const W = cardWidth ?? (inline ? 400 : 460); const H = Math.round(W * 1.4);
   const OPEN_EASE = "2.2s linear"; const FOLD_EASE = "3.0s cubic-bezier(0.2, 0, 0.15, 1)";
   const leftFlapAngle  = phase === 0 ?  180 : phase === 1 ? 0 : -180;
   const rightFlapAngle = phase === 0 ? -180 : phase === 1 ? 0 :  180;
@@ -1065,15 +1065,15 @@ export function CardFoldModal({ tpl, paletteId, user, isStd, fontPreset, label, 
   );
 }
 
-export function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, tagline, photoUrl, photoUrls, elementStyles, customPaperBg, onAnimationDone }: {
+export function CardFlipScene({ tpl, paletteId, user, isStd, fontPreset, label, namesText, dateText, locationText, footer, tagline, photoUrl, photoUrls, elementStyles, customPaperBg, onAnimationDone, cardWidth }: {
   tpl: TemplateConfig; paletteId: string; user: UserData; isStd: boolean;
   fontPreset?: string; label?: string; namesText?: string; dateText?: string;
   locationText?: string; footer?: string; tagline?: string; photoUrl?: string; photoUrls?: string[];
   elementStyles?: ElStyles; customPaperBg?: string;
-  onAnimationDone?: () => void;
+  onAnimationDone?: () => void; cardWidth?: number;
 }) {
   const palette = tpl.palettes.find(p => p.id === paletteId) ?? tpl.palettes[0];
-  const W = 400; const H = Math.round(W * 1.4);
+  const W = cardWidth ?? 400; const H = Math.round(W * 1.4);
   const [flipped, setFlipped] = useState(true);
   const [done, setDone]       = useState(false);
   const [key, setKey]         = useState(0);

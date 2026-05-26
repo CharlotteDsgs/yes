@@ -1,374 +1,56 @@
-"use client";
+import { type Metadata } from "next";
+import { createServerClient } from "@supabase/ssr";
+import RsvpOpenClient from "./RsvpOpenClient";
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import { Play } from "lucide-react";
-import { TemplateRender, CardFoldModal, CardFlipScene, TEMPLATES, type UserData, type CardCustomization } from "@/components/std/StdCardRenderer";
-
-interface StdConfig {
-  animation_type: "ouverture" | "retournement" | "rien";
-  rsvp_enabled: boolean;
-  rsvp_labels: string[];
-  rsvp_note?: string;
-  template_id: string;
-  palette_id: string;
-  card_custom: CardCustomization;
+function createAdminClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } }
+  );
 }
 
-const ANIM_BG_COLORS: Record<string, string> = {
-  white: "#FFFFFF", beige: "#F5EFE4", grey: "#ECEAE6", blush: "#F8EDE8", sage: "#EBF0E9",
-};
-const ANIM_BG_IMAGES: Record<string, string> = {
-  marble: "/fond/marbre.png",
-  granite: "/fond/granite.png",
-  bois_clair: "/fond/bois_clair.png",
-  bois_fonce: "/fond/bois_fonce.png",
-  aquarelle: "/fond/aquarelle_kaki.png",
-  aquarelle2: "/fond/aquarelle_beige.png",
-  aquarelle3: "/fond/aquarelle_rose.png",
-  aquarelle4: "/fond/aquarelle_bleu.png",
-  vichy1: "/fond/vichy_1.jpg",
-  vichy2: "/fond/vichy_2.jpg",
-  vichy3: "/fond/vichy_3.jpg",
-  rayure1: "/fond/rayures_1.jpg",
-  rayure2: "/fond/rayure_2.jpg",
-  rayure3: "/fond/rayure_3.jpg",
-  rayure4: "/fond/rayure_4.jpg",
-  liberty1: "/fond/liberty_1.png",
-  liberty2: "/fond/liberty_2.png",
-  liberty3: "/fond/liberty_3.png",
-};
-function getBgStyle(animBg?: string): React.CSSProperties {
-  const img = ANIM_BG_IMAGES[animBg ?? "marble"];
-  if (img) return { backgroundImage: `url('${img}')`, backgroundSize: "cover", backgroundPosition: "center" };
-  return { backgroundColor: ANIM_BG_COLORS[animBg ?? ""] ?? "#ECEAE6" };
+export async function generateMetadata(
+  { params }: { params: Promise<{ registryId: string }> }
+): Promise<Metadata> {
+  const { registryId } = await params;
+  const supabase = createAdminClient();
+
+  const { data: registry } = await supabase
+    .from("registries")
+    .select("user_id")
+    .eq("id", registryId)
+    .single();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("partner1_name, partner2_name")
+    .eq("id", registry?.user_id)
+    .single();
+
+  const title = profile?.partner1_name && profile?.partner2_name
+    ? `Vous êtes invité·e au mariage de ${profile.partner1_name} & ${profile.partner2_name}`
+    : "Votre invitation · Weddy";
+
+  const description = "Ouvrez votre invitation et répondez à la demande de présence.";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: "/envelope-email.jpg", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/envelope-email.jpg"],
+    },
+  };
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "12px 14px", borderRadius: "8px",
-  border: "1.5px solid #f0e6e2", fontSize: "15px", fontFamily: "Georgia, serif",
-  color: "#2c2c2c", background: "#fdfaf8", outline: "none", boxSizing: "border-box",
-};
-const labelStyle: React.CSSProperties = {
-  display: "block", fontFamily: "var(--font-display)", fontSize: "11px",
-  letterSpacing: "0.15em", textTransform: "uppercase", color: "#9e6b5c",
-  marginBottom: "6px",
-};
-
-export default function PublicRsvpPage() {
-  const { registryId } = useParams<{ registryId: string }>();
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState<"animation" | "form" | "done">("animation");
-  const [submitting, setSubmitting] = useState(false);
-  const [replayKey, setReplayKey] = useState(0);
-  const [chosenLabel, setChosenLabel] = useState<string | null>(null);
-  const [rsvpPeek, setRsvpPeek] = useState(false);
-
-  // Reset on replay
-  useEffect(() => { setRsvpPeek(false); }, [replayKey]);
-
-  // Scroll peek: scroll down briefly then back to top
-  useEffect(() => {
-    if (!rsvpPeek) return;
-    const t1 = setTimeout(() => window.scrollTo({ top: 220, behavior: "smooth" }), 200);
-    const t2 = setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 1600);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [rsvpPeek]);
-
-  const [modal, setModal] = useState<{ label: string; rsvpStatus: "confirmed" | "declined" } | null>(null);
-  const [prenom, setPrenom] = useState("");
-  const [nom, setNom] = useState("");
-  const [email, setEmail] = useState("");
-  const [guestMessage, setGuestMessage] = useState("");
-
-  useEffect(() => {
-    fetch(`/api/rsvp/open/${registryId}`)
-      .then(r => r.json())
-      .then(d => {
-        setData(d);
-        const cfg: StdConfig | null = d.stdConfig;
-        if (!cfg || cfg.animation_type === "rien") setStep("form");
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [registryId]);
-
-  function openModal(label: string, rsvpStatus: "confirmed" | "declined") {
-    setModal({ label, rsvpStatus });
-  }
-
-  async function submitModal(e: React.FormEvent) {
-    e.preventDefault();
-    if (!modal) return;
-    setSubmitting(true);
-    await fetch(`/api/rsvp/open/${registryId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        status: modal.rsvpStatus,
-        name: `${prenom} ${nom}`.trim(),
-        email: email.trim(),
-        message: guestMessage || null,
-      }),
-    });
-    setChosenLabel(modal.label);
-    setSubmitting(false);
-    setModal(null);
-    setStep("done");
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#fdfaf8" }}>
-        <p style={{ fontFamily: "Georgia, serif", color: "#c9a89a", fontSize: "14px", letterSpacing: "0.2em" }}>Chargement…</p>
-      </div>
-    );
-  }
-
-  if (!data || data.error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#fdfaf8" }}>
-        <p style={{ fontFamily: "Georgia, serif", color: "#9e6b5c", fontSize: "16px" }}>Lien invalide ou expiré.</p>
-      </div>
-    );
-  }
-
-  const cfg: StdConfig | null = data.stdConfig;
-  const tpl = cfg ? TEMPLATES.find(t => t.id === cfg.template_id) : null;
-  const palette = tpl ? (tpl.palettes.find(p => p.id === cfg!.palette_id) ?? tpl.palettes[0]) : null;
-  const userData: UserData = { p1: data.partner1_name ?? "", p2: data.partner2_name ?? "", date: data.weddingDate ?? "", location: data.location ?? "" };
-  const cc: CardCustomization | null = cfg?.card_custom ?? null;
-  const rsvpLabels: string[] = cfg?.rsvp_labels?.length ? cfg.rsvp_labels : ["Je participe", "Je ne participe pas"];
-
-  const cardW = Math.min(380, typeof window !== "undefined" ? window.innerWidth - 48 : 380);
-  const cardH = Math.round(cardW * 1.4);
-
-  const RsvpButtons = (
-    <div style={{ width: "100%", maxWidth: "360px", display: "flex", flexDirection: "column", gap: "10px" }}>
-      {rsvpLabels.map((label, idx) => (
-        <button
-          key={idx}
-          onClick={() => openModal(label, idx === 0 ? "confirmed" : "declined")}
-          style={{
-            padding: "16px 24px",
-            background: idx === 0 ? "#6D1D3E" : "white",
-            color: idx === 0 ? "white" : "#6D1D3E",
-            border: idx === 0 ? "none" : "1.5px solid rgba(109,29,62,0.25)",
-            borderRadius: "4px", fontSize: "12px", letterSpacing: "0.15em",
-            textTransform: "uppercase", fontFamily: "var(--font-display)",
-            cursor: "pointer", transition: "opacity 0.2s",
-          }}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  );
-
-  const Modal = modal && (
-    <div style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-      <div
-        style={{ position: "absolute", inset: 0, background: "rgba(44,28,20,0.45)", backdropFilter: "blur(6px)" }}
-        onClick={() => setModal(null)}
-      />
-      <div style={{ position: "relative", width: "100%", maxWidth: "440px", background: "white", borderRadius: "20px", padding: "36px 28px 32px", boxShadow: "0 24px 64px rgba(109,29,62,0.22)", maxHeight: "90vh", overflowY: "auto" }}>
-        <h2 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 300, fontSize: "22px", color: "#6D1D3E", margin: "0 0 6px", textAlign: "center" }}>
-          Confirmer votre réponse
-        </h2>
-        <div style={{ textAlign: "center", margin: "12px 0 24px" }}>
-          <span style={{
-            display: "inline-block", padding: "8px 20px",
-            background: modal.rsvpStatus === "confirmed" ? "#6D1D3E" : "white",
-            color: modal.rsvpStatus === "confirmed" ? "white" : "#6D1D3E",
-            border: modal.rsvpStatus === "confirmed" ? "none" : "1.5px solid rgba(109,29,62,0.3)",
-            borderRadius: "4px", fontSize: "11px", letterSpacing: "0.2em",
-            textTransform: "uppercase", fontFamily: "var(--font-display)",
-          }}>
-            {modal.label}
-          </span>
-          <button onClick={() => setModal(null)} style={{ display: "block", margin: "8px auto 0", background: "none", border: "none", color: "rgba(109,29,62,0.4)", fontSize: "12px", fontFamily: "var(--font-display)", cursor: "pointer", letterSpacing: "0.1em" }}>
-            Modifier →
-          </button>
-        </div>
-        <form onSubmit={submitModal} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div style={{ display: "flex", gap: "12px" }}>
-            <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Prénom *</label>
-              <input style={inputStyle} value={prenom} onChange={e => setPrenom(e.target.value)} required autoComplete="given-name" />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Nom *</label>
-              <input style={inputStyle} value={nom} onChange={e => setNom(e.target.value)} required autoComplete="family-name" />
-            </div>
-          </div>
-          <div>
-            <label style={labelStyle}>Adresse e-mail *</label>
-            <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" placeholder="votre@email.com" />
-          </div>
-          <div>
-            <label style={labelStyle}>Un mot pour les mariés <span style={{ textTransform: "none", letterSpacing: 0, color: "rgba(158,107,92,0.6)" }}>(optionnel)</span></label>
-            <textarea style={{ ...inputStyle, resize: "none", lineHeight: 1.6 }} rows={3} value={guestMessage} onChange={e => setGuestMessage(e.target.value)} placeholder="Avec joie et impatience…" />
-          </div>
-          <button
-            type="submit"
-            disabled={submitting}
-            style={{
-              padding: "16px", background: "#6D1D3E", color: "white", border: "none",
-              borderRadius: "8px", fontSize: "12px", letterSpacing: "0.2em",
-              textTransform: "uppercase", fontFamily: "var(--font-display)",
-              cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1,
-              transition: "opacity 0.2s", marginTop: "4px",
-            }}
-          >
-            {submitting ? "Envoi…" : "Confirmer ma réponse"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-
-  // ── Animation step ──────────────────────────────────────────
-  if (step === "animation" && cfg && tpl && palette) {
-    const AnimationCard = cfg.animation_type === "ouverture" ? (
-      <CardFoldModal
-        key={replayKey}
-        tpl={tpl} paletteId={cfg.palette_id} user={userData} isStd={true}
-        fontPreset={cc?.fontPreset} label={cc?.label} namesText={cc?.namesText}
-        dateText={cc?.dateText} locationText={cc?.locationText} footer={cc?.footer}
-        photoUrl={cc?.photoUrl || undefined} photoUrls={cc?.photoUrls}
-        elementStyles={cc?.styles} customPaperBg={cc?.customPaperBg}
-        onClose={() => {}} onAnimationDone={() => { setTimeout(() => setRsvpPeek(true), 200); }} inline
-      />
-    ) : (
-      <CardFlipScene
-        key={replayKey}
-        tpl={tpl} paletteId={cfg.palette_id} user={userData} isStd={true}
-        fontPreset={cc?.fontPreset} label={cc?.label} namesText={cc?.namesText}
-        dateText={cc?.dateText} locationText={cc?.locationText} footer={cc?.footer}
-        photoUrl={cc?.photoUrl || undefined} photoUrls={cc?.photoUrls}
-        elementStyles={cc?.styles} customPaperBg={cc?.customPaperBg}
-        onAnimationDone={() => { setTimeout(() => setRsvpPeek(true), 200); }}
-      />
-    );
-
-    return (
-      <>
-        {Modal}
-        {/* Full-page background + card */}
-        <div style={{ height: "100vh", display: "flex", flexDirection: "column", ...getBgStyle((cfg as any).anim_bg) }}>
-          <div style={{ flex: 1, position: "relative" }}>
-            {AnimationCard}
-          </div>
-        </div>
-        {/* RSVP section — in normal flow below the card, scroll to access */}
-        {cfg.rsvp_enabled !== false && (
-          <div style={{ background: "white", padding: "40px 24px 64px", display: "flex", flexDirection: "column", alignItems: "center", gap: "14px" }}>
-            {userData.p1 && userData.p2 && (
-              <div style={{ textAlign: "center", marginBottom: "8px" }}>
-                <p style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#6D1D3E", fontStyle: "italic", margin: "0 0 6px", lineHeight: 1.2 }}>
-                  {userData.p1} &amp; {userData.p2}
-                </p>
-                <p style={{ fontFamily: "Georgia, serif", fontSize: "18px", color: "#9e6b5c", margin: 0 }}>
-                  attendent votre réponse
-                </p>
-              </div>
-            )}
-            {RsvpButtons}
-            {cfg?.rsvp_note && (
-              <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "19px", color: "#7a7370", lineHeight: 1.7, maxWidth: "380px", margin: "4px 0 0", whiteSpace: "pre-wrap" }}>
-                {cfg.rsvp_note}
-              </p>
-            )}
-          </div>
-        )}
-      </>
-    );
-  }
-
-  // ── RSVP form (no animation) ────────────────────────────────
-  if (step === "form") {
-    return (
-      <>
-        {Modal}
-        <div className="min-h-screen flex flex-col items-center" style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
-          {tpl && palette && cc && (
-            <div style={{ paddingTop: "40px", paddingBottom: "24px" }}>
-              <div style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.12), 0 12px 48px rgba(0,0,0,0.22)", borderRadius: 2, overflow: "hidden" }}>
-                <TemplateRender
-                  id={tpl.id} W={cardW} H={cardH}
-                  palette={palette} user={userData} isStd={true}
-                  fontPreset={cc.fontPreset} label={cc.label}
-                  namesText={cc.namesText} dateText={cc.dateText}
-                  locationText={cc.locationText} footer={cc.footer}
-                  photoUrl={cc.photoUrl || undefined} photoUrls={cc.photoUrls}
-                  elementStyles={cc.styles} customPaperBg={cc.customPaperBg}
-                />
-              </div>
-            </div>
-          )}
-          {cfg?.rsvp_enabled !== false && (
-            <div style={{ width: "100%", maxWidth: "400px", padding: "0 24px 48px", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-              <p style={{ textAlign: "center", fontFamily: "Georgia, serif", fontSize: "13px", color: "#9e6b5c", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "8px" }}>
-                Votre réponse
-              </p>
-              {RsvpButtons}
-              {cfg?.rsvp_note && (
-                <p style={{ textAlign: (cfg as any).rsvp_note_align ?? "center", fontFamily: "Georgia, serif", fontSize: "21px", color: "#7a7370", lineHeight: 1.7, marginTop: "8px", whiteSpace: "pre-wrap" }}>
-                  {cfg.rsvp_note}
-                </p>
-              )}
-            </div>
-          )}
-          <p style={{ textAlign: "center", fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)", paddingBottom: "24px" }}>
-            Weddy · La liste de mariage qui vous ressemble
-          </p>
-        </div>
-      </>
-    );
-  }
-
-  // ── Done step ──────────────────────────────────────────────
-  const isConfirmed = chosenLabel === rsvpLabels[0];
-
-  return (
-    <>
-      {Modal}
-      <div className="min-h-screen flex flex-col items-center" style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)", padding: "40px 20px 32px" }}>
-        <div style={{ width: "100%", maxWidth: "420px", background: "white", borderRadius: "16px", boxShadow: "0 8px 48px rgba(109,29,62,0.12)", padding: "40px 32px", textAlign: "center", marginBottom: "20px" }}>
-          {isConfirmed ? (
-            <>
-              <div style={{ fontSize: "44px", marginBottom: "14px" }}>💐</div>
-              <h2 style={{ fontSize: "22px", fontWeight: 300, color: "#6D1D3E", margin: "0 0 10px", fontFamily: "Georgia, serif", fontStyle: "italic" }}>Merci, à bientôt !</h2>
-              <p style={{ fontSize: "15px", color: "#7a7370", margin: "0 0 28px", fontFamily: "Georgia, serif", lineHeight: 1.7 }}>Votre présence est confirmée. Nous avons hâte de vous retrouver pour ce beau jour.</p>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: "44px", marginBottom: "14px" }}>💌</div>
-              <h2 style={{ fontSize: "22px", fontWeight: 300, color: "#6D1D3E", margin: "0 0 10px", fontFamily: "Georgia, serif", fontStyle: "italic" }}>Nous comprenons.</h2>
-              <p style={{ fontSize: "15px", color: "#7a7370", margin: "0 0 24px", fontFamily: "Georgia, serif", lineHeight: 1.7 }}>Merci de nous avoir répondu. Vous serez avec nous en pensée ce jour-là.</p>
-              {data.registrySlug && (
-                <a href={`/mariage/${data.registrySlug}`} style={{ display: "inline-block", padding: "12px 28px", background: "#6D1D3E", color: "white", textDecoration: "none", fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", fontFamily: "var(--font-display)", borderRadius: "4px", marginBottom: "20px" }}>
-                  Voir la liste de mariage →
-                </a>
-              )}
-            </>
-          )}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-            {tpl && palette && cc && (
-              <button
-                onClick={() => { setReplayKey(k => k + 1); setStep(cfg && cfg.animation_type !== "rien" ? "animation" : "form"); }}
-                style={{ alignSelf: "center", width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "1.5px solid rgba(109,29,62,0.18)", borderRadius: "50%", color: "#6D1D3E", cursor: "pointer" }}
-              >
-                <Play size={16} fill="#6D1D3E" />
-              </button>
-            )}
-          </div>
-        </div>
-        <p style={{ fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)" }}>
-          Weddy · La liste de mariage qui vous ressemble
-        </p>
-      </div>
-    </>
-  );
+export default function Page() {
+  return <RsvpOpenClient />;
 }

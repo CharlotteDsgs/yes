@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     const results = await Promise.allSettled(
-      guests.map(async (guest: { name: string; email: string }) => {
+      guests.map(async (guest: { name: string; email: string; customLabels?: string[]; customNote?: string }) => {
         // Upsert guest record
         const { data: existing } = await supabase
           .from("std_guests")
@@ -71,14 +71,16 @@ export async function POST(request: Request) {
           .maybeSingle();
 
         let token: string;
+        const customLabelsPayload = guest.customLabels?.length ? guest.customLabels : null;
+        const customNotePayload = guest.customNote?.trim() || null;
 
         if (existing) {
           token = existing.token;
-          await supabase.from("std_guests").update({ name: guest.name, sent_at: new Date().toISOString(), rsvp_status: "pending", rsvp_at: null }).eq("id", existing.id);
+          await supabase.from("std_guests").update({ name: guest.name, sent_at: new Date().toISOString(), rsvp_status: "pending", rsvp_at: null, custom_labels: customLabelsPayload, custom_note: customNotePayload }).eq("id", existing.id);
         } else {
           const { data: inserted } = await supabase
             .from("std_guests")
-            .insert({ registry_id: registryId, name: guest.name, email: guest.email.toLowerCase().trim() })
+            .insert({ registry_id: registryId, name: guest.name, email: guest.email.toLowerCase().trim(), custom_labels: customLabelsPayload, custom_note: customNotePayload })
             .select("token")
             .single();
           token = inserted!.token;

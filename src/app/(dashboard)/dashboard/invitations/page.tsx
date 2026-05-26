@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList, AlignLeft, AlignCenter, AlignRight, AlignJustify, Info, Save } from "lucide-react";
+import { X, ArrowLeft, ArrowRight, Play, Sparkles, RotateCcw, Trash2, Move, Check, Copy, Link2, Mail, Pencil, UserPlus, FileSpreadsheet, ClipboardList, AlignLeft, AlignCenter, AlignRight, AlignJustify, Info, Save, SlidersHorizontal } from "lucide-react";
 
 /* ═══════════════════════════════════════════════
    TYPES
@@ -3799,7 +3799,10 @@ export default function SaveTheDatePage() {
   const [newContactEmail, setNewContactEmail] = useState("");
   const [csvError, setCsvError] = useState<string | null>(null);
   const [guestInput, setGuestInput] = useState("");
-  const [guestList, setGuestList] = useState<{ name: string; email: string; plus1: boolean; sent?: boolean }[]>(() => {
+  const [editingGuestIndex, setEditingGuestIndex] = useState<number | null>(null);
+  const [editingLabels, setEditingLabels] = useState<string[] | null>(null);
+  const [editingNote, setEditingNote] = useState<string>("");
+  const [guestList, setGuestList] = useState<{ name: string; email: string; plus1: boolean; sent?: boolean; customLabels?: string[]; customNote?: string }[]>(() => {
     if (typeof window === "undefined") return [];
     try { return JSON.parse(localStorage.getItem("wedy_guest_list") ?? "[]"); } catch { return []; }
   });
@@ -3810,8 +3813,12 @@ export default function SaveTheDatePage() {
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
 
-  function saveContacts() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     localStorage.setItem("wedy_guest_list", JSON.stringify(guestList));
+  }, [guestList]);
+
+  function saveContacts() {
     setContactsSaved(true);
     setTimeout(() => setContactsSaved(false), 2500);
   }
@@ -3848,7 +3855,7 @@ export default function SaveTheDatePage() {
       if (cfg?.rsvp_note_align) setSendMessageAlign(cfg.rsvp_note_align);
       if (cfg?.rsvp_enabled !== undefined) setRsvpEnabled(cfg.rsvp_enabled);
       if (cfg?.rsvp_labels?.length) setRsvpLabels(cfg.rsvp_labels);
-      if (cfg?.template_id) { setSavedTemplateId(cfg.template_id); setSelectedId(cfg.template_id); }
+      if (cfg?.template_id) { setSavedTemplateId(cfg.template_id); setSelectedId(cfg.template_id); setHasBeenPublished(true); }
       if (cfg?.anim_bg) setAnimBg(cfg.anim_bg);
 
       // Restore saved state if it exists
@@ -3919,6 +3926,7 @@ export default function SaveTheDatePage() {
 
   const [publishing, setPublishing] = useState(false);
   const [published, setPublished] = useState(false);
+  const [hasBeenPublished, setHasBeenPublished] = useState(false);
 
   async function saveMessage() {
     if (!registryId) return;
@@ -3955,6 +3963,7 @@ export default function SaveTheDatePage() {
     await saveStdConfig();
     setPublishing(false);
     setPublished(true);
+    setHasBeenPublished(true);
     setTimeout(() => setPublished(false), 2500);
   }
 
@@ -3974,7 +3983,7 @@ export default function SaveTheDatePage() {
     const sentEmails = new Set((targets ?? guestList).map(g => g.email.toLowerCase()));
     setGuestList(prev => prev.map(g => sentEmails.has(g.email.toLowerCase()) ? { ...g, sent: true } : g));
     if (!targets) setSendMessage("");
-    if (mainTab === "reponses") loadGuests();
+    loadGuests();
   }
 
   async function startCheckout(plan: "essentiel" | "premium") {
@@ -4367,20 +4376,42 @@ export default function SaveTheDatePage() {
                 <p className="text-xs" style={{ color: "rgba(44,44,44,0.45)", fontFamily: "var(--font-display)" }}>
                   Sauvegarde le design, l&apos;animation et les options RSVP pour que les invités voient la bonne version.
                 </p>
-                <button
-                  onClick={publishStdConfig}
-                  disabled={publishing || !selectedId}
-                  className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
-                  style={{
-                    backgroundColor: published ? "#2d6a4f" : "#6D1D3E",
-                    color: "white",
-                    fontFamily: "var(--font-display)",
-                    opacity: !selectedId ? 0.4 : 1,
-                    transition: "background-color 0.3s",
-                  }}
-                >
-                  {publishing ? "Publication…" : published ? "✓ Publié !" : "Publier l'invitation"}
-                </button>
+                {hasBeenPublished ? (
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1.5 text-sm font-semibold" style={{ color: "#2d6a4f", fontFamily: "var(--font-display)" }}>
+                      ✓ Invitation publiée
+                    </span>
+                    <button
+                      onClick={publishStdConfig}
+                      disabled={publishing || !selectedId}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold"
+                      style={{
+                        backgroundColor: published ? "#2d6a4f" : "#6D1D3E",
+                        color: "white",
+                        fontFamily: "var(--font-display)",
+                        opacity: !selectedId ? 0.4 : 1,
+                        transition: "background-color 0.3s",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {publishing ? "Mise à jour…" : published ? "✓ Mis à jour !" : "Publier les modifications"}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={publishStdConfig}
+                    disabled={publishing || !selectedId}
+                    className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
+                    style={{
+                      backgroundColor: "#6D1D3E",
+                      color: "white",
+                      fontFamily: "var(--font-display)",
+                      opacity: !selectedId ? 0.4 : 1,
+                    }}
+                  >
+                    {publishing ? "Publication…" : "Publier l'invitation"}
+                  </button>
+                )}
               </>
             ) : (
               <>
@@ -4403,7 +4434,7 @@ export default function SaveTheDatePage() {
           {/* ── Partage du lien ── */}
           {stdPlan && (() => {
             const publicUrl = registryId
-              ? `${typeof window !== "undefined" ? window.location.origin : "https://weddy.fr"}/rsvp/open/${registryId}`
+              ? `${process.env.NEXT_PUBLIC_APP_URL ?? "https://weddy.fr"}/rsvp/open/${registryId}`
               : null;
             return (
               <div className="rounded-2xl p-6 flex flex-col gap-3" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.08)" }}>
@@ -4501,7 +4532,7 @@ export default function SaveTheDatePage() {
             {/* Table */}
             <div className="rounded-xl overflow-hidden" style={{ border: "1.5px solid #f0e6e2" }}>
               <div className="grid text-xs font-bold uppercase tracking-wider px-4 py-2.5" style={{
-                gridTemplateColumns: "1fr 2fr 110px 140px",
+                gridTemplateColumns: "1fr 2fr 110px 110px 140px",
                 backgroundColor: "#fdfaf8",
                 color: "rgba(109,29,62,0.4)",
                 fontFamily: "var(--font-display)",
@@ -4510,6 +4541,7 @@ export default function SaveTheDatePage() {
                 <span>Nom</span>
                 <span>Email</span>
                 <span className="text-center">Statut</span>
+                <span className="text-center">Personnaliser</span>
                 <span className="text-center">Actions</span>
               </div>
               {guestList.length === 0 ? (
@@ -4519,36 +4551,45 @@ export default function SaveTheDatePage() {
               ) : (
                 <div className="max-h-64 overflow-y-auto">
                   {guestList.map((g, i) => (
-                    <div key={i} className="grid items-center px-4 py-3" style={{
-                      gridTemplateColumns: "1fr 2fr 110px 140px",
-                      borderBottom: i < guestList.length - 1 ? "1px solid #f0e6e2" : "none",
-                      backgroundColor: "white",
-                    }}>
-                      <span className="text-sm font-medium truncate" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{g.name || "—"}</span>
-                      <span className="text-sm truncate" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>{g.email}</span>
-                      <span className="flex justify-center items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: g.sent ? "#2d6a4f" : "rgba(44,44,44,0.2)" }}/>
-                        <span className="text-xs" style={{ color: g.sent ? "#2d6a4f" : "rgba(44,44,44,0.4)", fontFamily: "var(--font-display)", fontWeight: g.sent ? 600 : 400 }}>
-                          {g.sent ? "Envoyé" : "Non envoyé"}
+                    <div key={i} style={{ borderBottom: i < guestList.length - 1 ? "1px solid #f0e6e2" : "none" }}>
+                      <div className="grid items-center px-4 py-3" style={{
+                        gridTemplateColumns: "1fr 2fr 110px 110px 140px",
+                        backgroundColor: "white",
+                      }}>
+                        <span className="text-sm font-medium truncate" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{g.name || "—"}</span>
+                        <span className="text-sm truncate" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>{g.email}</span>
+                        <span className="flex justify-center items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: g.sent ? "#2d6a4f" : "rgba(44,44,44,0.2)" }}/>
+                          <span className="text-xs" style={{ color: g.sent ? "#2d6a4f" : "rgba(44,44,44,0.4)", fontFamily: "var(--font-display)", fontWeight: g.sent ? 600 : 400 }}>
+                            {g.sent ? "Envoyé" : "Non envoyé"}
+                          </span>
                         </span>
-                      </span>
-                      <span className="flex justify-center items-center gap-2">
-                        {!g.sent && (
+                        <span className="flex justify-center items-center">
+                          <button
+                            onClick={() => { setEditingGuestIndex(i); setEditingLabels([...(g.customLabels ?? rsvpLabels)]); setEditingNote(g.customNote ?? sendMessage ?? ""); }}
+                            className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(109,29,62,0.07)]"
+                            title="Personnaliser l'invitation"
+                          >
+                            <SlidersHorizontal size={14} style={{ color: g.customLabels || g.customNote ? "#6D1D3E" : "rgba(44,44,44,0.35)" }}/>
+                          </button>
+                        </span>
+                        <span className="flex justify-center items-center gap-2">
                           <button
                             onClick={() => handleSend([{ name: g.name, email: g.email }])}
                             className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors hover:opacity-80"
-                            style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+                            style={{ backgroundColor: g.sent ? "transparent" : "#6D1D3E", color: g.sent ? "#6D1D3E" : "white", border: g.sent ? "1.5px solid rgba(109,29,62,0.25)" : "none", fontFamily: "var(--font-display)" }}
+                            title={g.sent ? "Renvoyer l'invitation" : "Envoyer l'invitation"}
                           >
-                            <Mail size={11}/> Envoyer
+                            <Mail size={11}/> {g.sent ? "Renvoyer" : "Envoyer"}
                           </button>
-                        )}
-                        <button
-                          onClick={() => setGuestList(prev => prev.filter((_, j) => j !== i))}
-                          className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(180,40,40,0.07)]"
-                        >
-                          <Trash2 size={14} style={{ color: "rgba(180,40,40,0.45)" }}/>
-                        </button>
-                      </span>
+                          <button
+                            onClick={() => setGuestList(prev => prev.filter((_, j) => j !== i))}
+                            className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(180,40,40,0.07)]"
+                          >
+                            <Trash2 size={14} style={{ color: "rgba(180,40,40,0.45)" }}/>
+                          </button>
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -4565,6 +4606,110 @@ export default function SaveTheDatePage() {
 
         </div>
       )}
+
+      {/* ── Modal personnalisation options RSVP par invité ── */}
+      {editingGuestIndex !== null && editingLabels !== null && (() => {
+        const g = guestList[editingGuestIndex];
+        if (!g) return null;
+        const isCustom = !!g.customLabels;
+        function close() { setEditingGuestIndex(null); setEditingLabels(null); setEditingNote(""); }
+        function save() {
+          setGuestList(prev => prev.map((guest, j) => j === editingGuestIndex ? {
+            ...guest,
+            customLabels: editingLabels ?? undefined,
+            customNote: editingNote !== (sendMessage ?? "") ? editingNote : undefined,
+          } : guest));
+          close();
+        }
+        function resetToDefault() {
+          setEditingLabels([...rsvpLabels]);
+          setEditingNote(sendMessage ?? "");
+        }
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: "rgba(10,10,10,0.45)", backdropFilter: "blur(4px)" }}
+            onClick={e => { if (e.target === e.currentTarget) close(); }}
+          >
+            <div style={{ width: "100%", maxWidth: "420px", background: "white", borderRadius: "20px", padding: "32px 28px 28px", boxShadow: "0 24px 64px rgba(109,29,62,0.18)" }}>
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "6px" }}>
+                <div>
+                  <p style={{ fontFamily: "var(--font-display)", fontSize: "15px", fontWeight: 700, color: "#2c2c2c", margin: 0 }}>
+                    Options de réponse
+                  </p>
+                  <p style={{ fontFamily: "var(--font-display)", fontSize: "11px", color: "rgba(44,44,44,0.45)", margin: "3px 0 0", letterSpacing: "0.05em" }}>
+                    {g.name || g.email}
+                  </p>
+                </div>
+                <button onClick={close} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px" }}>
+                  <X size={18} style={{ color: "rgba(44,44,44,0.4)" }}/>
+                </button>
+              </div>
+
+              <p style={{ fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.1em", color: "#9e6b5c", textTransform: "uppercase", margin: "20px 0 10px" }}>
+                Options proposées à cet invité
+              </p>
+
+              {/* Labels list */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" }}>
+                {editingLabels.map((label, li) => (
+                  <div key={li} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: "11px", color: "rgba(44,44,44,0.35)", minWidth: "16px" }}>{li + 1}.</span>
+                    <input
+                      value={label}
+                      onChange={e => setEditingLabels(prev => prev!.map((l, j) => j === li ? e.target.value : l))}
+                      style={{ flex: 1, padding: "10px 12px", border: "1.5px solid #f0e6e2", borderRadius: "8px", fontSize: "13px", fontFamily: "var(--font-display)", color: "#2c2c2c", background: "#fdfaf8", outline: "none" }}
+                    />
+                    <button
+                      onClick={() => { if (editingLabels.length > 1) setEditingLabels(prev => prev!.filter((_, j) => j !== li)); }}
+                      style={{ padding: "6px", background: "none", border: "none", cursor: editingLabels.length <= 1 ? "not-allowed" : "pointer", opacity: editingLabels.length <= 1 ? 0.25 : 0.5, flexShrink: 0 }}
+                    >
+                      <X size={13} style={{ color: "#9a3b3b" }}/>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Ajouter une option */}
+              <button
+                onClick={() => setEditingLabels(prev => [...(prev ?? []), ""])}
+                style={{ display: "flex", alignItems: "center", gap: "6px", background: "none", border: "1.5px dashed rgba(109,29,62,0.25)", borderRadius: "8px", padding: "8px 14px", fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.1em", color: "rgba(109,29,62,0.6)", cursor: "pointer", marginBottom: "20px" }}
+              >
+                + Ajouter une option
+              </button>
+
+              {/* Note personnalisée */}
+              <p style={{ fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.1em", color: "#9e6b5c", textTransform: "uppercase", margin: "4px 0 10px" }}>
+                Message affiché sous les boutons
+              </p>
+              <textarea
+                value={editingNote}
+                onChange={e => setEditingNote(e.target.value)}
+                rows={4}
+                placeholder={sendMessage || "Laisser vide pour utiliser le message par défaut…"}
+                style={{ width: "100%", padding: "10px 12px", border: "1.5px solid #f0e6e2", borderRadius: "8px", fontSize: "13px", fontFamily: "Georgia, serif", color: "#2c2c2c", background: "#fdfaf8", outline: "none", resize: "vertical", lineHeight: 1.6, boxSizing: "border-box", marginBottom: "20px" }}
+              />
+
+              {/* Actions */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <button
+                  onClick={save}
+                  style={{ width: "100%", padding: "13px", background: "#6D1D3E", color: "white", border: "none", borderRadius: "10px", fontFamily: "var(--font-display)", fontSize: "12px", letterSpacing: "0.15em", textTransform: "uppercase", cursor: "pointer" }}
+                >
+                  Enregistrer les modifications
+                </button>
+                <button
+                  onClick={resetToDefault}
+                  style={{ width: "100%", padding: "11px", background: "none", color: "#6D1D3E", border: "1.5px solid rgba(109,29,62,0.2)", borderRadius: "10px", fontFamily: "var(--font-display)", fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", cursor: "pointer" }}
+                >
+                  Revenir au texte par défaut
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Modal Ajouter des contacts ── */}
       {addModalOpen && (
