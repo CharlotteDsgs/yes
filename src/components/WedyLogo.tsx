@@ -23,7 +23,7 @@ export default function WedyLogo({ size = "md", href = "/" }: Props) {
         letterSpacing: "0.01em",
       }}
     >
-      WEDDY
+      weddy
     </span>
   );
 
