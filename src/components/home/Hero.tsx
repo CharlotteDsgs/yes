@@ -63,8 +63,8 @@ export default function Hero() {
 
             <Link
               href="/creer"
-              className="flex items-center justify-between px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
-              style={{ backgroundColor: "#831535", color: "white" }}
+              className="mx-auto flex items-center justify-between px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
+              style={{ width: "85%", backgroundColor: "#831535", color: "white" }}
             >
               <Image src="/logo/logo1.png" alt="" width={40} height={40} className="object-contain flex-shrink-0" />
               <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
@@ -85,8 +85,8 @@ export default function Hero() {
 
             <Link
               href="/dashboard/invitations"
-              className="flex items-center justify-between px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
-              style={{ backgroundColor: "#6B7530", color: "white" }}
+              className="mx-auto flex items-center justify-between px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
+              style={{ width: "85%", backgroundColor: "#6B7530", color: "white" }}
             >
               <Image src="/logo/logo1.png" alt="" width={40} height={40} className="object-contain flex-shrink-0" />
               <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
