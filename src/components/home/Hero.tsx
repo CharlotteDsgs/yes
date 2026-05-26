@@ -50,7 +50,7 @@ export default function Hero() {
         </h1>
 
         {/* ── Deux colonnes ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mt-24">
 
           {/* ── Colonne gauche : Liste de mariage ── */}
           <div className="flex flex-col items-center gap-5">
