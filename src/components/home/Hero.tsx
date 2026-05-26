@@ -1,13 +1,24 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Hero() {
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setLoggedIn(!!data.user));
+  }, []);
+
   return (
     <section
       className="relative overflow-hidden pt-28 pb-20 min-h-screen flex flex-col"
       style={{ background: "#FFF5F7" }}
     >
-<div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 
         {/* ── Titre centré ── */}
         <h1
@@ -33,7 +44,7 @@ export default function Hero() {
           {/* ── Colonne gauche : Liste de mariage ── */}
           <div className="flex flex-col items-center gap-5">
             <Link
-              href="/creer"
+              href={loggedIn ? "/dashboard" : "/creer"}
               className="w-[85%] text-center py-5 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
               style={{ backgroundColor: "#7A1535", color: "white", fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 700 }}
             >
