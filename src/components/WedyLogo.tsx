@@ -23,7 +23,7 @@ export default function WedyLogo({ size = "md", href = "/" }: Props) {
         width={w}
         height={h}
         aria-label="Weddy"
-        style={{ overflow: "visible", display: "block", marginLeft: "-6px" }}
+        style={{ overflow: "visible", display: "block", marginLeft: "-18px" }}
       >
         <defs>
           <path id="weddy-arc" d="M 5,72 Q 110,22 215,72" />
