@@ -142,7 +142,8 @@ export default function RsvpOpenClient() {
   const cc: CardCustomization | null = cfg?.card_custom ?? null;
   const rsvpLabels: string[] = cfg?.rsvp_labels?.length ? cfg.rsvp_labels : ["Je participe", "Je ne participe pas"];
 
-  const cardW = Math.min(340, typeof window !== "undefined" ? window.innerWidth - 80 : 340);
+  const [cardW, setCardW] = useState(300);
+  useEffect(() => { setCardW(Math.min(340, window.innerWidth - 80)); }, []);
   const cardH = Math.round(cardW * 1.4);
 
   const RsvpButtons = (
@@ -257,8 +258,8 @@ export default function RsvpOpenClient() {
       <>
         {Modal}
         {/* Full-page background + card */}
-        <div style={{ height: "100vh", display: "flex", flexDirection: "column", ...getBgStyle((cfg as any).anim_bg) }}>
-          <div style={{ flex: 1, position: "relative" }}>
+        <div style={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden", ...getBgStyle((cfg as any).anim_bg) }}>
+          <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
             {AnimationCard}
           </div>
         </div>
@@ -337,8 +338,8 @@ export default function RsvpOpenClient() {
         {Modal}
         <div className="min-h-screen flex flex-col items-center" style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
           {tpl && palette && cc && (
-            <div style={{ paddingTop: "40px", paddingBottom: "24px" }}>
-              <div style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.12), 0 12px 48px rgba(0,0,0,0.22)", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ paddingTop: "40px", paddingBottom: "24px", width: cardW }}>
+              <div style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.12), 0 12px 48px rgba(0,0,0,0.22)", borderRadius: 2, overflow: "hidden", width: cardW }}>
                 <TemplateRender
                   id={tpl.id} W={cardW} H={cardH}
                   palette={palette} user={userData} isStd={true}
