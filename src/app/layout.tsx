@@ -64,8 +64,8 @@ const pinyonScript = Pinyon_Script({ variable: "--font-pinyon", subsets: ["latin
 const cormorantInfant = Cormorant_Infant({ variable: "--font-cormorant-infant", subsets: ["latin"], weight: ["300", "400", "500", "600"], style: ["normal", "italic"], display: "swap" });
 const cherryBomb = Cherry_Bomb_One({ variable: "--font-bagel", subsets: ["latin"], weight: ["400"], display: "swap" });
 const libreBaskerville = Libre_Baskerville({ variable: "--font-libre-baskerville", subsets: ["latin"], weight: ["400", "700"], style: ["normal", "italic"], display: "swap" });
-const balabeloo = localFont({ src: "../../public/font/Balabeloo.ttf", variable: "--font-logo", display: "swap" });
-const gulf = localFont({ src: "../../public/font/gulf.ttf", variable: "--font-gulf", display: "swap" });
+const balabeloo = localFont({ src: "../fonts/Balabeloo.ttf", variable: "--font-logo", display: "swap" });
+const gulf = localFont({ src: "../fonts/gulf.ttf", variable: "--font-gulf", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Weddy — La liste de mariage qui vous ressemble",
