@@ -16,7 +16,7 @@ export default function WedyLogo({ size = "md", href = "/" }: Props) {
   const { w, h, icon } = dims[size];
 
   const inner = (
-    <span className="flex items-center gap-1">
+    <span className="flex items-center gap-0">
       <Image src="/logo/logo1.png" alt="" width={icon} height={icon} className="object-contain" priority />
     <svg
       viewBox="0 0 220 80"
