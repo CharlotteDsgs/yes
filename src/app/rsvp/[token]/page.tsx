@@ -354,7 +354,7 @@ export default function RsvpPage() {
             </div>
           )}
           <p style={{ textAlign: "center", fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)", paddingBottom: "24px" }}>
-            Wedy · La liste de mariage qui vous ressemble
+            Weddy · La liste de mariage qui vous ressemble
           </p>
         </div>
       </>
@@ -414,7 +414,7 @@ export default function RsvpPage() {
 
 
         <p style={{ textAlign: "center", fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)", paddingBottom: "8px" }}>
-          Wedy · La liste de mariage qui vous ressemble
+          Weddy · La liste de mariage qui vous ressemble
         </p>
       </div>
     </>

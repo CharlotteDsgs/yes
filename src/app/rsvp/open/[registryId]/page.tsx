@@ -326,7 +326,7 @@ export default function PublicRsvpPage() {
             </div>
           )}
           <p style={{ textAlign: "center", fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)", paddingBottom: "24px" }}>
-            Wedy · La liste de mariage qui vous ressemble
+            Weddy · La liste de mariage qui vous ressemble
           </p>
         </div>
       </>
@@ -371,7 +371,7 @@ export default function PublicRsvpPage() {
           </div>
         </div>
         <p style={{ fontSize: "11px", color: "#c9a89a", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "var(--font-display)" }}>
-          Wedy · La liste de mariage qui vous ressemble
+          Weddy · La liste de mariage qui vous ressemble
         </p>
       </div>
     </>

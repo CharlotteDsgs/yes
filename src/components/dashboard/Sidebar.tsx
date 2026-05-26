@@ -63,7 +63,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="border-b border-[#f0e6e2] flex items-center h-16 flex-shrink-0 px-3 gap-2 overflow-hidden">
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <Image src="/fox_no-bg.png" alt="Wedy" width={36} height={36} className="object-contain flex-shrink-0" />
+          <Image src="/fox_no-bg.png" alt="Weddy" width={36} height={36} className="object-contain flex-shrink-0" />
           <span
             style={{
               fontFamily: "var(--font-serif)",
@@ -78,7 +78,7 @@ export default function Sidebar() {
               transition: "opacity 150ms ease",
             }}
           >
-            Wedy
+            Weddy
           </span>
         </Link>
       </div>

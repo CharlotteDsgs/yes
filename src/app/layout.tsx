@@ -65,7 +65,7 @@ const cherryBomb = Cherry_Bomb_One({ variable: "--font-bagel", subsets: ["latin"
 const libreBaskerville = Libre_Baskerville({ variable: "--font-libre-baskerville", subsets: ["latin"], weight: ["400", "700"], style: ["normal", "italic"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Wedy — La liste de mariage qui vous ressemble",
+  title: "Weddy — La liste de mariage qui vous ressemble",
   description:
     "Créez votre liste de mariage personnalisée. Design élégant, cagnotte en ligne, et une page unique pour vos invités.",
   keywords: ["liste de mariage", "cagnotte mariage", "site de mariage", "liste cadeau mariage"],

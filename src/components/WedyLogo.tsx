@@ -26,11 +26,11 @@ export default function WedyLogo({ size = "md", href = "/" }: Props) {
           letterSpacing: "0.01em",
         }}
       >
-        WEDY
+        WEDDY
       </span>
       <Image
         src="/fox_no-bg.png"
-        alt="Wedy fox"
+        alt="Weddy fox"
         width={s.fox}
         height={s.fox}
         className="object-contain"

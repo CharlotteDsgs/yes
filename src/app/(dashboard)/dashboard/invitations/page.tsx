@@ -4049,14 +4049,14 @@ export default function SaveTheDatePage() {
           <div className="max-w-5xl mx-auto px-8 py-16 flex flex-col md:flex-row items-center gap-12">
             <div className="flex-1">
               <p className="text-xs font-bold tracking-[0.35em] uppercase mb-4" style={{ color: "rgba(109,29,62,0.45)", fontFamily: "var(--font-display)" }}>
-                Wedy · Save the Date
+                Weddy · Save the Date
               </p>
               <h1 className="text-4xl md:text-5xl font-light leading-tight mb-6" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
                 Annoncez votre mariage<br />
                 <em style={{ color: "#6D1D3E" }}>avec élégance</em>
               </h1>
               <p className="text-base font-light mb-8 leading-relaxed" style={{ color: "rgba(44,44,44,0.6)", fontFamily: "var(--font-display)", maxWidth: "420px" }}>
-                Envoyez un Save the Date digital à vos invités, suivez leurs réponses en temps réel, le tout depuis votre espace Wedy.
+                Envoyez un Save the Date digital à vos invités, suivez leurs réponses en temps réel, le tout depuis votre espace Weddy.
               </p>
               <button
                 onClick={() => setMainTab("design")}
@@ -5087,7 +5087,7 @@ export default function SaveTheDatePage() {
 
             {/* Header */}
             <div className="px-8 pt-10 pb-6 text-center" style={{ background: "linear-gradient(135deg, #6D1D3E 0%, #9e3d60 100%)" }}>
-              <p className="text-xs font-bold tracking-[0.35em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-display)" }}>Wedy · Save the Date</p>
+              <p className="text-xs font-bold tracking-[0.35em] uppercase mb-3" style={{ color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-display)" }}>Weddy · Save the Date</p>
               <h2 className="text-3xl font-light" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "white" }}>
                 Activez votre invitation
               </h2>

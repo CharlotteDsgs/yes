@@ -21,7 +21,7 @@ export default function Pricing() {
             <span className="text-[#A8304A]">honnêtes.</span>
           </h2>
           <p className="text-base text-[#888] font-light max-w-xl mx-auto">
-            Wedy est gratuit. On prélève une petite commission uniquement quand vos invités participent — pas avant.
+            Weddy est gratuit. On prélève une petite commission uniquement quand vos invités participent — pas avant.
           </p>
         </div>
 

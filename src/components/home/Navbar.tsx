@@ -61,11 +61,11 @@ export default function Navbar() {
               letterSpacing: "0.01em",
             }}
           >
-            WEDY
+            WEDDY
           </span>
           <Image
             src="/fox_no-bg.png"
-            alt="Wedy fox"
+            alt="Weddy fox"
             width={44}
             height={44}
             className="object-contain"

@@ -919,7 +919,7 @@ export default function RegistryClient({ registry, profile, gifts }: Props) {
         <p className="text-xs tracking-widest uppercase" style={{ color: theme.muted }}>
           Créé avec{" "}
           <a href="/" style={{ color: theme.accent }} className="hover:underline">
-            Wedy
+            Weddy
           </a>
         </p>
       </footer>

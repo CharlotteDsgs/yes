@@ -88,7 +88,7 @@ export async function POST(request: Request) {
         const guestFirstName = guest.name.split(" ")[0];
 
         await resend.emails.send({
-          from: "Wedy <no-reply@weddy.fr>",
+          from: "Weddy <no-reply@weddy.fr>",
           to: guest.email,
           subject: `Save the Date — ${coupleName}`,
           html: `
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 
               <div style="background: linear-gradient(135deg, #6D1D3E 0%, #9e3d60 100%); padding: 48px 40px 40px; text-align: center;">
                 <p style="font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 0 0 20px; font-family: 'Helvetica Neue', sans-serif;">
-                  Wedy · Save the Date
+                  Weddy · Save the Date
                 </p>
                 <h1 style="font-size: 42px; font-weight: 300; color: #ffffff; margin: 0; line-height: 1.2; font-style: italic;">
                   ${coupleName}
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
 
               <div style="padding: 24px 40px; border-top: 1px solid #f0e6e2; text-align: center;">
                 <p style="font-size: 11px; color: #c9a89a; margin: 0; letter-spacing: 0.2em; text-transform: uppercase; font-family: 'Helvetica Neue', sans-serif;">
-                  Wedy · La liste de mariage qui vous ressemble
+                  Weddy · La liste de mariage qui vous ressemble
                 </p>
               </div>
             </div>

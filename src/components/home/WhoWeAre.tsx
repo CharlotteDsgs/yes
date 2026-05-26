@@ -18,7 +18,7 @@ export default function WhoWeAre() {
             >
               <Image
                 src="/Wedding_Venue_Tuscany_An_outdoor_wedding_ceremony_venue_is_set_in_a_6UKefLyk-fotor-20260422102925.png"
-                alt="L'équipe Wedy"
+                alt="L'équipe Weddy"
                 fill
                 className="object-cover"
               />
@@ -41,7 +41,7 @@ export default function WhoWeAre() {
               <br />pour des amoureux.
             </h2>
             <p className="text-base text-[#8B6070] font-light leading-relaxed mb-6 max-w-lg">
-              Wedy est né d'une frustration simple : les listes de mariage existantes étaient soit laides, soit compliquées, soit les deux. On a décidé de faire mieux.
+              Weddy est né d'une frustration simple : les listes de mariage existantes étaient soit laides, soit compliquées, soit les deux. On a décidé de faire mieux.
             </p>
             <p className="text-base text-[#8B6070] font-light leading-relaxed max-w-lg">
               Notre équipe est petite, passionnée, et obsédée par les détails. On croit que votre liste de mariage mérite autant de soin que votre robe ou votre lieu de réception — et on met tout en œuvre pour que ce soit le cas.

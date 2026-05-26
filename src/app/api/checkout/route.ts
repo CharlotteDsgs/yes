@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Guest pays: contribution + 2% Wedy fee (on top)
+    // Guest pays: contribution + 2% Weddy fee (on top)
     const wedyFeePct = parseFloat(process.env.WEDY_COMMISSION_PCT ?? "2") / 100;
     const contributionCents = Math.round(amount * 100);
     const wedyFeeCents = Math.round(contributionCents * wedyFeePct);
