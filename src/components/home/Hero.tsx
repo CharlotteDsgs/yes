@@ -53,49 +53,37 @@ export default function Hero() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
 
           {/* ── Colonne gauche : Liste de mariage ── */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-5">
+            <Link
+              href="/creer"
+              className="w-[85%] text-center py-5 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
+              style={{ backgroundColor: "#7A1535", color: "white", fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 700 }}
+            >
+              Liste de mariage
+            </Link>
             <div
-              className="mx-auto rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #C4607A", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "10px 10px 0px rgba(196,96,122,0.35), 18px 18px 0px rgba(196,96,122,0.15)" }}
+              className="rounded-3xl overflow-hidden"
+              style={{ border: "2px solid #D4849A", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "8px 8px 0px rgba(196,96,122,0.25), 16px 16px 0px rgba(196,96,122,0.10)" }}
             >
               <Image src="/screenshot-cadeaux2.png" alt="Liste de cadeaux" fill className="object-cover object-top" />
             </div>
-
-            <Link
-              href="/creer"
-              className="mx-auto flex items-center justify-between px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
-              style={{ width: "85%", backgroundColor: "#831535", color: "white" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo/logo5_sansbg.png" alt="" width={40} height={40} style={{ display: "block" }} />
-              <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
-                Créer ma liste de mariage
-              </span>
-              <span style={{ fontSize: "1.5rem" }}>→</span>
-            </Link>
           </div>
 
           {/* ── Colonne droite : Save the Date ── */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-5">
+            <Link
+              href="/dashboard/invitations"
+              className="w-[85%] text-center py-5 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
+              style={{ backgroundColor: "#C4607A", color: "white", fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 700 }}
+            >
+              Save the Date
+            </Link>
             <div
-              className="mx-auto rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #636F1E", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "10px 10px 0px #d9cd7a, 18px 18px 0px #f3ead5" }}
+              className="rounded-3xl overflow-hidden"
+              style={{ border: "2px solid #D4849A", aspectRatio: "16/10", position: "relative", width: "85%", boxShadow: "8px 8px 0px rgba(196,96,122,0.20), 16px 16px 0px rgba(196,96,122,0.08)" }}
             >
               <Image src="/screenshot-std.png" alt="Éditeur Save the Date" fill className="object-cover object-top" />
             </div>
-
-            <Link
-              href="/dashboard/invitations"
-              className="mx-auto flex items-center justify-between px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
-              style={{ width: "85%", backgroundColor: "#6B7530", color: "white" }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo/logo2_sansbg.png" alt="" width={40} height={40} style={{ display: "block" }} />
-              <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
-                Créer mon <em>Save the Date</em>
-              </span>
-              <span style={{ fontSize: "1.5rem" }}>→</span>
-            </Link>
           </div>
 
         </div>
