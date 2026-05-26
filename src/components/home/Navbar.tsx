@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import WedyLogo from "@/components/WedyLogo";
 import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -50,20 +51,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between h-20">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <span
-            style={{
-              fontFamily: "var(--font-logo)",
-              fontSize: "1.75rem",
-              fontWeight: 700,
-              color: "#7A1B45",
-              lineHeight: 1,
-              letterSpacing: "0.01em",
-            }}
-          >
-            weddy
-          </span>
-        </Link>
+        <WedyLogo size="md" />
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-10">
