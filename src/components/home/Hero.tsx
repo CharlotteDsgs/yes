@@ -56,7 +56,7 @@ export default function Hero() {
           <div className="flex flex-col gap-6">
             <div
               className="mx-auto rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #C4607A", aspectRatio: "16/10", position: "relative", width: "70%" }}
+              style={{ border: "3px solid #C4607A", aspectRatio: "16/10", position: "relative", width: "85%" }}
             >
               <Image src="/screenshot-cadeaux.png" alt="Liste de cadeaux" fill className="object-cover object-top" />
             </div>
@@ -78,7 +78,7 @@ export default function Hero() {
           <div className="flex flex-col gap-6">
             <div
               className="mx-auto rounded-3xl overflow-hidden"
-              style={{ border: "3px solid #737A2D", aspectRatio: "16/10", position: "relative", width: "70%" }}
+              style={{ border: "3px solid #737A2D", aspectRatio: "16/10", position: "relative", width: "85%" }}
             >
               <Image src="/screenshot-std.png" alt="Éditeur Save the Date" fill className="object-cover object-top" />
             </div>
