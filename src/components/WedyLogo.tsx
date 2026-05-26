@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 interface Props {
   size?: "sm" | "md" | "lg";
@@ -17,13 +16,14 @@ export default function WedyLogo({ size = "md", href = "/" }: Props) {
 
   const inner = (
     <span className="flex items-center">
-      <Image src="/logo/logo1.png" alt="" width={icon} height={icon} className="object-contain" priority />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo/logo1.png" alt="" width={icon} height={icon} style={{ objectFit: "contain", background: "transparent", display: "block" }} />
       <svg
         viewBox="0 0 220 80"
         width={w}
         height={h}
         aria-label="Weddy"
-        style={{ overflow: "visible", display: "block", marginLeft: "-18px" }}
+        style={{ overflow: "visible", display: "block", marginLeft: "-18px", background: "transparent" }}
       >
         <defs>
           <path id="weddy-arc" d="M 5,72 Q 110,22 215,72" />

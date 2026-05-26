@@ -66,7 +66,8 @@ export default function Hero() {
               className="mx-auto flex items-center justify-between px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
               style={{ width: "85%", backgroundColor: "#831535", color: "white" }}
             >
-              <Image src="/logo/logo1.png" alt="" width={40} height={40} className="object-contain flex-shrink-0" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo/logo5.png" alt="" width={40} height={40} style={{ objectFit: "contain", background: "transparent" }} />
               <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
                 Créer ma liste de mariage
               </span>
@@ -88,7 +89,8 @@ export default function Hero() {
               className="mx-auto flex items-center justify-between px-6 py-4 rounded-full transition-transform hover:scale-[1.02] active:scale-95"
               style={{ width: "85%", backgroundColor: "#6B7530", color: "white" }}
             >
-              <Image src="/logo/logo1.png" alt="" width={40} height={40} className="object-contain flex-shrink-0" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo/logo2.png" alt="" width={40} height={40} style={{ objectFit: "contain", background: "transparent" }} />
               <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.01em" }}>
                 Créer mon <em>Save the Date</em>
               </span>
