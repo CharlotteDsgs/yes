@@ -1,14 +1,15 @@
 import Link from "next/link";
 
 interface Props {
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "nav";
   href?: string;
 }
 
 const dims = {
-  sm: { w: 130, h: 48, icon: 24 },
-  md: { w: 180, h: 66, icon: 34 },
-  lg: { w: 230, h: 84, icon: 44 },
+  sm:  { w: 130, h: 48, icon: 24 },
+  nav: { w: 155, h: 57, icon: 32 },
+  md:  { w: 180, h: 66, icon: 34 },
+  lg:  { w: 230, h: 84, icon: 44 },
 };
 
 export default function WedyLogo({ size = "md", href = "/" }: Props) {

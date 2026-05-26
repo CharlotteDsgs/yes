@@ -51,7 +51,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between h-20">
         {/* Logo */}
-        <WedyLogo size="lg" />
+        <WedyLogo size="nav" />
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-10">
