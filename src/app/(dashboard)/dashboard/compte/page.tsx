@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Mail, User, Crown, Sparkles, CheckCircle2, AlertCircle, KeyRound, Trash2 } from "lucide-react";
+import { Mail, User, Crown, Sparkles, CheckCircle2, AlertCircle, KeyRound, Trash2, LogOut } from "lucide-react";
 
 type StdPlan = "essentiel" | "premium" | null;
 type ListPlan = "free" | "premium";
@@ -132,6 +132,12 @@ export default function ComptePage() {
     });
     if (error) setResetError(error.message);
     else setResetSent(true);
+  }
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
   }
 
   async function handleDeleteAccount() {
@@ -306,6 +312,27 @@ export default function ComptePage() {
               )}
             </div>
           )}
+        </div>
+
+        {/* Déconnexion */}
+        <div style={sec}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <LogOut size={16} style={{ color: "#6D1D3E", flexShrink: 0 }}/>
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 600, color: "#2c2c2c", margin: 0 }}>
+              Déconnexion
+            </h2>
+          </div>
+          <button
+            onClick={handleSignOut}
+            style={{
+              padding: "9px 20px", borderRadius: 20,
+              border: "1.5px solid #e0d0d8", backgroundColor: "white",
+              fontFamily: "var(--font-display)", fontSize: 13, fontWeight: 600,
+              color: "#6D1D3E", cursor: "pointer",
+            }}
+          >
+            Me déconnecter
+          </button>
         </div>
 
         {/* Zone danger */}
