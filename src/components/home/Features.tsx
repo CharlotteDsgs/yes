@@ -1,115 +1,82 @@
-import {
-  Palette,
-  Gift,
-  CreditCard,
-  Bell,
-  Users,
-  BarChart3,
-  Share2,
-  Heart,
-} from "lucide-react";
-
-const features = [
+const cards = [
   {
-    icon: Palette,
-    title: "Thèmes personnalisables",
+    title: "Ajoutez n'importe quel cadeau",
     description:
-      "Choisissez parmi nos thèmes soigneusement designés. Modifiez couleurs et typographies pour une page qui vous ressemble.",
+      "Créez chaque cadeau avec votre propre photo, description et prix. Aucun catalogue imposé — votre liste reflète exactement vos envies.",
+    photo: "/screenshot-cadeaux2.png",
+    alt: "Ajout de cadeaux sur Weddy",
   },
   {
-    icon: Gift,
-    title: "Cadeaux libres",
+    title: "Personnalisez le rendu",
     description:
-      "Ajoutez n'importe quel cadeau — avec votre propre photo, description et prix. Pas de catalogue imposé.",
+      "Choisissez parmi nos thèmes élégants et adaptez couleurs, typographies et photos pour une page qui vous ressemble.",
+    photo: "/screenshot-std.png",
+    alt: "Personnalisation du thème Weddy",
   },
   {
-    icon: CreditCard,
-    title: "Cagnotte intégrée",
+    title: "Monitorez les participations à chaque instant",
     description:
-      "Les invités contribuent en ligne, en partie ou en totalité. Paiement sécurisé par Stripe.",
-  },
-  {
-    icon: Bell,
-    title: "Notifications en temps réel",
-    description:
-      "Recevez un email à chaque don, avec le message de votre invité. Remerciez-les directement.",
-  },
-  {
-    icon: Users,
-    title: "Gestion des invités",
-    description:
-      "Gérez votre liste de convives, envoyez des invitations et suivez les confirmations.",
-  },
-  {
-    icon: BarChart3,
-    title: "Tableau de bord complet",
-    description:
-      "Visualisez vos cadeaux financés, les montants collectés et les virements disponibles.",
-  },
-  {
-    icon: Share2,
-    title: "URL personnalisée",
-    description:
-      "Partagez une adresse élégante du type yes.fr/charlotte-et-julien, facile à retenir.",
-  },
-  {
-    icon: Heart,
-    title: "Page de mariage incluse",
-    description:
-      "Partagez votre histoire, les détails de la cérémonie et des photos de votre couple.",
+      "Suivez en temps réel les contributions de vos invités, les montants collectés et les virements disponibles sur votre tableau de bord.",
+    photo: "/screenshot-cadeaux3.png",
+    alt: "Tableau de bord des participations",
   },
 ];
 
 export default function Features() {
   return (
-    <section id="fonctionnalites" className="py-32 bg-[#FFF0F4]">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+    <section id="fonctionnalites" className="py-28 bg-white">
+      <div className="max-w-6xl mx-auto px-6 lg:px-12">
+
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
-          <div>
-            <p className="text-xs font-bold tracking-[0.35em] uppercase text-[#6D1D3E] mb-4"
-              style={{ fontFamily: "var(--font-display)" }}>
-              Tout ce dont vous avez besoin
-            </p>
-            <h2
-              className="text-4xl md:text-5xl font-normal text-[#0A0A0A] leading-tight uppercase tracking-wide"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Des fonctionnalités
-              <br />
-              <span className="text-[#A8304A]">pensées pour vous.</span>
-            </h2>
-          </div>
-          <p className="text-sm text-[#888] font-light max-w-xs leading-relaxed">
-            Tout ce que vous attendez d'une liste de mariage moderne, sans compromis sur le design.
+        <div className="text-center mb-16">
+          <p
+            className="text-xs font-bold tracking-[0.35em] uppercase text-[#6D1D3E]/60 mb-4"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Liste de mariage
           </p>
+          <h2
+            className="text-4xl md:text-5xl text-[#1a1a1a] leading-tight max-w-2xl mx-auto"
+            style={{ fontFamily: "var(--font-serif)", fontWeight: 300 }}
+          >
+            Créez rapidement une liste de mariage{" "}
+            <em>personnalisée</em>
+          </h2>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[#D4889A]/30">
-          {features.map((feature) => {
-            const Icon = feature.icon;
-            return (
-              <div
-                key={feature.title}
-                className="bg-[#FFF0F4] p-8 flex flex-col gap-5 group hover:bg-white transition-colors duration-300"
-              >
-                <div className="w-10 h-10 flex items-center justify-center bg-[#6D1D3E]">
-                  <Icon size={18} className="text-white" strokeWidth={2} />
-                </div>
+        {/* Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {cards.map((card) => (
+            <div
+              key={card.title}
+              className="flex flex-col rounded-2xl overflow-hidden border border-[#e8ddd9]"
+              style={{ background: "#fdf8f6" }}
+            >
+              {/* Photo area */}
+              <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
+                <img
+                  src={card.photo}
+                  alt={card.alt}
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+
+              {/* Text */}
+              <div className="p-7 flex flex-col gap-3">
                 <h3
-                  className="text-base font-normal text-[#0A0A0A] uppercase tracking-wide"
-                  style={{ fontFamily: "var(--font-display)" }}
+                  className="text-lg text-[#1a1a1a]"
+                  style={{ fontFamily: "var(--font-serif)", fontWeight: 400 }}
                 >
-                  {feature.title}
+                  {card.title}
                 </h3>
                 <p className="text-sm text-[#888] font-light leading-relaxed">
-                  {feature.description}
+                  {card.description}
                 </p>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
+
       </div>
     </section>
   );
