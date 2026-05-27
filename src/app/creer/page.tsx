@@ -289,7 +289,7 @@ export default function CreerPage() {
 
           {/* Step 1 */}
           {step === 1 && (
-            <div className="max-w-md mx-auto">
+            <div className="w-full max-w-md mx-auto">
               <p
                 className="text-xs font-bold tracking-[0.3em] uppercase text-[#6D1D3E]/50 mb-2"
                 style={{ fontFamily: "var(--font-display)" }}
@@ -395,7 +395,7 @@ export default function CreerPage() {
 
           {/* Step 2 */}
           {step === 2 && (
-            <form onSubmit={(e) => { e.preventDefault(); setStep(3); }}>
+            <form onSubmit={(e) => { e.preventDefault(); setStep(3); }} className="w-full max-w-md mx-auto">
               <p
                 className="text-xs font-bold tracking-[0.3em] uppercase text-[#6D1D3E]/50 mb-2"
                 style={{ fontFamily: "var(--font-display)" }}
@@ -561,7 +561,7 @@ export default function CreerPage() {
 
           {/* Step 3 — Auth */}
           {step === 3 && (
-            <form onSubmit={handleAuth} className="max-w-md mx-auto">
+            <form onSubmit={handleAuth} className="w-full max-w-md mx-auto">
               <p
                 className="text-xs font-bold tracking-[0.3em] uppercase text-[#6D1D3E]/50 mb-2"
                 style={{ fontFamily: "var(--font-display)" }}
