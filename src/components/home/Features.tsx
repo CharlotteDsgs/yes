@@ -3,7 +3,7 @@ const cards = [
     bg: "#7A1535",
     title: "Ajoutez n'importe quel cadeau",
     description: "Composez votre liste de cadeaux sans contrainte ni obligation d'achat",
-    photo: "/screenshot-cadeaux2.png",
+    photo: "/screenshot-liste-cadeaux.png",
     alt: "Grille de cadeaux Weddy",
   },
   {
@@ -57,6 +57,7 @@ export default function Features() {
                   src={card.photo}
                   alt={card.alt}
                   className="w-full h-full object-cover object-top"
+                  style={{ transform: "rotate(-6deg) scale(1.18)", transformOrigin: "center top" }}
                 />
               </div>
 
