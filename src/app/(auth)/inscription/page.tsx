@@ -37,31 +37,13 @@ export default function InscriptionPage() {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] flex pt-20 lg:pt-0">
-      {/* Left panel - decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[#2c2c2c] flex-col items-center justify-center p-16 relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: "radial-gradient(circle at 30% 50%, #c9a89a 0%, transparent 60%)",
-          }}
+      {/* Left panel - photo */}
+      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
+        <img
+          src="/photo_couple/couple_2.JPG"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
-        <div className="relative z-10 text-center">
-          <Link href="/">
-            <span
-              className="text-4xl text-white italic block mb-12"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              Yes
-            </span>
-          </Link>
-          <p
-            className="text-3xl text-white leading-snug mb-6"
-            style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 300 }}
-          >
-            "La plus belle liste de mariage que nos invités aient jamais vue."
-          </p>
-          <p className="text-sm text-[#7a7370]">— Camille & Édouard, mariés en juin 2024</p>
-        </div>
       </div>
 
       {/* Right panel - form */}
