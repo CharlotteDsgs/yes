@@ -82,6 +82,8 @@ export default function RsvpOpenClient() {
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [guestMessage, setGuestMessage] = useState("");
+  const [cardW, setCardW] = useState(300);
+  useEffect(() => { setCardW(Math.min(340, window.innerWidth - 80)); }, []);
 
   useEffect(() => {
     fetch(`/api/rsvp/open/${registryId}`)
@@ -142,8 +144,6 @@ export default function RsvpOpenClient() {
   const cc: CardCustomization | null = cfg?.card_custom ?? null;
   const rsvpLabels: string[] = cfg?.rsvp_labels?.length ? cfg.rsvp_labels : ["Je participe", "Je ne participe pas"];
 
-  const [cardW, setCardW] = useState(300);
-  useEffect(() => { setCardW(Math.min(340, window.innerWidth - 80)); }, []);
   const cardH = Math.round(cardW * 1.4);
 
   const RsvpButtons = (

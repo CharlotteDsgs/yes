@@ -81,6 +81,8 @@ export default function RsvpTokenClient() {
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [guestMessage, setGuestMessage] = useState("");
+  const [cardW, setCardW] = useState(300);
+  useEffect(() => { setCardW(Math.min(340, window.innerWidth - 80)); }, []);
 
   useEffect(() => {
     fetch(`/api/rsvp/${token}`)
@@ -153,8 +155,6 @@ export default function RsvpTokenClient() {
   const rsvpLabels: string[] = data.customLabels?.length ? data.customLabels : (cfg?.rsvp_labels?.length ? cfg.rsvp_labels : ["Je participe", "Je ne participe pas"]);
   const rsvpNote: string | null = data.customNote ?? cfg?.rsvp_note ?? null;
 
-  const [cardW, setCardW] = useState(300);
-  useEffect(() => { setCardW(Math.min(340, window.innerWidth - 80)); }, []);
   const cardH = Math.round(cardW * 1.4);
 
   const RsvpButtons = (
