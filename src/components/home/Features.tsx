@@ -1,59 +1,58 @@
 const cards = [
   {
+    bg: "#7A1535",
     title: "Ajoutez n'importe quel cadeau",
-    description:
-      "Créez chaque cadeau avec votre propre photo, description et prix. Aucun catalogue imposé — votre liste reflète exactement vos envies.",
+    description: "Composez votre liste de cadeaux sans contrainte ni obligation d'achat",
     photo: "/screenshot-cadeaux2.png",
-    alt: "Ajout de cadeaux sur Weddy",
+    alt: "Grille de cadeaux Weddy",
   },
   {
-    title: "Personnalisez le rendu",
-    description:
-      "Choisissez parmi nos thèmes élégants et adaptez couleurs, typographies et photos pour une page qui vous ressemble.",
-    photo: "/screenshot-std.png",
-    alt: "Personnalisation du thème Weddy",
+    bg: "#A84060",
+    title: "Personnalisez le design de votre liste",
+    description: "Créez une liste de mariage qui vous ressemble grâce à l'outil dédié, facile à prendre en main",
+    photo: "/screenshot-cadeaux.png",
+    alt: "Éditeur de design Weddy",
   },
   {
-    title: "Monitorez les participations à chaque instant",
-    description:
-      "Suivez en temps réel les contributions de vos invités, les montants collectés et les virements disponibles sur votre tableau de bord.",
+    bg: "#C4607A",
+    title: "Gérez votre cagnotte en temps réel",
+    description: "Gérez les cadeaux et les dons reçus depuis l'interface dédiée. Votre argent n'est jamais bloqué",
     photo: "/screenshot-cadeaux3.png",
-    alt: "Tableau de bord des participations",
+    alt: "Dashboard Weddy",
   },
 ];
 
 export default function Features() {
   return (
-    <section id="fonctionnalites" className="py-28 bg-white">
+    <section id="fonctionnalites" className="py-24" style={{ background: "#FFF5F7" }}>
       <div className="max-w-6xl mx-auto px-6 lg:px-12">
 
-        {/* Header */}
-        <div className="text-center mb-16">
-          <p
-            className="text-xs font-bold tracking-[0.35em] uppercase text-[#6D1D3E]/60 mb-4"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Liste de mariage
-          </p>
-          <h2
-            className="text-4xl md:text-5xl text-[#1a1a1a] leading-tight max-w-2xl mx-auto"
-            style={{ fontFamily: "var(--font-serif)", fontWeight: 300 }}
-          >
-            Créez rapidement une liste de mariage{" "}
-            <em>personnalisée</em>
-          </h2>
-        </div>
+        {/* Title */}
+        <h2
+          className="text-center text-3xl md:text-4xl text-[#1a1a1a] mb-14 leading-snug"
+          style={{ fontFamily: "var(--font-display)", fontWeight: 700 }}
+        >
+          Créez une liste de mariage personnalisée en quelques clics
+        </h2>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
           {cards.map((card) => (
             <div
               key={card.title}
-              className="flex flex-col rounded-2xl overflow-hidden border border-[#e8ddd9]"
-              style={{ background: "#fdf8f6" }}
+              className="flex flex-col rounded-2xl overflow-hidden p-6 gap-5"
+              style={{ backgroundColor: card.bg }}
             >
-              {/* Photo area */}
-              <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
+              {/* Card title */}
+              <h3
+                className="text-xl font-bold text-white text-center leading-snug"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {card.title}
+              </h3>
+
+              {/* Photo */}
+              <div className="rounded-xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
                 <img
                   src={card.photo}
                   alt={card.alt}
@@ -61,20 +60,26 @@ export default function Features() {
                 />
               </div>
 
-              {/* Text */}
-              <div className="p-7 flex flex-col gap-3">
-                <h3
-                  className="text-lg text-[#1a1a1a]"
-                  style={{ fontFamily: "var(--font-serif)", fontWeight: 400 }}
-                >
-                  {card.title}
-                </h3>
-                <p className="text-sm text-[#888] font-light leading-relaxed">
-                  {card.description}
-                </p>
-              </div>
+              {/* Description */}
+              <p
+                className="text-sm text-white/80 text-center leading-relaxed"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {card.description}
+              </p>
             </div>
           ))}
+        </div>
+
+        {/* CTA */}
+        <div className="flex justify-center">
+          <a
+            href="/creer"
+            className="px-8 py-4 rounded-full border-2 text-base font-bold transition-colors hover:bg-[#7A1535] hover:text-white hover:border-[#7A1535]"
+            style={{ borderColor: "#7A1535", color: "#7A1535", fontFamily: "var(--font-display)" }}
+          >
+            Créer ma liste de mariage
+          </a>
         </div>
 
       </div>
