@@ -52,12 +52,18 @@ export default function Features() {
               </h3>
 
               {/* Photo */}
-              <div className="rounded-xl overflow-hidden" style={{ aspectRatio: "4/3" }}>
+              <div style={{ aspectRatio: "4/3", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                 <img
                   src={card.photo}
                   alt={card.alt}
-                  className="w-full h-full object-cover object-top"
-                  style={{ transform: "rotate(-6deg) scale(1.18)", transformOrigin: "center top" }}
+                  style={{
+                    width: "92%",
+                    borderRadius: 10,
+                    transform: "rotate(-10deg)",
+                    transformOrigin: "center center",
+                    boxShadow: "0 10px 32px rgba(0,0,0,0.25)",
+                    display: "block",
+                  }}
                 />
               </div>
 
