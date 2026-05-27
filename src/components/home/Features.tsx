@@ -5,13 +5,15 @@ const cards = [
     description: "Composez votre liste de cadeaux sans contrainte ni obligation d'achat",
     photo: "/screenshot-liste-cadeaux.png",
     alt: "Grille de cadeaux Weddy",
+    rotate: -10,
   },
   {
     bg: "#A84060",
     title: "Personnalisez le design de votre liste",
     description: "Créez une liste de mariage qui vous ressemble grâce à l'outil dédié, facile à prendre en main",
-    photo: "/screenshot-cadeaux.png",
+    photo: "/screenshot-design.png",
     alt: "Éditeur de design Weddy",
+    rotate: 0,
   },
   {
     bg: "#C4607A",
@@ -19,6 +21,7 @@ const cards = [
     description: "Gérez les cadeaux et les dons reçus depuis l'interface dédiée. Votre argent n'est jamais bloqué",
     photo: "/screenshot-cadeaux3.png",
     alt: "Dashboard Weddy",
+    rotate: -10,
   },
 ];
 
@@ -59,7 +62,7 @@ export default function Features() {
                   style={{
                     width: "92%",
                     borderRadius: 10,
-                    transform: "rotate(-10deg)",
+                    transform: card.rotate !== 0 ? `rotate(${card.rotate}deg)` : "none",
                     transformOrigin: "center center",
                     boxShadow: "0 10px 32px rgba(0,0,0,0.25)",
                     display: "block",
