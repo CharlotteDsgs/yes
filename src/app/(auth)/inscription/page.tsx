@@ -47,7 +47,14 @@ export default function InscriptionPage() {
       </div>
 
       {/* Right panel - form */}
-      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex flex-col p-8">
+        <div className="mb-8">
+          <Link href="/" className="text-sm text-[#7a7370]/70 hover:text-[#7a7370] transition-colors"
+            style={{ fontFamily: "var(--font-serif)" }}>
+            ← Accueil
+          </Link>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center">
         <div className="w-full max-w-md">
           <Link href="/" className="lg:hidden block mb-10">
             <span
@@ -122,6 +129,7 @@ export default function InscriptionPage() {
               Se connecter
             </Link>
           </p>
+        </div>
         </div>
       </div>
     </div>
