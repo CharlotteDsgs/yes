@@ -16,7 +16,7 @@ export default function Hero() {
   return (
     <section
       className="relative overflow-hidden pt-28 pb-20 min-h-screen flex flex-col"
-      style={{ background: "#FFF5F7" }}
+      style={{ background: "#F0F5FF" }}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
 
