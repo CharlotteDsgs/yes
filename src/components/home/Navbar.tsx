@@ -94,11 +94,11 @@ export default function Navbar() {
                 Connexion
               </Link>
               <Link
-                href="/creer"
+                href="/connexion"
                 className="px-6 py-3 bg-[#6D1D3E] text-white text-sm font-bold rounded-full hover:bg-[#5A1733] transition-colors duration-200"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Créer ma liste
+                Me connecter
               </Link>
             </>
           )}
@@ -145,12 +145,12 @@ export default function Navbar() {
             </>
           ) : (
             <Link
-              href="/creer"
+              href="/connexion"
               onClick={() => setMenuOpen(false)}
               className="mt-2 px-6 py-4 bg-[#6D1D3E] text-white text-sm font-bold tracking-wide uppercase text-center"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              Créer ma liste
+              Me connecter
             </Link>
           )}
         </div>
