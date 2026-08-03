@@ -460,7 +460,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
       <g transform={`translate(${getDX("label")*W} ${getDY("label")*H})`} style={{ display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
         {isStd ? (
           <>
-            <text x={W/2} y={H*0.205} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"} fontSize={getSize("label", W * 0.028)} fill={getColor("label", p.textPrimary)} letterSpacing="4" style={{ textTransform:"uppercase" as const }} opacity="0.7">Save the Date</text>
+            <text x={W/2} y={H*0.205} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"} fontStyle="italic" fontSize={getSize("label", W * 0.028)} fill={getColor("label", p.textPrimary)} letterSpacing="4" style={{ textTransform:"uppercase" as const }} opacity="0.7">Save the Date</text>
             <text x={W/2} y={H*0.248} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"} fontSize={getSize("label", W * 0.022)} fill={getColor("label", p.textPrimary)} letterSpacing="2" style={{ textTransform:"uppercase" as const }} opacity="0.55">pour le mariage de</text>
           </>
         ) : (
