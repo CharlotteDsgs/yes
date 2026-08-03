@@ -518,11 +518,11 @@ function TemplateLettre({ W, H, paperImage, p, user, fontPreset = "romantique", 
         return (
           <>
             <g transform={`translate(${getDX("lmLabel1")*W} ${getDY("lmLabel1")*H})`} style={{ display: elementStyles?.["lmLabel1"]?.hidden ? "none" : undefined }}>
-              <text x={W / 2} y={H * 0.245} textAnchor="middle" fontFamily={getFont("lmLabel1", "var(--font-libre-baskerville)")} fontStyle={getFontStyle("lmLabel1")} fontWeight={getFontWeight("lmLabel1")} fontSize={getSize("lmLabel1", W * 0.042)} fill={getColor("lmLabel1", p.textPrimary)}>{l1}</text>
+              <text x={W / 2} y={H * 0.245} textAnchor="middle" fontFamily={getFont("lmLabel1", "var(--font-libre-baskerville)")} fontStyle={getFontStyle("lmLabel1", "italic")} fontWeight={getFontWeight("lmLabel1")} fontSize={getSize("lmLabel1", W * 0.058)} fill={getColor("lmLabel1", p.textPrimary)}>{l1}</text>
             </g>
             {l2 && (
               <g transform={`translate(${getDX("lmLabel2")*W} ${getDY("lmLabel2")*H})`} style={{ display: elementStyles?.["lmLabel2"]?.hidden ? "none" : undefined }}>
-                <text x={W / 2} y={H * 0.295} textAnchor="middle" fontFamily={getFont("lmLabel2", "var(--font-libre-baskerville)")} fontStyle={getFontStyle("lmLabel2")} fontWeight={getFontWeight("lmLabel2")} fontSize={getSize("lmLabel2", W * 0.042)} fill={getColor("lmLabel2", p.textPrimary)}>{l2}</text>
+                <text x={W / 2} y={H * 0.305} textAnchor="middle" fontFamily={getFont("lmLabel2", "var(--font-libre-baskerville)")} fontStyle={getFontStyle("lmLabel2", "italic")} fontWeight={getFontWeight("lmLabel2")} fontSize={getSize("lmLabel2", W * 0.042)} fill={getColor("lmLabel2", p.textPrimary)}>{l2}</text>
               </g>
             )}
           </>
