@@ -997,14 +997,13 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
       {/* Tagline — above names */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("tagline"); } : undefined}
         className={onElementClick ? "eh" : undefined}
+        transform={`translate(${getDX("tagline")*W} ${getDY("tagline")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["tagline"]?.hidden ? "none" : undefined }}>
         {selectedElement === "tagline" && hl(H * (isStd ? 0.267 : 0.257), H * 0.042)}
-        {selectedElement !== "tagline" && (
-          <text x={W/2} y={H*(isStd?0.290:0.280)} textAnchor="middle" fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
-            fontSize={getSize("tagline", W*0.027)} fill={getColor("tagline", p.textPrimary)} letterSpacing="2.5" style={{ textTransform:"uppercase" }} opacity="0.65">
-            {footer || "sont heureux de vous inviter"}
-          </text>
-        )}
+        <text x={W/2} y={H*(isStd?0.290:0.280)} textAnchor="middle" fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
+          fontSize={getSize("tagline", W*0.027)} fill={getColor("tagline", p.textPrimary)} letterSpacing="2.5" style={{ textTransform:"uppercase" }} opacity="0.65">
+          {footer || "sont heureux de vous inviter"}
+        </text>
       </g>
 
       <line x1={W*0.35} y1={H*(isStd?0.345:0.335)} x2={W*0.65} y2={H*(isStd?0.345:0.335)}
