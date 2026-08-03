@@ -5261,7 +5261,7 @@ export default function SaveTheDatePage() {
                       <span className="text-xs" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{f}</span>
                     </div>
                   ))}
-                  {["RSVP", "Gestion des invités", "Envoi email"].map(f => (
+                  {["Formulaire RSVP", "Gestion des invités", "Envoi par email"].map(f => (
                     <div key={f} className="flex items-start gap-2" style={{ opacity: 0.35 }}>
                       <span className="text-xs mt-0.5 w-3 text-center" style={{ color: "#999" }}>✕</span>
                       <span className="text-xs" style={{ color: "#999", fontFamily: "var(--font-display)" }}>{f}</span>
