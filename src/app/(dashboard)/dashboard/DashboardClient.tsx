@@ -729,9 +729,6 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
           {/* Hero */}
           <div className="max-w-5xl mx-auto px-8 py-16 flex flex-col md:flex-row items-center gap-12">
             <div className="flex-1">
-              <p className="text-xs font-bold tracking-[0.35em] uppercase mb-4" style={{ color: "rgba(109,29,62,0.45)", fontFamily: "var(--font-display)" }}>
-                Weddy · Liste de mariage
-              </p>
               <h1 className="text-4xl md:text-5xl font-light leading-tight mb-6" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
                 Composez votre liste<br />
                 <em style={{ color: "#6D1D3E" }}>sans contrainte</em>
