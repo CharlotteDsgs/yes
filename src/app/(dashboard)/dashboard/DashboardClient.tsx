@@ -15,7 +15,7 @@ interface Props {
 }
 
 export default function DashboardClient({ profile, registry, gifts, totalCollected, totalGoal, contributions }: Props) {
-  const [activeTab, setActiveTab] = useState<"participation" | "cadeaux" | "design">("participation");
+  const [activeTab, setActiveTab] = useState<"accueil" | "participation" | "cadeaux" | "design">("accueil");
   const [showAddGift, setShowAddGift] = useState(false);
   const [giftForm, setGiftForm] = useState({ title: "", description: "", price: "", category: "" });
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
@@ -685,6 +685,7 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
       <div className="bg-white border-b border-[#f0e6e2]">
         <div className="w-full px-6 lg:px-10 flex items-center gap-0">
           {([
+            { id: "accueil", label: "Accueil" },
             { id: "participation", label: "Participation" },
             { id: "cadeaux", label: "Cadeaux" },
             { id: "design", label: "Design" },
@@ -720,6 +721,124 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
           )}
         </div>
       </div>
+
+      {/* ── Accueil ── */}
+      {activeTab === "accueil" && (
+        <div style={{ background: "linear-gradient(160deg, #FFF5F0 0%, #FFE8EE 100%)" }}>
+
+          {/* Hero */}
+          <div className="max-w-5xl mx-auto px-8 py-16 flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1">
+              <p className="text-xs font-bold tracking-[0.35em] uppercase mb-4" style={{ color: "rgba(109,29,62,0.45)", fontFamily: "var(--font-display)" }}>
+                Weddy · Liste de mariage
+              </p>
+              <h1 className="text-4xl md:text-5xl font-light leading-tight mb-6" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
+                Composez votre liste<br />
+                <em style={{ color: "#6D1D3E" }}>sans contrainte</em>
+              </h1>
+              <p className="text-base font-light mb-8 leading-relaxed" style={{ color: "rgba(44,44,44,0.6)", fontFamily: "var(--font-display)", maxWidth: "420px" }}>
+                Ajoutez n'importe quel cadeau — avec votre propre photo, description et prix. Partagez votre liste à vos invités et suivez les participations en temps réel.
+              </p>
+              <button
+                onClick={() => setActiveTab("cadeaux")}
+                className="px-8 py-4 rounded-full text-sm font-bold text-white transition-all"
+                style={{ backgroundColor: "#6D1D3E", fontFamily: "var(--font-display)", boxShadow: "0 4px 20px rgba(109,29,62,0.3)" }}
+              >
+                Ajouter mes cadeaux →
+              </button>
+            </div>
+
+            {/* Screenshot liste */}
+            <div className="flex-shrink-0 hidden md:block">
+              <div style={{ width: 320, borderRadius: 16, overflow: "hidden", boxShadow: "0 20px 60px rgba(109,29,62,0.2)", transform: "rotate(-2deg)" }}>
+                <img src="/screenshot-liste-cadeaux.png" alt="Aperçu liste de mariage" style={{ width: "100%", display: "block" }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div className="max-w-5xl mx-auto px-8 pb-16">
+            <h2 className="text-2xl font-light text-center mb-10" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
+              Tout ce dont vous avez besoin
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { emoji: "🎁", title: "Cadeaux libres", desc: "Ajoutez n'importe quel cadeau avec votre propre photo, description et prix. Aucun catalogue imposé." },
+                { emoji: "💳", title: "Paiement sécurisé", desc: "Vos invités contribuent en ligne via Stripe. Les fonds arrivent directement sur votre compte bancaire." },
+                { emoji: "📊", title: "Suivi en temps réel", desc: "Visualisez les participations, les montants collectés et les cadeaux financés à tout moment." },
+                { emoji: "🎨", title: "Design personnalisé", desc: "Choisissez parmi nos thèmes élégants et adaptez les couleurs pour une liste qui vous ressemble." },
+                { emoji: "🔗", title: "Lien partageable", desc: "Partagez une URL unique à vos invités. Ils accèdent à votre liste sans créer de compte." },
+                { emoji: "📱", title: "Compatible mobile", desc: "Votre liste est optimisée pour tous les écrans — vos invités participent depuis leur téléphone." },
+              ].map((f) => (
+                <div key={f.title} className="rounded-2xl p-6" style={{ backgroundColor: "white", boxShadow: "0 4px 20px rgba(109,29,62,0.07)" }}>
+                  <span style={{ fontSize: "28px" }}>{f.emoji}</span>
+                  <h3 className="text-base font-semibold mt-3 mb-2" style={{ color: "#2c2c2c", fontFamily: "var(--font-display)" }}>{f.title}</h3>
+                  <p className="text-sm font-light leading-relaxed" style={{ color: "rgba(44,44,44,0.6)", fontFamily: "var(--font-display)" }}>{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pricing */}
+          <div className="max-w-4xl mx-auto px-8 pb-20">
+            <h2 className="text-2xl font-light text-center mb-3" style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#2c2c2c" }}>
+              Tarifs
+            </h2>
+            <p className="text-sm text-center mb-10" style={{ color: "rgba(44,44,44,0.5)", fontFamily: "var(--font-display)" }}>
+              Simple et transparent.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                {
+                  name: "Gratuit",
+                  price: "0 €",
+                  desc: "Pour commencer",
+                  features: ["Liste de mariage complète", "Cadeaux illimités", "Page publique partageable", "Tableau de bord"],
+                  cta: "Commencer",
+                  highlight: false,
+                },
+                {
+                  name: "Premium",
+                  price: "À définir",
+                  desc: "Pour aller plus loin",
+                  features: ["Tout le plan Gratuit", "Personnalisation avancée", "Support prioritaire", "Analyses détaillées"],
+                  cta: "Choisir Premium",
+                  highlight: true,
+                },
+              ].map((plan) => (
+                <div key={plan.name} className="rounded-2xl p-8 flex flex-col" style={{
+                  backgroundColor: plan.highlight ? "#6D1D3E" : "white",
+                  boxShadow: plan.highlight ? "0 8px 40px rgba(109,29,62,0.25)" : "0 4px 20px rgba(109,29,62,0.08)",
+                }}>
+                  <p className="text-xs font-bold tracking-[0.2em] uppercase mb-2" style={{ color: plan.highlight ? "rgba(255,255,255,0.5)" : "rgba(109,29,62,0.45)", fontFamily: "var(--font-display)" }}>{plan.desc}</p>
+                  <h3 className="text-2xl font-bold mb-1" style={{ color: plan.highlight ? "white" : "#2c2c2c", fontFamily: "var(--font-display)" }}>{plan.name}</h3>
+                  <p className="text-3xl font-light mb-6" style={{ color: plan.highlight ? "rgba(255,255,255,0.8)" : "#6D1D3E", fontFamily: "var(--font-serif)", fontStyle: "italic" }}>{plan.price}</p>
+                  <ul className="flex flex-col gap-2 mb-8 flex-1">
+                    {plan.features.map(f => (
+                      <li key={f} className="flex items-center gap-2 text-sm" style={{ color: plan.highlight ? "rgba(255,255,255,0.75)" : "rgba(44,44,44,0.7)", fontFamily: "var(--font-display)" }}>
+                        <span style={{ color: plan.highlight ? "rgba(255,255,255,0.5)" : "#EABACB", fontSize: "16px" }}>✓</span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => setActiveTab("cadeaux")}
+                    className="w-full py-3 rounded-xl text-sm font-semibold transition-colors"
+                    style={{
+                      backgroundColor: plan.highlight ? "white" : "#6D1D3E",
+                      color: plan.highlight ? "#6D1D3E" : "white",
+                      fontFamily: "var(--font-display)",
+                    }}
+                  >
+                    {plan.cta}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      )}
 
       {activeTab === "design" && registry && (
         <div className="flex flex-1 min-h-0 overflow-hidden">
