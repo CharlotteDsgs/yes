@@ -5240,7 +5240,7 @@ export default function SaveTheDatePage() {
                 Activez votre invitation
               </h2>
               <p className="text-sm mt-2" style={{ color: "rgba(255,255,255,0.65)", fontFamily: "var(--font-display)" }}>
-                Paiement unique · Accès à vie
+                Paiement unique par save the date · Accès à vie
               </p>
             </div>
 
