@@ -3005,10 +3005,10 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 } : isRayures ? {
                   monogram: { y: cardH * 0.115, fs: cardW * 0.050, fontType: "body",   opacity: 1 },
                   label:    { y: cardH * 0.225, fs: cardW * 0.028, fontType: "body",   opacity: 0.7 },
-                  names:    { y: cardH * 0.490, fs: cardW * 0.060, fontType: "body",   opacity: 1 },
-                  tagline:  { y: cardH * 0.735, fs: cardW * 0.027, fontType: "body",   opacity: 0.65 },
-                  date:     { y: cardH * 0.815, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
-                  location: { y: cardH * 0.880, fs: cardW * 0.025, fontType: "body",   opacity: 1 },
+                  names:    { y: cardH * 0.536, fs: cardW * 0.060, fontType: "body",   opacity: 1 },
+                  tagline:  { y: cardH * 0.290, fs: cardW * 0.027, fontType: "body",   opacity: 0.65 },
+                  date:     { y: cardH * 0.780, fs: cardW * 0.028, fontType: "body",   opacity: 1 },
+                  location: { y: cardH * 0.848, fs: cardW * 0.025, fontType: "body",   opacity: 1 },
                 } : isOliviers ? {
                   label:    { y: cardH * 0.22,  fs: cardW * 0.062, fontType: "script", opacity: 0.9 },
                   names:    { y: cardH * 0.38,  fs: cardW * 0.072, fontType: "script", opacity: 1 },
@@ -3276,7 +3276,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                   isPhotomaton   ? fmtDatePhotomaton :
                   isLettreBold   ? fmtDateBold :
                   isPhotoTexte   ? fmtDatePhotoTexte :
-                  (isRayures || isOliviers || isLettreItaly || isLettrePhoto) ? fmtDateShort :
+                  (isOliviers || isLettreItaly || isLettrePhoto) ? fmtDateShort :
                   fmtDateFallback
                 );
                 const rawLabelText = cardCustom.label ?? "save the date";
@@ -3328,7 +3328,7 @@ function DetailView({ tpl, paletteId, onPaletteChange, isStd, user, onUserChange
                 const isLettreMoConn     = isLettrModerne && selectedElement === "lmConnector";
                 const isLettreMoName2    = isLettrModerne && selectedElement === "lmName2";
                 const inputTop = isRayuresNames
-                  ? cardH * 0.295 + dyOffset
+                  ? cardH * 0.352 + dyOffset
                   : cfg.y + dyOffset - fs * 1.5;
                 const inputHeight = isRayuresNames ? cardH * 0.315 : fs * 3;
                 return (
