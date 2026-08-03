@@ -451,7 +451,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ display: "block" }}>
       {stripes.map((c, i) => <rect key={i} x={i * sw} y={0} width={sw} height={H} fill={c}/>)}
-      {!elementStyles?.["monogram"]?.hidden && (
+      {elementStyles?.["monogram"]?.hidden === false && (
         <g>
           <circle cx={W/2} cy={H*0.10} r={W*0.065} fill="none" stroke={p.textPrimary} strokeWidth="1" opacity="0.5"/>
           <text x={W/2} y={H*0.115} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.05} fill={p.textPrimary} fontStyle="italic">{i1}{i2}</text>
