@@ -971,7 +971,7 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
       {/* Monogram */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("monogram"); } : undefined}
         className={onElementClick ? "eh" : undefined}
-        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["monogram"]?.hidden ? "none" : undefined }}>
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["monogram"]?.hidden !== false ? "none" : undefined }}>
         {selectedElement === "monogram" && hl(H * 0.038, H * 0.122)}
         <circle cx={W/2} cy={H*0.10} r={W*0.065} fill="none" stroke={p.textPrimary} strokeWidth="1" opacity="0.5"/>
         <text x={W/2} y={H*0.115} textAnchor="middle" fontFamily="var(--font-serif)" fontSize={W*0.05}
