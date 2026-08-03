@@ -380,15 +380,18 @@ function TemplatePhotomaton({ W, H, p, user, label, namesText, dateText, photoUr
   );
 }
 
-function TemplateOliviers({ W, H, p, user, fontPreset = "romantique", namesText, dateText, locationText, footer, elementStyles }: {
+function TemplateOliviers({ W, H, p, user, fontPreset = "romantique", label, namesText, dateText, locationText, footer, elementStyles }: {
   W: number; H: number; p: Palette; user: UserData; fontPreset?: string;
   label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string; elementStyles?: ElStyles;
 }) {
+  const fp = FONT_PRESETS.find(f => f.id === fontPreset) ?? FONT_PRESETS[0];
+  const displayLabel = label ?? "save the date";
   const displayFooter = footer ?? "invitation à suivre";
   const displayNames = namesText || `${user.p1 || "Jennifer"} & ${user.p2 || "Nikos"}`;
   const displayDate = dateText || (user.date ? new Date(user.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "18 octobre 2026");
   const displayLocation = locationText ?? user.location;
   const s = W / 400;
+  const getFont  = (id: string, def: string) => elementStyles?.[id]?.font ?? def;
   const getColor = (id: string, def: string) => elementStyles?.[id]?.color ?? def;
   const getSize  = (id: string, def: number) => def * (elementStyles?.[id]?.size ?? 1);
   const getDX = (id: string) => elementStyles?.[id]?.dx ?? 0;
@@ -403,25 +406,35 @@ function TemplateOliviers({ W, H, p, user, fontPreset = "romantique", namesText,
       <OliveBranch x={W*0.55} y={H*0.03} rotate={-15} scale={s*1.3} accentColor={p.accent}/>
       <OliveBranch x={W*0.75} y={H*0.04} rotate={5}   scale={s*1.1} accentColor={p.accent}/>
       <OliveBranch x={W*0.92} y={H*0.12} rotate={90}  scale={s*1.2} accentColor={p.accent}/>
+      <OliveBranch x={W*0.94} y={H*0.35} rotate={100} scale={s*1.1} accentColor={p.accent}/>
+      <OliveBranch x={W*0.92} y={H*0.58} rotate={95}  scale={s*1.2} accentColor={p.accent}/>
+      <OliveBranch x={W*0.90} y={H*0.78} rotate={110} scale={s}     accentColor={p.accent}/>
       <OliveBranch x={W*0.85} y={H*0.93} rotate={180} scale={s*1.3} accentColor={p.accent}/>
+      <OliveBranch x={W*0.58} y={H*0.95} rotate={175} scale={s*1.1} accentColor={p.accent}/>
+      <OliveBranch x={W*0.32} y={H*0.94} rotate={170} scale={s*1.2} accentColor={p.accent}/>
       <OliveBranch x={W*0.08} y={H*0.92} rotate={190} scale={s}     accentColor={p.accent}/>
+      <OliveBranch x={W*0.04} y={H*0.78} rotate={270} scale={s*1.1} accentColor={p.accent}/>
       <OliveBranch x={W*0.04} y={H*0.55} rotate={280} scale={s*1.2} accentColor={p.accent}/>
-      <text x={W/2} y={H*0.270} textAnchor="middle" fontFamily="var(--font-serif)" fontWeight="400" fontSize={W*0.145} fill={p.textPrimary} letterSpacing="10" opacity="0.92">SAVE</text>
-      <text x={W/2} y={H*0.350} textAnchor="middle" fontFamily="var(--font-script)" fontStyle="italic" fontSize={W*0.092} fill={p.accent} opacity="0.85">the</text>
-      <text x={W/2} y={H*0.440} textAnchor="middle" fontFamily="var(--font-serif)" fontWeight="400" fontSize={W*0.145} fill={p.textPrimary} letterSpacing="10" opacity="0.92">DATE</text>
-      <g transform={`translate(${getDX("names")*W} ${getDY("names")*H})`} style={{ display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        <text x={W/2} y={H*0.569} textAnchor="middle" fontFamily={elementStyles?.names?.font ?? "var(--font-serif)"} fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "500")} fontSize={getSize("names", W*0.044)} fill={getColor("names", p.textPrimary)} letterSpacing="4">{displayNames.toUpperCase()}</text>
+      <OliveBranch x={W*0.05} y={H*0.32} rotate={265} scale={s*1.1} accentColor={p.accent}/>
+      <OliveBranch x={W*0.06} y={H*0.10} rotate={270} scale={s}     accentColor={p.accent}/>
+      <g transform={`translate(${getDX("label")*W} ${getDY("label")*H})`} style={{ display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
+        <text x={W/2} y={H*0.22} textAnchor="middle" fontFamily={getFont("label", fp.scriptFont)} fontStyle={getFontStyle("label", fp.scriptItalic ? "italic" : "normal")} fontWeight={getFontWeight("label")} fontSize={getSize("label", W*0.062)} fill={getColor("label", p.textPrimary)} opacity="0.9">{displayLabel}</text>
       </g>
+      <line x1={W*0.32} y1={H*0.27} x2={W*0.68} y2={H*0.27} stroke={p.accent} strokeWidth="0.7" opacity="0.45"/>
+      <g transform={`translate(${getDX("names")*W} ${getDY("names")*H})`} style={{ display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
+        <text x={W/2} y={H*0.38} textAnchor="middle" fontFamily={getFont("names", fp.scriptFont)} fontStyle={getFontStyle("names", fp.scriptItalic ? "italic" : "normal")} fontWeight={getFontWeight("names")} fontSize={getSize("names", W*0.072)} fill={getColor("names", p.textPrimary)}>{displayNames}</text>
+      </g>
+      <line x1={W*0.32} y1={H*0.43} x2={W*0.68} y2={H*0.43} stroke={p.accent} strokeWidth="0.7" opacity="0.45"/>
       <g transform={`translate(${getDX("date")*W} ${getDY("date")*H})`} style={{ display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        <text x={W/2} y={H*0.660} textAnchor="middle" fontFamily={elementStyles?.date?.font ?? "var(--font-serif)"} fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")} fontSize={getSize("date", W*0.034)} fill={getColor("date", p.textPrimary)} letterSpacing="1">{displayDate}</text>
+        <text x={W/2} y={H*0.52} textAnchor="middle" fontFamily={getFont("date", fp.bodyFont)} fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")} fontSize={getSize("date", W*0.030)} fill={getColor("date", p.textPrimary)} letterSpacing="2">{displayDate}</text>
       </g>
       {displayLocation && (
         <g transform={`translate(${getDX("location")*W} ${getDY("location")*H})`} style={{ display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          <text x={W/2} y={H*0.735} textAnchor="middle" fontFamily={elementStyles?.location?.font ?? "var(--font-serif)"} fontStyle={getFontStyle("location", "italic")} fontWeight={getFontWeight("location")} fontSize={getSize("location", W*0.028)} fill={getColor("location", p.textSecondary)} letterSpacing="1">{displayLocation}</text>
+          <text x={W/2} y={H*0.577} textAnchor="middle" fontFamily={getFont("location", fp.bodyFont)} fontStyle={getFontStyle("location", "italic")} fontWeight={getFontWeight("location")} fontSize={getSize("location", W*0.027)} fill={getColor("location", p.textPrimary)} letterSpacing="1.5">{displayLocation}</text>
         </g>
       )}
       <g transform={`translate(${getDX("footer")*W} ${getDY("footer")*H})`} style={{ display: elementStyles?.["footer"]?.hidden ? "none" : undefined }}>
-        <text x={W/2} y={H*0.872} textAnchor="middle" fontFamily={elementStyles?.footer?.font ?? "var(--font-script)"} fontStyle={getFontStyle("footer", "italic")} fontWeight={getFontWeight("footer")} fontSize={getSize("footer", W*0.042)} fill={getColor("footer", p.textSecondary)} opacity="0.75">{displayFooter}</text>
+        <text x={W/2} y={H*0.835} textAnchor="middle" fontFamily={getFont("footer", fp.scriptFont)} fontStyle={getFontStyle("footer", fp.scriptItalic ? "italic" : "normal")} fontWeight={getFontWeight("footer")} fontSize={getSize("footer", W*0.042)} fill={getColor("footer", p.textSecondary)} opacity="0.75">{displayFooter}</text>
       </g>
     </svg>
   );
