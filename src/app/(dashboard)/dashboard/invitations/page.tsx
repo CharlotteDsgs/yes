@@ -994,6 +994,19 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         )}
       </g>
 
+      {/* Tagline — above names */}
+      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("tagline"); } : undefined}
+        className={onElementClick ? "eh" : undefined}
+        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["tagline"]?.hidden ? "none" : undefined }}>
+        {selectedElement === "tagline" && hl(H * (isStd ? 0.267 : 0.257), H * 0.042)}
+        {selectedElement !== "tagline" && (
+          <text x={W/2} y={H*(isStd?0.290:0.280)} textAnchor="middle" fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
+            fontSize={getSize("tagline", W*0.027)} fill={getColor("tagline", p.textPrimary)} letterSpacing="2.5" style={{ textTransform:"uppercase" }} opacity="0.65">
+            {footer || "sont heureux de vous inviter"}
+          </text>
+        )}
+      </g>
+
       {/* Names — text always visible; hl overlay appears on top when selected */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
         className={onElementClick ? "eh" : undefined}
@@ -1025,27 +1038,14 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
       <line x1={W*0.35} y1={H*(isStd?0.65:0.63)} x2={W*0.65} y2={H*(isStd?0.65:0.63)}
         stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
 
-      {/* Tagline */}
-      <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("tagline"); } : undefined}
-        className={onElementClick ? "eh" : undefined}
-        style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["tagline"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "tagline" && hl(H * (isStd ? 0.714 : 0.694), H * 0.042)}
-        {selectedElement !== "tagline" && (
-          <text x={W/2} y={H*(isStd?0.735:0.715)} textAnchor="middle" fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
-            fontSize={getSize("tagline", W*0.027)} fill={getColor("tagline", p.textPrimary)} letterSpacing="2.5" style={{ textTransform:"uppercase" }} opacity="0.65">
-            {footer || "sont heureux de vous inviter"}
-          </text>
-        )}
-      </g>
-
       {/* Date */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("date"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(H * (isStd ? 0.797 : 0.772), H * 0.038)}
+        {selectedElement === "date" && hl(H * (isStd ? 0.727 : 0.702), H * 0.038)}
         {selectedElement !== "date" && (
-          <text x={W/2} y={H*(isStd?0.815:0.79)} textAnchor="middle"
+          <text x={W/2} y={H*(isStd?0.745:0.720)} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"}
             fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")}
             fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)}
@@ -1061,9 +1061,9 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(H * (isStd ? 0.862 : 0.837), H * 0.036)}
+          {selectedElement === "location" && hl(H * (isStd ? 0.795 : 0.770), H * 0.036)}
           {selectedElement !== "location" && displayLocation && (
-            <text x={W/2} y={H*(isStd?0.88:0.855)} textAnchor="middle"
+            <text x={W/2} y={H*(isStd?0.813:0.788)} textAnchor="middle"
               fontFamily={elementStyles?.location?.font ?? "var(--font-montserrat)"}
               fontStyle={getFontStyle("location")} fontWeight={getFontWeight("location")}
               fontSize={getSize("location", W * 0.025)} fill={getColor("location", p.textSecondary)}
