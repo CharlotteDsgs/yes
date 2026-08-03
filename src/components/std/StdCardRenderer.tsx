@@ -427,9 +427,9 @@ function TemplateOliviers({ W, H, p, user, fontPreset = "romantique", namesText,
   );
 }
 
-function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, dateText, locationText, footer, elementStyles }: {
+function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText, namesConnector, dateText, locationText, footer, elementStyles }: {
   W: number; H: number; p: Palette; user: UserData; isStd: boolean; customPaperBg?: string;
-  label?: string; namesText?: string; dateText?: string; locationText?: string; footer?: string; elementStyles?: ElStyles;
+  label?: string; namesText?: string; namesConnector?: string; dateText?: string; locationText?: string; footer?: string; elementStyles?: ElStyles;
 }) {
   let stripes: string[];
   if (customPaperBg && /^#[0-9A-Fa-f]{6}$/.test(customPaperBg)) {
@@ -458,32 +458,29 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         </g>
       )}
       <g transform={`translate(${getDX("label")*W} ${getDY("label")*H})`} style={{ display: elementStyles?.["label"]?.hidden ? "none" : undefined }}>
-        {isStd ? (
-          <>
-            <text x={W/2} y={H*0.205} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"} fontStyle="italic" fontSize={getSize("label", W * 0.028)} fill={getColor("label", p.textPrimary)} letterSpacing="4" style={{ textTransform:"uppercase" as const }} opacity="0.7">Save the Date</text>
-            <text x={W/2} y={H*0.248} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"} fontSize={getSize("label", W * 0.022)} fill={getColor("label", p.textPrimary)} letterSpacing="2" style={{ textTransform:"uppercase" as const }} opacity="0.55">pour le mariage de</text>
-          </>
-        ) : (
-          <text x={W/2} y={H*0.225} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"} fontSize={getSize("label", W * 0.028)} fill={getColor("label", p.textPrimary)} letterSpacing="4" style={{ textTransform:"uppercase" as const }} opacity="0.7">{displayLabel}</text>
-        )}
+        <text x={W/2} y={H*0.225} textAnchor="middle" fontFamily={elementStyles?.label?.font ?? "var(--font-montserrat)"}
+          fontSize={getSize("label", W * 0.028)} fill={getColor("label", p.textPrimary)}
+          letterSpacing="4" style={{ textTransform:"uppercase" as const }} opacity="0.7">{displayLabel}</text>
       </g>
-      <g transform={`translate(${getDX("names")*W} ${getDY("names")*H})`} style={{ display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        <text x={W/2} y={H*(isStd?0.385:0.375)} textAnchor="middle" fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"} fontSize={getSize("names", W * 0.13)} fontWeight="700" fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" as const }}>{name1Raw.toUpperCase()}</text>
-        <text x={W/2} y={H*(isStd?0.48:0.46)} textAnchor="middle" fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>and</text>
-        {name2Raw && <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle" fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"} fontSize={getSize("names", W * 0.13)} fontWeight="700" fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" as const }}>{name2Raw.toUpperCase()}</text>}
-      </g>
-      {!elementStyles?.["tagline"]?.hidden && (
-        <text x={W/2} y={H*(isStd?0.735:0.715)} textAnchor="middle" fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
+      <g transform={`translate(${getDX("tagline")*W} ${getDY("tagline")*H})`} style={{ display: elementStyles?.["tagline"]?.hidden ? "none" : undefined }}>
+        <text x={W/2} y={H*(isStd?0.290:0.280)} textAnchor="middle" fontFamily={elementStyles?.tagline?.font ?? "var(--font-montserrat)"}
           fontSize={getSize("tagline", W*0.027)} fill={getColor("tagline", p.textPrimary)} letterSpacing="2.5" style={{ textTransform:"uppercase" as const }} opacity="0.65">
           {footer || "sont heureux de vous inviter"}
         </text>
-      )}
+      </g>
+      <line x1={W*0.35} y1={H*(isStd?0.345:0.335)} x2={W*0.65} y2={H*(isStd?0.345:0.335)} stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
+      <g transform={`translate(${getDX("names")*W} ${getDY("names")*H})`} style={{ display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
+        <text x={W/2} y={H*(isStd?0.441:0.431)} textAnchor="middle" fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"} fontSize={getSize("names", W * 0.13)} fontWeight="700" fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" as const }}>{name1Raw.toUpperCase()}</text>
+        <text x={W/2} y={H*(isStd?0.536:0.516)} textAnchor="middle" fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>{namesConnector || "and"}</text>
+        {name2Raw && <text x={W/2} y={H*(isStd?0.646:0.626)} textAnchor="middle" fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"} fontSize={getSize("names", W * 0.13)} fontWeight="700" fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" as const }}>{name2Raw.toUpperCase()}</text>}
+      </g>
+      <line x1={W*0.35} y1={H*(isStd?0.676:0.656)} x2={W*0.65} y2={H*(isStd?0.676:0.656)} stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
       <g transform={`translate(${getDX("date")*W} ${getDY("date")*H})`} style={{ display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        <text x={W/2} y={H*(isStd?0.815:0.79)} textAnchor="middle" fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"} fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)} letterSpacing="1.5" style={{ textTransform:"uppercase" as const }}>{displayDate}</text>
+        <text x={W/2} y={H*(isStd?0.780:0.755)} textAnchor="middle" fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"} fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)} letterSpacing="1.5" style={{ textTransform:"uppercase" as const }}>{displayDate}</text>
       </g>
       {displayLocation && (
         <g transform={`translate(${getDX("location")*W} ${getDY("location")*H})`} style={{ display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          <text x={W/2} y={H*(isStd?0.88:0.855)} textAnchor="middle" fontFamily={elementStyles?.location?.font ?? "var(--font-montserrat)"} fontSize={getSize("location", W * 0.025)} fill={getColor("location", p.textSecondary)} letterSpacing="1">{displayLocation}</text>
+          <text x={W/2} y={H*(isStd?0.848:0.823)} textAnchor="middle" fontFamily={elementStyles?.location?.font ?? "var(--font-montserrat)"} fontSize={getSize("location", W * 0.025)} fill={getColor("location", p.textSecondary)} letterSpacing="1">{displayLocation}</text>
         </g>
       )}
     </svg>
@@ -976,7 +973,7 @@ export function TemplateRender({ id, W, H, palette, user, isStd, photoUrl, photo
   }
   if (id === "dentelle") return <TemplateDentelle W={W} H={H} p={palette} user={user} photoUrl={effectivePhotoUrl} fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer} elementStyles={elementStyles} customPaperBg={customPaperBg}/>;
   if (id === "oliviers") return <TemplateOliviers W={W} H={H} p={palette} user={user} fontPreset={fontPreset} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer} elementStyles={elementStyles}/>;
-  if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd} customPaperBg={customPaperBg} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={!footer || footer === "invitation à suivre" ? "pour le mariage de" : footer} elementStyles={elementStyles}/>;
+  if (id === "rayures")  return <TemplateRayures  W={W} H={H} p={palette} user={user} isStd={isStd} customPaperBg={customPaperBg} label={label} namesText={namesText} namesConnector={namesConnector} dateText={dateText} locationText={locationText} footer={!footer || footer === "invitation à suivre" ? "pour le mariage de" : footer} elementStyles={elementStyles}/>;
   if (tplCfg?.paperImage) {
     if (tplCfg.layoutVariant === "elegant") return <TemplateElegant W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user} label={label} namesText={namesText} dateText={dateText} locationText={locationText} footer={footer} elementStyles={effectiveStyles} tplId={id}/>;
     if (tplCfg.layoutVariant === "arbres")  return <TemplateArbre W={W} H={H} paperImage={tplCfg.paperImage} p={palette} user={user} label={label} namesText={namesText} dateText={dateText} locationText={locationText} tagline={tagline} elementStyles={effectiveStyles}/>;
