@@ -1015,19 +1015,19 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        <text x={W/2} y={H*(isStd?0.420:0.410)} textAnchor="middle"
+        <text x={W/2} y={H*(isStd?0.441:0.431)} textAnchor="middle"
           fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
           fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "700")}
           fontSize={getSize("names", W * 0.13)}
           fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
           {name1Raw.toUpperCase()}
         </text>
-        <text x={W/2} y={H*(isStd?0.515:0.495)} textAnchor="middle"
+        <text x={W/2} y={H*(isStd?0.536:0.516)} textAnchor="middle"
           fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>
           {namesConnector || "and"}
         </text>
         {name2Raw && (
-          <text x={W/2} y={H*(isStd?0.625:0.605)} textAnchor="middle"
+          <text x={W/2} y={H*(isStd?0.646:0.626)} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
             fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "700")}
             fontSize={getSize("names", W * 0.13)}
@@ -1035,10 +1035,10 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
             {name2Raw.toUpperCase()}
           </text>
         )}
-        {selectedElement === "names" && hl(H * (isStd ? 0.330 : 0.320) - getDY("names")*H, H * 0.315)}
+        {selectedElement === "names" && hl(H * (isStd ? 0.352 : 0.342) - getDY("names")*H, H * 0.315)}
       </g>
 
-      <line x1={W*0.35} y1={H*(isStd?0.685:0.665)} x2={W*0.65} y2={H*(isStd?0.685:0.665)}
+      <line x1={W*0.35} y1={H*(isStd?0.676:0.656)} x2={W*0.65} y2={H*(isStd?0.676:0.656)}
         stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
 
       {/* Date */}
