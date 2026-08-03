@@ -477,55 +477,6 @@ export default function VotreMariagePage() {
           )}
         </div>
 
-        {/* Mon URL */}
-        <div className="w-full rounded-2xl bg-white/70 px-6 py-5 flex flex-col gap-3" style={{ border: "1.5px solid rgba(109,29,62,0.1)" }}>
-          <div className="flex items-center gap-2">
-            <LinkIcon size={15} strokeWidth={1.5} style={{ color: "rgba(109,29,62,0.5)" }} />
-            <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(109,29,62,0.5)", fontFamily: "var(--font-display)" }}>
-              Mon URL
-            </span>
-          </div>
-
-          {editing === "slug" ? (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center rounded-xl bg-white border-2 border-[#6D1D3E] overflow-hidden">
-                <span className="pl-4 pr-1 text-sm text-[#6D1D3E]/40 whitespace-nowrap flex-shrink-0" style={{ fontFamily: "var(--font-display)" }}>
-                  wedy.fr/mariage/
-                </span>
-                <input
-                  autoFocus
-                  value={slugDraft}
-                  onChange={handleSlugDraftChange}
-                  onBlur={() => handleBlur("slug")}
-                  onKeyDown={e => handleKeyDown(e, "slug")}
-                  className="flex-1 py-3 pr-2 text-sm bg-transparent focus:outline-none text-[#6D1D3E] font-medium min-w-0"
-                  style={{ fontFamily: "var(--font-display)" }}
-                />
-                <span className="pr-3 flex-shrink-0 text-sm w-6 text-center">
-                  {slugStatus === "checking" && <span className="text-[#6D1D3E]/40">…</span>}
-                  {slugStatus === "available" && <span className="text-green-600">✓</span>}
-                  {slugStatus === "taken" && <span className="text-red-500">✗</span>}
-                </span>
-              </div>
-              {slugStatus === "taken" && (
-                <p className="text-xs text-red-500" style={{ fontFamily: "var(--font-display)" }}>
-                  Cette URL est déjà prise.
-                </p>
-              )}
-            </div>
-          ) : (
-            <button
-              onClick={() => { setSlugDraft(slug); setSlugStatus("idle"); setEditing("slug"); }}
-              className="flex items-center gap-1 text-sm text-left hover:opacity-70 transition-opacity group"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              <span className="text-[#6D1D3E]/40">wedy.fr/mariage/</span>
-              <span className="text-[#6D1D3E] font-semibold underline underline-offset-2 decoration-dotted">{slug}</span>
-              {slugStatus === "saved" && <span className="ml-2 text-xs text-green-600">✓ Sauvegardé</span>}
-            </button>
-          )}
-        </div>
-
         {/* Liste de mariage */}
         <div className="w-full rounded-2xl bg-white/70 px-6 py-5 flex flex-col gap-4" style={{ border: "1.5px solid rgba(109,29,62,0.1)" }}>
           <div className="flex items-center gap-2">
