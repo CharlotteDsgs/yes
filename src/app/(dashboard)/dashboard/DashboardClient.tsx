@@ -749,8 +749,8 @@ const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
             </div>
 
             {/* Screenshot liste */}
-            <div className="flex-shrink-0 hidden md:block">
-              <div style={{ width: 320, borderRadius: 16, overflow: "hidden", boxShadow: "0 20px 60px rgba(109,29,62,0.2)", transform: "rotate(-2deg)" }}>
+            <div className="flex-shrink-0 hidden md:block" style={{ transform: "rotate(6deg)" }}>
+              <div style={{ width: 460, borderRadius: 18, overflow: "hidden", border: "4px solid #7A1535", boxShadow: "0 24px 70px rgba(109,29,62,0.28)" }}>
                 <img src="/screenshot-liste-cadeaux.png" alt="Aperçu liste de mariage" style={{ width: "100%", display: "block" }} />
               </div>
             </div>
