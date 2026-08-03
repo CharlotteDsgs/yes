@@ -294,7 +294,7 @@ export default function CreerPage() {
                 className="text-xs font-bold tracking-[0.3em] uppercase text-[#6D1D3E]/50 mb-2"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Étape 1 sur 3
+                Étape 1 sur 2
               </p>
               <h1
                 className="text-4xl font-bold text-[#6D1D3E] mb-2 leading-tight"
@@ -370,7 +370,7 @@ export default function CreerPage() {
                 </div>
 
                 <button
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(3)}
                   disabled={!form.partner1_name || !form.partner2_name}
                   className="w-full py-5 rounded-full text-base font-bold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed mt-2"
                   style={{ backgroundColor: "#6D1D3E", fontFamily: "var(--font-display)" }}
@@ -393,172 +393,6 @@ export default function CreerPage() {
             </div>
           )}
 
-          {/* Step 2 */}
-          {step === 2 && (
-            <form onSubmit={(e) => { e.preventDefault(); setStep(3); }} className="w-full max-w-md mx-auto">
-              <p
-                className="text-xs font-bold tracking-[0.3em] uppercase text-[#6D1D3E]/50 mb-2"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Étape 2 sur 3
-              </p>
-              <h1
-                className="text-4xl font-bold text-[#6D1D3E] mb-2 leading-tight"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Votre thème
-              </h1>
-              <p className="text-sm text-[#6D1D3E]/60 mb-10 font-light">
-                L'ambiance de votre page. Vous pourrez la changer plus tard.
-              </p>
-
-              <div className="relative mb-8">
-                {canScrollLeft && (
-                  <button
-                    type="button"
-                    onClick={() => scrollCarousel("left")}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-[#6D1D3E] hover:bg-[#6D1D3E] hover:text-white transition-colors"
-                    style={{ fontSize: "1.2rem", lineHeight: 1 }}
-                  >
-                    ‹
-                  </button>
-                )}
-                {canScrollRight && (
-                  <button
-                    type="button"
-                    onClick={() => scrollCarousel("right")}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-[#6D1D3E] hover:bg-[#6D1D3E] hover:text-white transition-colors"
-                    style={{ fontSize: "1.2rem", lineHeight: 1 }}
-                  >
-                    ›
-                  </button>
-                )}
-              <div ref={carouselRef} onScroll={handleCarouselScroll} className="flex gap-3 overflow-x-auto" style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none", padding: "6px 6px 8px 6px" }}>
-                {themes.map((theme) => (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    onClick={() => setForm({ ...form, theme: theme.id })}
-                    className="text-left transition-all duration-200 rounded-2xl overflow-hidden flex-shrink-0"
-                    style={{
-                      width: "200px",
-                      scrollSnapAlign: "start",
-                      outline: form.theme === theme.id ? "3px solid #6D1D3E" : "3px solid transparent",
-                      outlineOffset: "2px",
-                      boxShadow: form.theme === theme.id ? "0 4px 20px rgba(109,29,62,0.2)" : "0 2px 8px rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    {/* Visual preview */}
-                    {theme.id === "fleuri" ? (
-                      <div className="relative h-36 overflow-hidden flex items-center px-4 gap-3" style={{ backgroundColor: theme.bg }}>
-                        <img src={(theme as any).bgImage} alt="" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
-                        <div className="relative z-10 flex-1 flex flex-col justify-center gap-0.5 min-w-0 pl-5">
-                          <span style={{ fontFamily: theme.font, color: theme.text, fontSize: classiqueFontSize, fontStyle: "italic", fontWeight: 500, lineHeight: 1.2, whiteSpace: "nowrap" }}>
-                            {p1} &amp;
-                          </span>
-                          <span style={{ fontFamily: theme.font, color: theme.text, fontSize: classiqueFontSize, fontStyle: "italic", fontWeight: 500, lineHeight: 1.2, whiteSpace: "nowrap" }}>
-                            {p2}
-                          </span>
-                          {dateShort && <span style={{ fontFamily: theme.font, color: theme.text, fontSize: "0.55rem", opacity: 0.6, marginTop: "2px" }}>{dateShort}</span>}
-                        </div>
-                        <div className="relative z-10 flex-shrink-0 overflow-hidden" style={{ width: "58px", height: "58px", border: "1.5px solid rgba(61,43,31,0.3)" }}>
-                          {(theme as any).squareImage
-                            ? <img src={(theme as any).squareImage} alt="" className="w-full h-full object-cover" />
-                            : <div className="w-full h-full" style={{ backgroundColor: "rgba(61,43,31,0.08)" }} />}
-                        </div>
-                      </div>
-                    ) : (
-                    <div
-                      className={`relative h-36 overflow-hidden flex ${theme.id === "moderne" ? "items-center justify-between px-6" : theme.id === "minimaliste" ? "items-center justify-between px-3" : "items-center justify-center px-6"}`}
-                      style={{
-                        backgroundColor: theme.bg,
-                        backgroundImage: (theme as any).bgImage ? `url(${(theme as any).bgImage})` : undefined,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                      }}
-                    >
-                      {(theme as any).bgImage && <div className="absolute inset-0 bg-black/40" />}
-
-                      {theme.id === "moderne" ? (
-                        <div className="relative z-10 flex-1 leading-tight text-left" style={{ fontFamily: theme.font, color: theme.text, textTransform: "uppercase" }}>
-                          <div style={{ fontSize: moderneFontSize, fontWeight: 400, lineHeight: 1 }}>{p1} &amp;</div>
-                          <div style={{ fontSize: moderneFontSize, fontWeight: 400, lineHeight: 1 }}>{p2}</div>
-                          {dateShort && <div style={{ fontSize: "0.6rem", marginTop: "0.35rem", opacity: 0.7 }}>{dateShort}</div>}
-                        </div>
-                      ) : theme.id === "classique" ? (
-                        <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center gap-1">
-                          <span style={{ fontFamily: theme.font, color: theme.text, fontSize: classiqueFontSize, fontStyle: "italic", fontWeight: 500, lineHeight: 1.1, whiteSpace: "nowrap" }}>
-                            {p1} &amp; {p2}
-                          </span>
-                          {dateLong && <span style={{ fontFamily: theme.font, color: theme.text, fontSize: "0.65rem", fontWeight: 600, fontStyle: "normal", opacity: 0.9 }}>{dateLong}</span>}
-                        </div>
-                      ) : theme.id === "minimaliste" ? (
-                        <>
-                          <div className="relative z-10 flex flex-col items-start text-left flex-1 justify-center pr-4">
-                            <span style={{ fontFamily: theme.font, color: theme.text, fontSize: minimalisteFontSize, fontWeight: 400, letterSpacing: "0.2em", textTransform: "uppercase", lineHeight: 1.3 }}>{p1} &amp; {p2}</span>
-                            {dateShort && <span style={{ fontFamily: theme.font, color: theme.text, fontSize: "0.5rem", letterSpacing: "0.15em", opacity: 0.6, marginTop: "0.3em" }}>{dateShort}</span>}
-                          </div>
-                          {(theme as any).squareImage && (
-                            <div className="relative z-10 flex-shrink-0 overflow-hidden mr-3" style={{ width: "52px", height: "52px" }}>
-                              <img src={(theme as any).squareImage} alt="" className="w-full h-full object-cover" />
-                            </div>
-                          )}
-                        </>
-                      ) : null}
-
-                      {theme.id === "moderne" && (theme as any).giftImage && (
-                        <div className="relative z-10 flex items-center justify-center flex-shrink-0" style={{ width: "64px", height: "64px" }}>
-                          <img src={(theme as any).giftImage} alt="" className="w-full h-full object-contain" style={{ mixBlendMode: "multiply" }} />
-                        </div>
-                      )}
-
-                    </div>
-                    )}
-
-                    {/* Label */}
-                    <div
-                      className="px-5 py-3 flex items-center justify-between"
-                      style={{ backgroundColor: form.theme === theme.id ? "rgba(109,29,62,0.06)" : "white" }}
-                    >
-                      <span className="text-sm font-bold text-[#6D1D3E]" style={{ fontFamily: "var(--font-display)" }}>
-                        {theme.name}
-                      </span>
-                      <span className="text-xs text-[#6D1D3E]/40" style={{ fontFamily: "var(--font-display)" }}>
-                        {theme.tag}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              </div>
-
-              {error && (
-                <div className="rounded-2xl px-5 py-4 mb-6 text-sm font-medium text-[#6D1D3E]"
-                  style={{ backgroundColor: "rgba(109,29,62,0.08)" }}>
-                  {error}
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="px-6 py-5 rounded-full text-sm font-bold text-[#6D1D3E] border-2 border-[#6D1D3E] hover:bg-[#6D1D3E] hover:text-white transition-colors duration-200"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  ← Retour
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-5 rounded-full text-base font-bold text-white transition-all duration-200"
-                  style={{ backgroundColor: "#6D1D3E", fontFamily: "var(--font-display)" }}
-                >
-                  Continuer →
-                </button>
-              </div>
-            </form>
-          )}
-
           {/* Step 3 — Auth */}
           {step === 3 && (
             <form onSubmit={handleAuth} className="w-full max-w-md mx-auto">
@@ -566,7 +400,7 @@ export default function CreerPage() {
                 className="text-xs font-bold tracking-[0.3em] uppercase text-[#6D1D3E]/50 mb-2"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Étape 3 sur 3
+                Étape 2 sur 2
               </p>
               <h1
                 className="text-4xl font-bold text-[#6D1D3E] mb-2 leading-tight"
@@ -659,7 +493,7 @@ export default function CreerPage() {
                 <div className="flex gap-3 mt-2">
                   <button
                     type="button"
-                    onClick={() => setStep(2)}
+                    onClick={() => setStep(1)}
                     className="px-6 py-5 rounded-full text-sm font-bold text-[#6D1D3E] border-2 border-[#6D1D3E] hover:bg-[#6D1D3E] hover:text-white transition-colors duration-200"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
