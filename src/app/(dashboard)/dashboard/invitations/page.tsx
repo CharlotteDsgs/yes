@@ -1007,24 +1007,27 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         )}
       </g>
 
+      <line x1={W*0.35} y1={H*(isStd?0.345:0.335)} x2={W*0.65} y2={H*(isStd?0.345:0.335)}
+        stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
+
       {/* Names — text always visible; hl overlay appears on top when selected */}
       <g onClick={onElementClick ? e => { e.stopPropagation(); onElementClick("names"); } : undefined}
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("names")*W} ${getDY("names")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["names"]?.hidden ? "none" : undefined }}>
-        <text x={W/2} y={H*(isStd?0.385:0.375)} textAnchor="middle"
+        <text x={W/2} y={H*(isStd?0.420:0.410)} textAnchor="middle"
           fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
           fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "700")}
           fontSize={getSize("names", W * 0.13)}
           fill={getColor("names", p.textPrimary)} style={{ textTransform:"uppercase" }}>
           {name1Raw.toUpperCase()}
         </text>
-        <text x={W/2} y={H*(isStd?0.48:0.46)} textAnchor="middle"
+        <text x={W/2} y={H*(isStd?0.515:0.495)} textAnchor="middle"
           fontFamily="var(--font-script)" fontSize={W*0.1} fill={p.accent}>
           {namesConnector || "and"}
         </text>
         {name2Raw && (
-          <text x={W/2} y={H*(isStd?0.59:0.57)} textAnchor="middle"
+          <text x={W/2} y={H*(isStd?0.625:0.605)} textAnchor="middle"
             fontFamily={elementStyles?.names?.font ?? "var(--font-playfair)"}
             fontStyle={getFontStyle("names")} fontWeight={getFontWeight("names", "700")}
             fontSize={getSize("names", W * 0.13)}
@@ -1032,10 +1035,10 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
             {name2Raw.toUpperCase()}
           </text>
         )}
-        {selectedElement === "names" && hl(H * (isStd ? 0.295 : 0.285) - getDY("names")*H, H * 0.315)}
+        {selectedElement === "names" && hl(H * (isStd ? 0.330 : 0.320) - getDY("names")*H, H * 0.315)}
       </g>
 
-      <line x1={W*0.35} y1={H*(isStd?0.65:0.63)} x2={W*0.65} y2={H*(isStd?0.65:0.63)}
+      <line x1={W*0.35} y1={H*(isStd?0.685:0.665)} x2={W*0.65} y2={H*(isStd?0.685:0.665)}
         stroke={p.textPrimary} strokeWidth="0.8" opacity="0.35"/>
 
       {/* Date */}
@@ -1043,9 +1046,9 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
         className={onElementClick ? "eh" : undefined}
         transform={`translate(${getDX("date")*W} ${getDY("date")*H})`}
         style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["date"]?.hidden ? "none" : undefined }}>
-        {selectedElement === "date" && hl(H * (isStd ? 0.727 : 0.702), H * 0.038)}
+        {selectedElement === "date" && hl(H * (isStd ? 0.762 : 0.737), H * 0.038)}
         {selectedElement !== "date" && (
-          <text x={W/2} y={H*(isStd?0.745:0.720)} textAnchor="middle"
+          <text x={W/2} y={H*(isStd?0.780:0.755)} textAnchor="middle"
             fontFamily={elementStyles?.date?.font ?? "var(--font-montserrat)"}
             fontStyle={getFontStyle("date")} fontWeight={getFontWeight("date")}
             fontSize={getSize("date", W * 0.028)} fill={getColor("date", p.textPrimary)}
@@ -1061,9 +1064,9 @@ function TemplateRayures({ W, H, p, user, isStd, customPaperBg, label, namesText
           className={onElementClick ? "eh" : undefined}
           transform={`translate(${getDX("location")*W} ${getDY("location")*H})`}
           style={{ cursor: onElementClick ? "pointer" : "default", display: elementStyles?.["location"]?.hidden ? "none" : undefined }}>
-          {selectedElement === "location" && hl(H * (isStd ? 0.795 : 0.770), H * 0.036)}
+          {selectedElement === "location" && hl(H * (isStd ? 0.830 : 0.805), H * 0.036)}
           {selectedElement !== "location" && displayLocation && (
-            <text x={W/2} y={H*(isStd?0.813:0.788)} textAnchor="middle"
+            <text x={W/2} y={H*(isStd?0.848:0.823)} textAnchor="middle"
               fontFamily={elementStyles?.location?.font ?? "var(--font-montserrat)"}
               fontStyle={getFontStyle("location")} fontWeight={getFontWeight("location")}
               fontSize={getSize("location", W * 0.025)} fill={getColor("location", p.textSecondary)}
