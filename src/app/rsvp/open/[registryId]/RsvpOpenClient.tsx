@@ -273,7 +273,7 @@ export default function RsvpOpenClient() {
               display: "flex", flexDirection: "column", alignItems: "center", gap: "14px",
               boxShadow: "0 -4px 24px rgba(0,0,0,0.12)",
               pointerEvents: "none", zIndex: 50,
-              animation: "rsvpBounce 4s linear forwards",
+              animation: "rsvpBounce 6s linear forwards",
             }}>
               {userData.p1 && userData.p2 && (
                 <div style={{ textAlign: "center", marginBottom: "4px" }}>
