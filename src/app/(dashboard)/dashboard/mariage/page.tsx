@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Camera, CalendarDays, MapPin, Link as LinkIcon, Move } from "lucide-react";
+import { Camera, CalendarDays, MapPin, Link as LinkIcon, Move, Gift, Mail, Plus } from "lucide-react";
 
 type Field = "partner1_name" | "partner2_name" | "wedding_date" | "ceremony_location" | "slug" | null;
 
@@ -34,6 +34,8 @@ export default function VotreMariagePage() {
   const [slug, setSlug] = useState("");
   const [slugDraft, setSlugDraft] = useState("");
   const [slugStatus, setSlugStatus] = useState<"idle" | "checking" | "available" | "taken" | "saved">("idle");
+  const [giftCount, setGiftCount] = useState<number>(0);
+  const [stdCount, setStdCount] = useState<number>(0);
   const slugCheckRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function toSlug(val: string) {
@@ -66,6 +68,13 @@ export default function VotreMariagePage() {
 
       if (!registry) { router.push("/creer"); return; }
       setRegistryId(registry.id);
+
+      const [{ count: gc }, { count: sc }] = await Promise.all([
+        supabase.from("gifts").select("id", { count: "exact", head: true }).eq("registry_id", registry.id),
+        supabase.from("std_configs").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+      ]);
+      setGiftCount(gc ?? 0);
+      setStdCount(sc ?? 0);
       setSlug(registry.slug ?? "");
       setSlugDraft(registry.slug ?? "");
       setCouplePhoto(registry.cover_image_url ?? null);
@@ -515,6 +524,73 @@ export default function VotreMariagePage() {
               {slugStatus === "saved" && <span className="ml-2 text-xs text-green-600">✓ Sauvegardé</span>}
             </button>
           )}
+        </div>
+
+        {/* Liste de mariage */}
+        <div className="w-full rounded-2xl bg-white/70 px-6 py-5 flex flex-col gap-4" style={{ border: "1.5px solid rgba(109,29,62,0.1)" }}>
+          <div className="flex items-center gap-2">
+            <Gift size={15} strokeWidth={1.5} style={{ color: "rgba(109,29,62,0.5)" }} />
+            <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(109,29,62,0.5)", fontFamily: "var(--font-display)" }}>
+              Liste de mariage
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm font-medium" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
+              {giftCount === 0
+                ? "Pas de liste de mariage"
+                : `${giftCount} cadeau${giftCount > 1 ? "x" : ""} dans votre liste`}
+            </p>
+            <a
+              href="/dashboard"
+              className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-colors"
+              style={{
+                backgroundColor: giftCount === 0 ? "#6D1D3E" : "transparent",
+                color: giftCount === 0 ? "white" : "#6D1D3E",
+                border: "1.5px solid #6D1D3E",
+                fontFamily: "var(--font-display)",
+              }}
+            >
+              {giftCount === 0 ? "Créer ma liste" : "Voir la liste"}
+            </a>
+          </div>
+        </div>
+
+        {/* Mes saves the dates */}
+        <div className="w-full rounded-2xl bg-white/70 px-6 py-5 flex flex-col gap-4" style={{ border: "1.5px solid rgba(109,29,62,0.1)" }}>
+          <div className="flex items-center gap-2">
+            <Mail size={15} strokeWidth={1.5} style={{ color: "rgba(109,29,62,0.5)" }} />
+            <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(109,29,62,0.5)", fontFamily: "var(--font-display)" }}>
+              Mes saves the dates
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm font-medium" style={{ color: "#6D1D3E", fontFamily: "var(--font-display)" }}>
+              {stdCount === 0
+                ? "Pas de save the date"
+                : `${stdCount} save the date${stdCount > 1 ? "s" : ""} en cours`}
+            </p>
+            <div className="flex gap-2 flex-shrink-0">
+              {stdCount > 0 && (
+                <a
+                  href="/dashboard/invitations"
+                  className="px-4 py-2 rounded-full text-xs font-bold transition-colors"
+                  style={{ color: "#6D1D3E", border: "1.5px solid #6D1D3E", fontFamily: "var(--font-display)" }}
+                >
+                  Voir
+                </a>
+              )}
+              {stdCount < 2 && (
+                <a
+                  href="/dashboard/invitations"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-colors"
+                  style={{ backgroundColor: "#6D1D3E", color: "white", fontFamily: "var(--font-display)" }}
+                >
+                  <Plus size={12} strokeWidth={2.5} />
+                  {stdCount === 0 ? "Créer" : "Créer un 2ème"}
+                </a>
+              )}
+            </div>
+          </div>
         </div>
 
       </div>
